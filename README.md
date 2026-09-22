@@ -1,19 +1,19 @@
 # Processamento Paralelo de Imagens
 
-[![CI](https://github.com/lianeheidemann/processamento-paralelo-de-imagens/actions/workflows/ci.yml/badge.svg)](https://github.com/lianeheidemann/processamento-paralelo-de-imagens/actions/workflows/ci.yml)
+[![CI](https://github.com/lianeheidemann/parallel-image-pipeline/actions/workflows/ci.yml/badge.svg)](https://github.com/lianeheidemann/parallel-image-pipeline/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
 [![OpenCV](https://img.shields.io/badge/OpenCV-4.9%2B-green)](https://opencv.org/)
 [![NumPy](https://img.shields.io/badge/NumPy-1.26%2B-013243)](https://numpy.org/)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
-[![Last commit](https://img.shields.io/github/last-commit/lianeheidemann/processamento-paralelo-de-imagens)](https://github.com/lianeheidemann/processamento-paralelo-de-imagens/commits/main)
-[![Deploy GitHub Pages](https://github.com/lianeheidemann/processamento-paralelo-de-imagens/actions/workflows/pages.yml/badge.svg)](https://github.com/lianeheidemann/processamento-paralelo-de-imagens/actions/workflows/pages.yml)
+[![Last commit](https://img.shields.io/github/last-commit/lianeheidemann/parallel-image-pipeline)](https://github.com/lianeheidemann/parallel-image-pipeline/commits/main)
+[![Deploy GitHub Pages](https://github.com/lianeheidemann/parallel-image-pipeline/actions/workflows/pages.yml/badge.svg)](https://github.com/lianeheidemann/parallel-image-pipeline/actions/workflows/pages.yml)
 
 Comparação entre processamento **sequencial** e **paralelo** (`multiprocessing`)
 de um mesmo pipeline de imagem — escala de cinza → blur gaussiano → detecção
 de bordas (Sobel) — com verificação de corretude bit a bit e medição de
 *speedup* frente à Lei de Amdahl.
 
-🔗 **[Página do projeto](https://lianeheidemann.github.io/processamento-paralelo-de-imagens/)** — publicada automaticamente a cada merge na `main` ([workflow](.github/workflows/pages.yml))
+🔗 **[Página do projeto](https://lianeheidemann.github.io/parallel-image-pipeline/)** — publicada automaticamente a cada merge na `main` ([workflow](.github/workflows/pages.yml))
 
 ## Estrutura
 
