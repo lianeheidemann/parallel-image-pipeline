@@ -1,11 +1,11 @@
 # Processamento Paralelo de Imagens
 
-[![CI](https://github.com/lianeheidemann/parallel-image-pipeline/actions/workflows/ci.yml/badge.svg)](https://github.com/lianeheidemann/parallel-image-pipeline/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
 [![OpenCV](https://img.shields.io/badge/OpenCV-4.9%2B-green)](https://opencv.org/)
 [![NumPy](https://img.shields.io/badge/NumPy-1.26%2B-013243)](https://numpy.org/)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
-[![Last commit](https://img.shields.io/github/last-commit/lianeheidemann/parallel-image-pipeline)](https://github.com/lianeheidemann/parallel-image-pipeline/commits/main)
+[![Last commit](https://img.shields.io/github/last-commit/lianeheidemann/parallel-image-pipeline)](https://github.com/lianeheidemann/parallel-image-pipeline/commits/main)<br>
+[![CI](https://github.com/lianeheidemann/parallel-image-pipeline/actions/workflows/ci.yml/badge.svg)](https://github.com/lianeheidemann/parallel-image-pipeline/actions/workflows/ci.yml)
 [![Deploy GitHub Pages](https://github.com/lianeheidemann/parallel-image-pipeline/actions/workflows/pages.yml/badge.svg)](https://github.com/lianeheidemann/parallel-image-pipeline/actions/workflows/pages.yml)
 
 Comparação entre processamento **sequencial** e **paralelo** (`multiprocessing`)
