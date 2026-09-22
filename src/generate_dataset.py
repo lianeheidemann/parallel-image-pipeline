@@ -6,7 +6,8 @@ from pathlib import Path
 import numpy as np
 from PIL import Image, ImageDraw
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+from common import PROJECT_ROOT
+
 DEFAULT_SIZE = (640, 480)
 
 

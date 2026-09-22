@@ -5,13 +5,12 @@ import csv
 import time
 from pathlib import Path
 
+from common import PROJECT_ROOT, REPORT_HEADER, list_images
 from image_processor import output_filename, process_image
-
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 
 def run(dataset_dir: Path, output_dir: Path, report_path: Path) -> float:
-    images = sorted(dataset_dir.glob("*.jpg"))
+    images = list_images(dataset_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     report_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -31,7 +30,7 @@ def run(dataset_dir: Path, output_dir: Path, report_path: Path) -> float:
 
     with open(report_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
-        writer.writerow(["arquivo", "tempo", "processo"])
+        writer.writerow(REPORT_HEADER)
         writer.writerows(rows)
 
     print(f"{processed}/{len(images)} imagens processadas")

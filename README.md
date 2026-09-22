@@ -23,6 +23,7 @@ output/sequential/        saída da versão sequencial
 output/parallel/          saída da versão paralela
 results/                  relatórios CSV + benchmark.csv
 src/
+  common.py                 caminhos e utilitarios compartilhados
   image_processor.py       pipeline aplicado a uma imagem
   generate_dataset.py      gera um dataset sintético
   sequential.py             versão sequencial (1 processo)
@@ -30,6 +31,40 @@ src/
   verify.py                   compara saídas via SHA-256
   benchmark.py                roda sequencial + paralelo e calcula o speedup
 ```
+
+## Arquitetura
+
+```mermaid
+flowchart LR
+    GEN["generate_dataset.py"] --> DS[("dataset/*.jpg")]
+
+    DS --> SEQ["sequential.py\n(1 processo)"]
+    DS --> PAR["parallel.py\n(multiprocessing.Pool)"]
+
+    SEQ --> IP["image_processor.py\ngray → blur → Sobel"]
+    PAR --> IP
+
+    IP --> OUT_SEQ[("output/sequential/*.png")]
+    IP --> OUT_PAR[("output/parallel/*.png")]
+
+    OUT_SEQ --> VER["verify.py\nSHA-256"]
+    OUT_PAR --> VER
+
+    BENCH["benchmark.py"] -.orquestra.-> SEQ
+    BENCH -.orquestra.-> PAR
+    BENCH -.orquestra.-> VER
+    BENCH --> CSV[("results/benchmark.csv\nspeedup + Amdahl")]
+```
+
+`image_processor.py` concentra a lógica de transformação de uma única
+imagem e é reutilizado tanto pela versão sequencial quanto pela paralela —
+as duas diferem apenas em **como** distribuem o trabalho, nunca no
+resultado. `common.py` centraliza o que é puramente infraestrutural
+(raiz do projeto, listagem do dataset, cabeçalho do relatório), evitando
+que cada script redefina o mesmo caminho ou formato de CSV. `benchmark.py`
+não reimplementa nada: chama `sequential.run`, `parallel.run` e
+`verify.verify` diretamente, garantindo que o número comparado é sempre o
+mesmo que roda isoladamente.
 
 ## Instalação
 

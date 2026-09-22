@@ -12,8 +12,7 @@ from pathlib import Path
 import parallel
 import sequential
 import verify as verify_module
-
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+from common import PROJECT_ROOT
 
 
 def amdahl_speedup(parallel_fraction: float, workers: int) -> float:

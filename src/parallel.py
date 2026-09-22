@@ -14,9 +14,8 @@ import multiprocessing as mp
 import time
 from pathlib import Path
 
+from common import PROJECT_ROOT, REPORT_HEADER, list_images
 from image_processor import output_filename, process_image
-
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 _lock = None
 _counter = None
@@ -47,12 +46,12 @@ def _process_one(image_path: Path) -> None:
 
 
 def run(dataset_dir: Path, output_dir: Path, report_path: Path, workers: int) -> float:
-    images = sorted(dataset_dir.glob("*.jpg"))
+    images = list_images(dataset_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     report_path.parent.mkdir(parents=True, exist_ok=True)
 
     with open(report_path, "w", newline="", encoding="utf-8") as f:
-        csv.writer(f).writerow(["arquivo", "tempo", "processo"])
+        csv.writer(f).writerow(REPORT_HEADER)
 
     manager = mp.Manager()
     lock = manager.Lock()

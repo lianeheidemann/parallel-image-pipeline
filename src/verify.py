@@ -4,7 +4,7 @@ import argparse
 import hashlib
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+from common import PROJECT_ROOT
 
 
 def hash_file(path: Path) -> str:
