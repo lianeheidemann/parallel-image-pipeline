@@ -1,5 +1,6 @@
 # Processamento Paralelo de Imagens
 
+[![CI](https://github.com/lianeheidemann/processamento-paralelo-de-imagens/actions/workflows/ci.yml/badge.svg)](https://github.com/lianeheidemann/processamento-paralelo-de-imagens/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
 [![OpenCV](https://img.shields.io/badge/OpenCV-4.9%2B-green)](https://opencv.org/)
 [![NumPy](https://img.shields.io/badge/NumPy-1.26%2B-013243)](https://numpy.org/)

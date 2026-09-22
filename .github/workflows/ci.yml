@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Generate sample dataset
+        run: python src/generate_dataset.py --count 20 --output dataset
+
+      - name: Run sequential pipeline
+        run: python src/sequential.py --dataset dataset --output output/sequential --report results/sequential_report.csv
+
+      - name: Run parallel pipeline
+        run: python src/parallel.py --dataset dataset --output output/parallel --report results/parallel_report.csv --workers 2
+
+      - name: Verify sequential == parallel (SHA-256)
+        run: python src/verify.py --sequential output/sequential --parallel output/parallel
