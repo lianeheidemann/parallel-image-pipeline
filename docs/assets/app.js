@@ -3,9 +3,15 @@ const $ = (id) => document.getElementById(id);
 const state = {sources: [], preview: null, busy: false};
 const LIMIT = 12;
 const MAX_PIXELS = 4_000_000;
+const CONFIGS = [
+  {label: "Sequencial", workers: 0},
+  {label: "2 processos", workers: 2},
+  {label: "4 processos", workers: 4},
+  {label: "8 processos", workers: 8},
+];
 const status = (message, error = false) => { $("status").textContent = message; $("status").classList.toggle("error", error); };
 const nextFrame = () => new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 0)));
-function resetResults() { $("results").hidden = true; $("empty").hidden = false; }
+function resetResults() { $("results").hidden = true; $("empty").hidden = false; $("example-panel").hidden = true; }
 function selectSources(sources, label) {
   if (state.busy) return;
   state.sources = sources;
@@ -63,7 +69,6 @@ async function runSequential(images) {
     const img=images[i]; const start=performance.now();
     outputs.push(processPixels(img.rgba,img.width,img.height));
     elapsed += performance.now() - start;
-    status(`Processamento sequencial: ${i+1}/${images.length}`);
     await nextFrame();
   }
   return {outputs,seconds:elapsed/1000};
@@ -93,7 +98,6 @@ function runParallel(images, requested) {
           if (settled) return;
           if (data.error) { finish(new Error(data.error)); return; }
           outputs[data.index]=new Uint8ClampedArray(data.output); done++;
-          status(`Processamento paralelo: ${done}/${images.length}`);
           if (done===images.length) finish(); else dispatch(worker);
         };
         dispatch(worker);
@@ -104,37 +108,70 @@ function runParallel(images, requested) {
 function identical(a,b) {
   return a.length === b.length && a.every((pixels,i) => pixels.length === b[i].length && pixels.every((value,j) => value === b[i][j]));
 }
-function display(images,sequential,parallel,workers) {
-  const format = n => `${n.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})} s`;
-  $("sequential-time").textContent=format(sequential.seconds);
-  $("parallel-time").textContent=format(parallel.seconds);
-  const ratio=sequential.seconds/parallel.seconds;
-  $("speedup").textContent=ratio >= 1 ? `${ratio.toLocaleString("pt-BR",{maximumFractionDigits:2})}× mais rápido` : `${(1/ratio).toLocaleString("pt-BR",{maximumFractionDigits:2})}× mais lento`;
-  const same=identical(sequential.outputs,parallel.outputs);
-  $("verification").textContent=same ? "✓ Resultados idênticos" : "As saídas apresentaram diferenças";
-  $("verification").classList.toggle("failed",!same);
-  $("original-preview").src=images[0].preview;
-  const canvas=$("edge-preview"), {width,height}=images[0]; canvas.width=width; canvas.height=height;
-  const context=canvas.getContext("2d"); const frame=context.createImageData(width,height); const edges=sequential.outputs[0];
+async function runConfig(config, images, repeats) {
+  let totalSeconds = 0, outputs = null;
+  for (let r=0; r<repeats; r++) {
+    status(`Executando: ${config.label} — repetição ${r+1}/${repeats}`);
+    const result = config.workers === 0 ? await runSequential(images) : await runParallel(images, config.workers);
+    totalSeconds += result.seconds;
+    outputs = result.outputs;
+    await nextFrame();
+  }
+  return {label: config.label, seconds: totalSeconds, outputs};
+}
+function formatSeconds(seconds) {
+  return `${seconds.toLocaleString("pt-BR",{minimumFractionDigits:1,maximumFractionDigits:1})} s`;
+}
+function renderBars(results) {
+  const max = Math.max(...results.map(result => result.seconds)) || 1;
+  const fastest = results.reduce((a,b) => b.seconds < a.seconds ? b : a);
+  const bars = $("bars"); bars.innerHTML = "";
+  for (const result of results) {
+    const row = document.createElement("div");
+    row.className = "bar-row" + (result === fastest && results.length > 1 ? " fastest" : "");
+    const pct = Math.max(2, (result.seconds / max) * 100);
+    row.innerHTML = `<span class="bar-label">${result.label}</span><span class="bar-track"><span class="bar-fill" style="width:${pct}%"></span></span><span class="bar-value">${formatSeconds(result.seconds)}</span>`;
+    bars.appendChild(row);
+  }
+  return fastest;
+}
+function display(images, results, repeats) {
+  const fastest = renderBars(results);
+  const sequential = results.find(result => result.label === "Sequencial") ?? results[0];
+  $("summary-row").hidden = results.length <= 1;
+  if (results.length > 1) {
+    const ratio = sequential.seconds / fastest.seconds;
+    $("fastest").innerHTML = `Mais rápido: <strong>${fastest.label}</strong> · <strong>${ratio.toLocaleString("pt-BR",{maximumFractionDigits:1})}×</strong>`;
+    const allIdentical = results.every(result => identical(result.outputs, sequential.outputs));
+    $("verification").textContent = allIdentical ? "✓ Saídas idênticas" : "✗ Saídas diferentes";
+    $("verification").classList.toggle("failed", !allIdentical);
+  } else {
+    $("fastest").innerHTML = ""; $("verification").textContent = ""; $("verification").classList.remove("failed");
+  }
+  $("original-preview").src = images[0].preview;
+  const canvas = $("edge-preview"), {width,height} = images[0]; canvas.width=width; canvas.height=height;
+  const context = canvas.getContext("2d"); const frame = context.createImageData(width,height); const edges = fastest.outputs[0];
   for (let i=0; i<edges.length; i++) { const j=i*4; frame.data[j]=frame.data[j+1]=frame.data[j+2]=edges[i]; frame.data[j+3]=255; }
   context.putImageData(frame,0,0);
-  $("detail").textContent=`${images.length} ${images.length===1?"imagem":"imagens"} · ${Math.min(workers,images.length)} Web Workers · comparação dos pixels de todas as saídas. O tempo inclui o envio de dados aos workers. O código Python usa multiprocessing e pode apresentar tempos diferentes.`;
-  $("empty").hidden=true; $("results").hidden=false;
+  $("example-panel").hidden = false;
+  $("detail").textContent = `${images.length} ${images.length===1?"imagem":"imagens"} · ${repeats} ${repeats===1?"repetição":"repetições"} por configuração · comparação dos pixels de todas as saídas. O tempo inclui o envio de dados aos workers. O código Python usa multiprocessing e pode apresentar tempos diferentes.`;
+  $("empty").hidden = true; $("results").hidden = false;
 }
 $("run").addEventListener("click",async () => {
   if (state.busy) return;
   if (!state.sources.length) { status("Adicione imagens ou use as de exemplo.",true); $("images").focus(); return; }
-  state.busy=true; $("run").disabled=true; $("examples").disabled=true; $("images").disabled=true; resetResults();
+  const repeats = Math.min(30, Math.max(1, Math.round(Number($("repeats").value)) || 1));
+  $("repeats").value = repeats;
+  const configs = $("compare-all").checked ? CONFIGS : CONFIGS.slice(0,1);
+  state.busy=true; $("run").disabled=true; $("examples").disabled=true; $("images").disabled=true; $("repeats").disabled=true; $("compare-all").disabled=true; resetResults();
   try {
     const images=[];
     for (let i=0; i<state.sources.length; i++) { status(`Preparando imagens: ${i+1}/${state.sources.length}`); images.push(await prepare(state.sources[i])); }
     await nextFrame();
-    const sequential=await runSequential(images);
-    await nextFrame();
-    const workers=Number(document.querySelector('input[name="workers"]:checked').value);
-    const parallel=await runParallel(images,workers);
-    display(images,sequential,parallel,workers);
-    status("Processamento concluído.");
+    const results=[];
+    for (const config of configs) results.push(await runConfig(config,images,repeats));
+    display(images,results,repeats);
+    status("Comparação concluída.");
   } catch (error) { status(error.message || "Não foi possível processar as imagens.",true); }
-  finally { state.busy=false; $("run").disabled=false; $("examples").disabled=false; $("images").disabled=false; }
+  finally { state.busy=false; $("run").disabled=false; $("examples").disabled=false; $("images").disabled=false; $("repeats").disabled=false; $("compare-all").disabled=false; }
 });

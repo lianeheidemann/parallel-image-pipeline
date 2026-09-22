@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Compare o processamento sequencial e paralelo de imagens no navegador.">
   <title>Pipeline de Imagens</title>
-  <link rel="stylesheet" href="assets/style.css?v=20260922">
-  <script type="module" src="assets/app.js?v=20260922"></script>
+  <link rel="stylesheet" href="assets/style.css?v=20260922b">
+  <script type="module" src="assets/app.js?v=20260922b"></script>
 </head>
 <body>
   <main class="page">
@@ -25,38 +25,38 @@
         <input id="images" class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp" multiple>
         <p class="selection" id="selection">Nenhuma imagem selecionada</p>
         <button class="text-button" id="examples" type="button">Usar imagens de exemplo</button>
-        <fieldset class="workers">
-          <legend>Processos</legend>
-          <div class="choices">
-            <label><input type="radio" name="workers" value="2"><span>2</span></label>
-            <label><input type="radio" name="workers" value="4" checked><span>4</span></label>
-            <label><input type="radio" name="workers" value="8"><span>8</span></label>
-          </div>
-        </fieldset>
-        <button class="primary-button" id="run" type="button">Processar imagens</button>
+        <label class="field" for="repeats">
+          Repetições por imagem
+          <input type="number" id="repeats" min="1" max="30" value="10">
+        </label>
+        <label class="compare-toggle">
+          <input type="checkbox" id="compare-all" checked>
+          <span>Comparar: sequencial · 2 · 4 · 8 processos</span>
+        </label>
+        <button class="primary-button" id="run" type="button">Executar comparação</button>
         <p class="status" id="status" role="status" aria-live="polite">Selecione imagens ou use as de exemplo para começar.</p>
       </section>
       <section class="panel results-panel" aria-labelledby="results-heading">
         <h2 id="results-heading">Resultados</h2>
         <div id="empty" class="empty">Os resultados aparecerão aqui após o processamento.</div>
         <div id="results" hidden>
-          <div class="metrics">
-            <div class="metric"><span>Sequencial</span><strong id="sequential-time">—</strong></div>
-            <div class="metric"><span>Paralelo</span><strong id="parallel-time">—</strong></div>
-            <div class="metric accent"><span>Comparação</span><strong id="speedup">—</strong></div>
-          </div>
-          <p class="verification" id="verification"></p>
-          <div class="comparison">
-            <h3>Comparação visual</h3>
-            <div class="image-pair">
-              <figure><figcaption>Original</figcaption><img id="original-preview" alt="Primeira imagem original selecionada"></figure>
-              <figure><figcaption>Bordas detectadas</figcaption><canvas id="edge-preview" role="img" aria-label="Bordas detectadas na primeira imagem"></canvas></figure>
-            </div>
+          <h3>Tempo total por configuração</h3>
+          <div class="bars" id="bars"></div>
+          <div class="summary-row" id="summary-row">
+            <p class="summary-item" id="fastest"></p>
+            <p class="summary-item" id="verification"></p>
           </div>
           <p class="detail" id="detail"></p>
         </div>
       </section>
     </div>
+    <section class="panel example-panel" aria-labelledby="example-heading" id="example-panel" hidden>
+      <h2 id="example-heading">Exemplo de resultado</h2>
+      <div class="image-pair">
+        <figure><figcaption>Imagem original</figcaption><img id="original-preview" alt="Primeira imagem original selecionada"></figure>
+        <figure><figcaption>Imagem processada (Sobel)</figcaption><canvas id="edge-preview" role="img" aria-label="Bordas detectadas na primeira imagem"></canvas></figure>
+      </div>
+    </section>
     <footer>Escala de cinza → blur gaussiano → Sobel · <a href="https://github.com/lianeheidemann/parallel-image-pipeline">Ver código no GitHub</a></footer>
   </main>
 </body>
