@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+dataset/*.jpg
+output/sequential/*.png
+output/parallel/*.png
+results/*.csv
+results/*.log
+
+!dataset/.gitkeep
+!output/sequential/.gitkeep
+!output/parallel/.gitkeep
+!results/.gitkeep
