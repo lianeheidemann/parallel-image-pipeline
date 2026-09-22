@@ -11,7 +11,8 @@ de um mesmo pipeline de imagem — escala de cinza → blur gaussiano → detec�
 de bordas (Sobel) — com verificação de corretude bit a bit e medição de
 *speedup* frente à Lei de Amdahl.
 
-🔗 **[Página do projeto](https://lianeheidemann.github.io/parallel-image-pipeline/)** 
+🌐 **[Página do projeto](https://lianeheidemann.github.io/parallel-image-pipeline/)** 
+
 ## Estrutura
 
 ```
