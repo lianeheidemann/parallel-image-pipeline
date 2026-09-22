@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Processamento Paralelo de Imagens</title>
+  <meta name="description" content="Sequencial vs. paralelo com multiprocessing: mesma saída, menos tempo. Verificação de corretude via SHA-256 e speedup frente à Lei de Amdahl." />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <header class="nav">
+    <div class="wrap">
+      <span class="brand">Processamento Paralelo de Imagens</span>
+      <nav>
+        <a href="#pipeline">Pipeline</a>
+        <a href="#resultados">Resultados</a>
+        <a href="#uso">Uso</a>
+        <a href="https://github.com/lianeheidemann/processamento-paralelo-de-imagens">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="hero wrap">
+    <h1>Sequencial vs. paralelo,<br />mesma saída, menos tempo.</h1>
+    <p class="tagline">
+      Um pipeline de processamento de imagens executado com um processo e com
+      <code>multiprocessing</code>, comparando tempo, corretude (SHA-256) e
+      speedup real frente à Lei de Amdahl.
+    </p>
+    <div class="badges">
+      <img src="https://img.shields.io/badge/python-3.10%2B-blue" alt="Python 3.10+" />
+      <img src="https://img.shields.io/badge/OpenCV-4.9%2B-green" alt="OpenCV 4.9+" />
+      <img src="https://img.shields.io/badge/license-MIT-lightgrey" alt="MIT License" />
+    </div>
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/lianeheidemann/processamento-paralelo-de-imagens">Ver no GitHub</a>
+      <a class="btn" href="#uso">Como rodar</a>
+    </div>
+  </div>
+
+  <section id="pipeline">
+    <div class="wrap">
+      <h2>Pipeline</h2>
+      <div class="pipeline">
+        <div class="step">Imagem original</div>
+        <span class="arrow">→</span>
+        <div class="step">Escala de cinza</div>
+        <span class="arrow">→</span>
+        <div class="step">Blur gaussiano</div>
+        <span class="arrow">→</span>
+        <div class="step">Bordas (Sobel)</div>
+        <span class="arrow">→</span>
+        <div class="step">Salvar</div>
+      </div>
+      <div class="cards" style="margin-top: 28px;">
+        <div class="card">
+          <h3>Sequencial</h3>
+          <p>Processa o dataset inteiro em um único processo (<code>src/sequential.py</code>), usado como linha de base de tempo.</p>
+        </div>
+        <div class="card">
+          <h3>Paralelo</h3>
+          <p>Distribui as imagens entre um pool de processos (<code>multiprocessing.Pool</code>), com um <code>Lock</code> mínimo apenas para o contador de progresso e o relatório CSV compartilhados.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="resultados">
+    <div class="wrap">
+      <h2>Resultados</h2>
+      <svg id="chart" role="img" aria-label="Gráfico de speedup observado vs. previsto pela Lei de Amdahl"></svg>
+      <div class="legend">
+        <span class="observed"><span class="dot"></span>Speedup observado</span>
+        <span class="amdahl"><span class="dot"></span>Previsto (Amdahl)</span>
+      </div>
+      <table id="table"></table>
+      <p class="note" id="data-note"></p>
+    </div>
+  </section>
+
+  <section id="uso">
+    <div class="wrap">
+      <h2>Uso</h2>
+      <pre><code># instalar
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+
+# gerar dataset sintético
+python src/generate_dataset.py --count 1000 --output dataset
+
+# rodar o benchmark (sequencial + N processos, com verificação SHA-256)
+python src/benchmark.py --dataset dataset --workers 2 4 8</code></pre>
+      <p class="note">Detalhes completos no <a href="https://github.com/lianeheidemann/processamento-paralelo-de-imagens#readme">README do repositório</a>.</p>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      Distribuído sob a licença MIT ·
+      <a href="https://github.com/lianeheidemann/processamento-paralelo-de-imagens">github.com/lianeheidemann/processamento-paralelo-de-imagens</a>
+    </div>
+  </footer>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>

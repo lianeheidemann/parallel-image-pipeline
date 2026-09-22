@@ -5,11 +5,14 @@
 [![NumPy](https://img.shields.io/badge/NumPy-1.26%2B-013243)](https://numpy.org/)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
 [![Last commit](https://img.shields.io/github/last-commit/lianeheidemann/processamento-paralelo-de-imagens)](https://github.com/lianeheidemann/processamento-paralelo-de-imagens/commits/main)
+[![Deploy GitHub Pages](https://github.com/lianeheidemann/processamento-paralelo-de-imagens/actions/workflows/pages.yml/badge.svg)](https://github.com/lianeheidemann/processamento-paralelo-de-imagens/actions/workflows/pages.yml)
 
 Comparação entre processamento **sequencial** e **paralelo** (`multiprocessing`)
 de um mesmo pipeline de imagem — escala de cinza → blur gaussiano → detecção
 de bordas (Sobel) — com verificação de corretude bit a bit e medição de
 *speedup* frente à Lei de Amdahl.
+
+🔗 **[Página do projeto](https://lianeheidemann.github.io/processamento-paralelo-de-imagens/)** — publicada automaticamente a cada merge na `main` ([workflow](.github/workflows/pages.yml))
 
 ## Estrutura
 
@@ -55,7 +58,10 @@ python src/benchmark.py --dataset dataset --workers 2 4 8
 ```
 
 O benchmark grava `results/benchmark.csv` com as colunas `processos`,
-`tempo_s`, `speedup` e `speedup_amdahl_previsto`.
+`tempo_s`, `speedup` e `speedup_amdahl_previsto`. Para publicar esses números
+na [página do projeto](#processamento-paralelo-de-imagens), copie o arquivo
+para `docs/data/benchmark.csv` e faça commit — a página detecta e usa esses
+dados automaticamente; sem eles, mostra dados de exemplo.
 
 ## Detalhes técnicos
 
