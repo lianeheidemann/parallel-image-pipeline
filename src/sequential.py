@@ -1,4 +1,10 @@
-"""Processa o dataset inteiro em um unico processo, imagem por imagem."""
+"""Processa o dataset inteiro em um unico processo, imagem por imagem.
+
+Sem lock: so existe um fluxo de execucao, entao nao ha estado
+compartilhado nem secao critica (contraste direto com parallel.py).
+O tempo medido aqui (retorno de run()) e a referencia usada no
+speedup = tempo_sequencial / tempo_paralelo (slide 12, campo D da ficha).
+"""
 
 import argparse
 import csv

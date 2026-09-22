@@ -16,12 +16,19 @@ from common import PROJECT_ROOT
 
 
 def amdahl_speedup(parallel_fraction: float, workers: int) -> float:
+    # Lei de Amdahl: S = 1 / ((1-p) + p/n) — teto previsto de speedup
+    # para uma fracao paralelizavel p com n processos (slide 12).
     serial_fraction = 1 - parallel_fraction
     return 1 / (serial_fraction + parallel_fraction / workers)
 
 
 def estimate_parallel_fraction(seq_time: float, par_time: float, workers: int) -> float:
-    """Resolve a fracao paralelizavel p a partir do speedup observado com N processos."""
+    """Resolve a fracao paralelizavel p a partir do speedup observado com N processos.
+
+    Usada para comparar previsto vs. observado (campo D/E da ficha): se o
+    speedup medido ficar abaixo do previsto, a causa e comunicacao entre
+    processos, divisao desigual do trabalho ou espera na secao critica.
+    """
     observed_speedup = seq_time / par_time
     if workers <= 1 or observed_speedup <= 0:
         return 0.0

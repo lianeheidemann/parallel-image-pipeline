@@ -32,13 +32,20 @@ def _init_worker(lock, counter, output_dir: Path, report_path: Path) -> None:
 
 
 def _process_one(image_path: Path) -> None:
+    # Estrategia = paralelismo de DADOS: cada worker do Pool recebe uma
+    # imagem (chunksize=1 em run()) e aplica a mesma operacao (slide 7/8).
     process_label = f"P{mp.current_process()._identity[0]}" if mp.current_process()._identity else "P1"
 
+    # Fora da secao critica: cada processo tem sua copia da imagem e escreve
+    # em um arquivo .png proprio, entao nao ha concorrencia aqui.
     img_start = time.perf_counter()
     process_image(image_path, _output_dir / output_filename(image_path))
     elapsed = time.perf_counter() - img_start
 
-    # Secao critica: contador compartilhado + escrita no CSV compartilhado.
+    # SECAO CRITICA (o que a ficha pede no campo C): _counter e _report_path
+    # sao escritos por todos os workers. Primitiva = Lock (multiprocessing
+    # Manager), delimitando so o incremento + a linha de CSV, nunca o
+    # processamento da imagem (senao o programa vira serializado, slide 10).
     with _lock:
         _counter.value += 1
         with open(_report_path, "a", newline="", encoding="utf-8") as f:
@@ -53,6 +60,8 @@ def run(dataset_dir: Path, output_dir: Path, report_path: Path, workers: int) ->
     with open(report_path, "w", newline="", encoding="utf-8") as f:
         csv.writer(f).writerow(REPORT_HEADER)
 
+    # Lock e Value via Manager: unico jeito de compartilhar estado entre
+    # processos separados (memoria nao e compartilhada como em threads).
     manager = mp.Manager()
     lock = manager.Lock()
     counter = manager.Value("i", 0)

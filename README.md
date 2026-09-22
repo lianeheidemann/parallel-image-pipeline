@@ -101,10 +101,18 @@ dados automaticamente; sem eles, mostra dados de exemplo.
 
 ## Detalhes técnicos
 
+**Estratégia.** Paralelismo de **dados**: o dataset é dividido em imagens
+(`chunksize=1` no `Pool.map`), e cada worker aplica a mesma operação a uma
+imagem por vez — não há divisão por etapas do pipeline. A distribuição usa
+**processos** (`multiprocessing`), não threads: o trabalho é limitado por
+CPU (OpenCV/NumPy) e, no CPython, threads não somam núcleos para esse tipo
+de carga (GIL); cada processo tem seu próprio interpretador.
+
 **Seção crítica.** Na versão paralela, os processos compartilham um contador
-de progresso (`multiprocessing.Value`) e o relatório CSV. Ambos são
-protegidos pelo mesmo `multiprocessing.Lock`, delimitando a menor seção
-crítica possível — o processamento da imagem em si fica fora do lock:
+de progresso (`multiprocessing.Value`) e o relatório CSV — esse é o único
+estado compartilhado do programa. Ambos são protegidos pelo mesmo
+`multiprocessing.Lock` (via `Manager`), delimitando a menor seção crítica
+possível — o processamento da imagem em si fica fora do lock:
 
 ```python
 with _lock:
