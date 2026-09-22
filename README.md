@@ -1,86 +1,68 @@
-# Parallel Image Batch Processor
+# Processamento Paralelo de Imagens
 
-Sistema para comparar o desempenho do processamento sequencial e paralelo de
-grandes lotes de imagens, usando Python, OpenCV e `multiprocessing`.
+[![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
+[![OpenCV](https://img.shields.io/badge/OpenCV-4.9%2B-green)](https://opencv.org/)
+[![NumPy](https://img.shields.io/badge/NumPy-1.26%2B-013243)](https://numpy.org/)
+[![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
+[![Last commit](https://img.shields.io/github/last-commit/lianeheidemann/processamento-paralelo-de-imagens)](https://github.com/lianeheidemann/processamento-paralelo-de-imagens/commits/main)
 
-Cada imagem passa pelo mesmo pipeline:
-
-```
-imagem original -> grayscale -> blur gaussiano -> deteccao de bordas (Sobel) -> salvar
-```
-
-Como cada imagem e processada de forma independente, o trabalho e
-naturalmente divisivel entre processos (paralelismo de dados).
+Comparação entre processamento **sequencial** e **paralelo** (`multiprocessing`)
+de um mesmo pipeline de imagem — escala de cinza → blur gaussiano → detecção
+de bordas (Sobel) — com verificação de corretude bit a bit e medição de
+*speedup* frente à Lei de Amdahl.
 
 ## Estrutura
 
 ```
-dataset/            imagens de entrada (geradas ou suas proprias)
-output/
-  sequential/        saida da versao sequencial
-  parallel/           saida da versao paralela
+dataset/                  imagens de entrada
+output/sequential/        saída da versão sequencial
+output/parallel/          saída da versão paralela
+results/                  relatórios CSV + benchmark.csv
 src/
-  image_processor.py  pipeline de processamento de uma imagem
-  generate_dataset.py gera um dataset sintetico de imagens
-  sequential.py        versao sequencial (1 processo)
-  parallel.py           versao paralela (multiprocessing.Pool)
-  verify.py              compara as saidas via SHA-256
-  benchmark.py            roda sequencial + paralelo (N workers) e calcula o speedup
-results/               CSVs de saida (relatorios por execucao + benchmark.csv)
+  image_processor.py       pipeline aplicado a uma imagem
+  generate_dataset.py      gera um dataset sintético
+  sequential.py             versão sequencial (1 processo)
+  parallel.py                versão paralela (multiprocessing.Pool)
+  verify.py                   compara saídas via SHA-256
+  benchmark.py                roda sequencial + paralelo e calcula o speedup
 ```
 
-## Setup
+## Instalação
 
 ```bash
 python -m venv .venv
-.venv\Scripts\activate
+.venv\Scripts\activate      # Windows
 pip install -r requirements.txt
 ```
 
 ## Uso
 
-1. Gerar o dataset sintetico (1000 imagens por padrao):
-
 ```bash
+# 1. gerar dataset sintético
 python src/generate_dataset.py --count 1000 --output dataset
-```
 
-2. Rodar a versao sequencial:
-
-```bash
+# 2. executar versão sequencial
 python src/sequential.py --dataset dataset --output output/sequential --report results/sequential_report.csv
-```
 
-3. Rodar a versao paralela (por padrao usa todos os cores disponiveis):
-
-```bash
+# 3. executar versão paralela (padrão: todos os núcleos)
 python src/parallel.py --dataset dataset --output output/parallel --report results/parallel_report.csv --workers 4
-```
 
-4. Verificar que as duas versoes produziram o mesmo resultado:
-
-```bash
+# 4. verificar que as saídas são idênticas
 python src/verify.py --sequential output/sequential --parallel output/parallel
-```
 
-5. Rodar o benchmark completo (sequencial + 2/4/8 processos, com verificacao e Lei de Amdahl):
-
-```bash
+# 5. benchmark completo (sequencial + N processos, com verificação e Lei de Amdahl)
 python src/benchmark.py --dataset dataset --workers 2 4 8
 ```
 
-O resultado fica em `results/benchmark.csv`, com colunas `processos`,
+O benchmark grava `results/benchmark.csv` com as colunas `processos`,
 `tempo_s`, `speedup` e `speedup_amdahl_previsto`.
 
-## Estado compartilhado / secao critica
+## Detalhes técnicos
 
-Na versao paralela (`src/parallel.py`), os processos compartilham:
-
-- um contador de imagens concluidas (`multiprocessing.Value`)
-- o arquivo `results/*.csv` (escrita compartilhada)
-
-Ambos sao protegidos pela mesma `multiprocessing.Lock`, delimitando a menor
-secao critica possivel:
+**Seção crítica.** Na versão paralela, os processos compartilham um contador
+de progresso (`multiprocessing.Value`) e o relatório CSV. Ambos são
+protegidos pelo mesmo `multiprocessing.Lock`, delimitando a menor seção
+crítica possível — o processamento da imagem em si fica fora do lock:
 
 ```python
 with _lock:
@@ -89,19 +71,14 @@ with _lock:
         csv.writer(f).writerow([image_path.name, f"{elapsed:.4f}", process_label])
 ```
 
-## Verificacao de corretude (SHA-256)
+**Corretude.** `verify.py` calcula o SHA-256 de cada arquivo de saída e
+confirma que sequencial e paralelo produzem exatamente os mesmos bytes.
 
-Depois de rodar as duas versoes, `verify.py` calcula o SHA-256 de cada
-arquivo de saida e confirma que sequencial e paralelo produzem exatamente os
-mesmos bytes, imprimindo `N/N arquivos identicos.` quando tudo bate.
+**Speedup.** `Speedup = Tempo_sequencial / Tempo_paralelo`. A fração
+paralelizável `p` é estimada a partir do speedup observado e usada na Lei de
+Amdahl (`1 / ((1 - p) + p / N)`) para prever o speedup com outras contagens
+de processos, permitindo comparar previsto vs. observado.
 
-## Speedup e Lei de Amdahl
+## Licença
 
-```
-Speedup = Tempo_sequencial / Tempo_paralelo
-```
-
-O `benchmark.py` tambem estima a fracao paralelizavel `p` a partir do
-speedup observado com o primeiro numero de processos testado e usa a Lei de
-Amdahl para prever o speedup esperado com outras contagens de processos,
-permitindo comparar previsto vs observado.
+Distribuído sob a licença [MIT](LICENSE).

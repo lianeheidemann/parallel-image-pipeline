@@ -1,8 +1,35 @@
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Ambientes virtuais
 .venv/
 venv/
+env/
+ENV/
 
+# Ferramentas de teste / lint / tipagem
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# IDEs / editores
+.vscode/
+.idea/
+*.swp
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# Dados e saidas geradas pelo projeto
 dataset/*.jpg
 output/sequential/*.png
 output/parallel/*.png
