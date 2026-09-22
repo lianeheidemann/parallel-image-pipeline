@@ -1,107 +1,63 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Processamento Paralelo de Imagens</title>
-  <meta name="description" content="Sequencial vs. paralelo com multiprocessing: mesma saída, menos tempo. Verificação de corretude via SHA-256 e speedup frente à Lei de Amdahl." />
-  <link rel="stylesheet" href="assets/style.css" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Compare o processamento sequencial e paralelo de imagens no navegador.">
+  <title>Pipeline de Imagens</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <script type="module" src="assets/app.js"></script>
 </head>
 <body>
-  <header class="nav">
-    <div class="wrap">
-      <span class="brand">Processamento Paralelo de Imagens</span>
-      <nav>
-        <a href="#pipeline">Pipeline</a>
-        <a href="#resultados">Resultados</a>
-        <a href="#uso">Uso</a>
-        <a href="https://github.com/lianeheidemann/parallel-image-pipeline">GitHub</a>
-      </nav>
-    </div>
-  </header>
-
-  <div class="hero wrap">
-    <h1>Sequencial vs. paralelo,<br />mesma saída, menos tempo.</h1>
-    <p class="tagline">
-      Um pipeline de processamento de imagens executado com um processo e com
-      <code>multiprocessing</code>, comparando tempo, corretude (SHA-256) e
-      speedup real frente à Lei de Amdahl.
-    </p>
-    <div class="badges">
-      <img src="https://img.shields.io/badge/python-3.10%2B-blue" alt="Python 3.10+" />
-      <img src="https://img.shields.io/badge/OpenCV-4.9%2B-green" alt="OpenCV 4.9+" />
-      <img src="https://img.shields.io/badge/license-MIT-lightgrey" alt="MIT License" />
-    </div>
-    <div class="cta">
-      <a class="btn primary" href="https://github.com/lianeheidemann/parallel-image-pipeline">Ver no GitHub</a>
-      <a class="btn" href="#uso">Como rodar</a>
-    </div>
-  </div>
-
-  <section id="pipeline">
-    <div class="wrap">
-      <h2>Pipeline</h2>
-      <div class="pipeline">
-        <div class="step">Imagem original</div>
-        <span class="arrow">→</span>
-        <div class="step">Escala de cinza</div>
-        <span class="arrow">→</span>
-        <div class="step">Blur gaussiano</div>
-        <span class="arrow">→</span>
-        <div class="step">Bordas (Sobel)</div>
-        <span class="arrow">→</span>
-        <div class="step">Salvar</div>
-      </div>
-      <div class="cards" style="margin-top: 28px;">
-        <div class="card">
-          <h3>Sequencial</h3>
-          <p>Processa o dataset inteiro em um único processo (<code>src/sequential.py</code>), usado como linha de base de tempo.</p>
+  <main class="page">
+    <header class="header">
+      <div class="logo" aria-hidden="true">▣</div>
+      <div><h1>Pipeline de Imagens</h1><p>Compare o processamento sequencial e paralelo</p></div>
+    </header>
+    <div class="layout">
+      <section class="panel input-panel" aria-labelledby="input-heading">
+        <h2 id="input-heading">Entrada</h2>
+        <label class="drop-zone" id="drop-zone" for="images">
+          <span class="upload-icon" aria-hidden="true">↑</span>
+          <strong>Adicionar imagens</strong>
+          <span>Arraste aqui ou clique para selecionar</span>
+        </label>
+        <input id="images" class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp" multiple>
+        <p class="selection" id="selection">Nenhuma imagem selecionada</p>
+        <button class="text-button" id="examples" type="button">Usar imagens de exemplo</button>
+        <fieldset class="workers">
+          <legend>Processos</legend>
+          <div class="choices">
+            <label><input type="radio" name="workers" value="2"><span>2</span></label>
+            <label><input type="radio" name="workers" value="4" checked><span>4</span></label>
+            <label><input type="radio" name="workers" value="8"><span>8</span></label>
+          </div>
+        </fieldset>
+        <button class="primary-button" id="run" type="button">Processar imagens</button>
+        <p class="status" id="status" role="status" aria-live="polite">Selecione imagens ou use as de exemplo para começar.</p>
+      </section>
+      <section class="panel results-panel" aria-labelledby="results-heading">
+        <h2 id="results-heading">Resultados</h2>
+        <div id="empty" class="empty">Os resultados aparecerão aqui após o processamento.</div>
+        <div id="results" hidden>
+          <div class="metrics">
+            <div class="metric"><span>Sequencial</span><strong id="sequential-time">—</strong></div>
+            <div class="metric"><span>Paralelo</span><strong id="parallel-time">—</strong></div>
+            <div class="metric accent"><span>Comparação</span><strong id="speedup">—</strong></div>
+          </div>
+          <p class="verification" id="verification"></p>
+          <div class="comparison">
+            <h3>Comparação visual</h3>
+            <div class="image-pair">
+              <figure><figcaption>Original</figcaption><img id="original-preview" alt="Primeira imagem original selecionada"></figure>
+              <figure><figcaption>Bordas detectadas</figcaption><canvas id="edge-preview" role="img" aria-label="Bordas detectadas na primeira imagem"></canvas></figure>
+            </div>
+          </div>
+          <p class="detail" id="detail"></p>
         </div>
-        <div class="card">
-          <h3>Paralelo</h3>
-          <p>Distribui as imagens entre um pool de processos (<code>multiprocessing.Pool</code>), com um <code>Lock</code> mínimo apenas para o contador de progresso e o relatório CSV compartilhados.</p>
-        </div>
-      </div>
+      </section>
     </div>
-  </section>
-
-  <section id="resultados">
-    <div class="wrap">
-      <h2>Resultados</h2>
-      <svg id="chart" role="img" aria-label="Gráfico de speedup observado vs. previsto pela Lei de Amdahl"></svg>
-      <div class="legend">
-        <span class="observed"><span class="dot"></span>Speedup observado</span>
-        <span class="amdahl"><span class="dot"></span>Previsto (Amdahl)</span>
-      </div>
-      <table id="table"></table>
-      <p class="note" id="data-note"></p>
-    </div>
-  </section>
-
-  <section id="uso">
-    <div class="wrap">
-      <h2>Uso</h2>
-      <pre><code># instalar
-python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
-
-# gerar dataset sintético
-python src/generate_dataset.py --count 1000 --output dataset
-
-# rodar o benchmark (sequencial + N processos, com verificação SHA-256)
-python src/benchmark.py --dataset dataset --workers 2 4 8</code></pre>
-      <p class="note">Detalhes completos no <a href="https://github.com/lianeheidemann/parallel-image-pipeline#readme">README do repositório</a>.</p>
-    </div>
-  </section>
-
-  <footer>
-    <div class="wrap">
-      Distribuído sob a licença MIT ·
-      <a href="https://github.com/lianeheidemann/parallel-image-pipeline">github.com/lianeheidemann/parallel-image-pipeline</a>
-    </div>
-  </footer>
-
-  <script src="assets/app.js"></script>
+    <footer>Escala de cinza → blur gaussiano → Sobel · <a href="https://github.com/lianeheidemann/parallel-image-pipeline">Ver código no GitHub</a></footer>
+  </main>
 </body>
 </html>
