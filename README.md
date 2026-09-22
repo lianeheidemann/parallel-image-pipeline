@@ -90,11 +90,10 @@ python src/verify.py --sequential output/sequential --parallel output/parallel
 python src/benchmark.py --dataset dataset --workers 2 4 8
 ```
 
-O benchmark grava `results/benchmark.csv` com as colunas `processos`,
-`tempo_s`, `speedup` e `speedup_amdahl_previsto`. Para publicar esses números
-na [página do projeto](#processamento-paralelo-de-imagens), copie o arquivo
-para `docs/data/benchmark.csv` e faça commit — a página detecta e usa esses
-dados automaticamente; sem eles, mostra dados de exemplo.
+O benchmark Python grava `results/benchmark.csv` com as colunas `processos`,
+`tempo_s`, `speedup` e `speedup_amdahl_previsto`. A interface web faz sua
+própria medição no navegador com Web Workers; seus resultados não são importados
+do CSV nem equivalem ao benchmark com `multiprocessing`/OpenCV.
 
 ## Detalhes técnicos
 
