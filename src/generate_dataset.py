@@ -1,4 +1,12 @@
-"""Gera um dataset sintetico de imagens (formas geometricas + ruido) para o benchmark."""
+"""Gera o dataset sintetico do benchmark (formas geometricas + ruido).
+
+Cada imagem usa uma semente fixa, entao o dataset e sempre o mesmo: sequencial e
+paralelo sao medidos com a mesma entrada, em qualquer execucao ou maquina (exigencia
+da medicao na lauda).
+
+Volume de referencia (condicao 2 da Ficha A: o sequencial precisa levar minutos):
+    python src/generate_dataset.py --count 2000 --width 1920 --height 1080
+"""
 
 import argparse
 from pathlib import Path

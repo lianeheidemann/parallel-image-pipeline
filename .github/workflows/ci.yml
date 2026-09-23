@@ -28,6 +28,9 @@ jobs:
       - name: Unit tests
         run: pytest -q
 
+      - name: Cloud setup script syntax
+        run: bash -n cloud/user-data.sh
+
       - name: Generate sample dataset
         run: python src/generate_dataset.py --count 20 --output dataset
 
