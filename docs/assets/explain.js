@@ -2,6 +2,8 @@
 // runs: [{workers:1,seconds}, {workers:2,seconds}, ...]; cores may be undefined.
 const num = (n,digits=2) => n.toLocaleString("pt-BR",{maximumFractionDigits:digits});
 const list = items => items.length>1 ? `${items.slice(0,-1).join(", ")} e ${items.at(-1)}` : `${items[0]}`;
+// Differences up to 5% are treated as measurement noise, not as a real effect.
+export const NOISE = 0.05;
 const percent = n => n.toLocaleString("pt-BR",{style:"percent",maximumFractionDigits:0});
 export function explainTimes(runs, selected, cores) {
   const base=runs[0].seconds, parallel=runs.slice(1);
@@ -17,12 +19,15 @@ export function explainTimes(runs, selected, cores) {
   if (over.length) reasons.push(`O dispositivo informa ${cores} ${cores===1?"núcleo lógico":"núcleos lógicos"}. Com ${list(over)} processos, os workers disputam a CPU, por isso o ganho acima de ${cores} processos é pequeno.`);
   for (let i=1; i<parallel.length; i++) {
     const prev=parallel[i-1], run=parallel[i];
-    if (run.seconds>prev.seconds) reasons.push(`${run.workers} processos foram mais lentos que ${prev.workers}: o custo de coordenar mais workers superou o ganho.`);
+    if (run.seconds>prev.seconds*(1+NOISE)) reasons.push(`${run.workers} processos foram mais lentos que ${prev.workers}: o custo de coordenar mais workers superou o ganho.`);
+    else if (run.seconds>=prev.seconds*(1-NOISE)) reasons.push(`${run.workers} processos não foram mais rápidos que ${prev.workers} (diferença de até 5%): os núcleos extras costumam ser mais lentos (núcleos de eficiência, comuns em celulares) e o custo de coordenar mais workers cresce.`);
   }
-  const slower=parallel.filter(run=>speedup(run)<1).map(run=>run.workers);
-  if (slower.length) reasons.push(`Com ${list(slower)} processos o paralelo foi mais lento que o sequencial: com poucas imagens ou imagens pequenas, o overhead supera o trabalho útil.`);
-  const superlinear=parallel.filter(run=>speedup(run)>run.workers).map(run=>run.workers);
+  const slower=parallel.filter(run=>speedup(run)<1-NOISE).map(run=>run.workers);
+  if (slower.length) reasons.push(`Com ${list(slower)} processos o paralelo foi mais lento que o sequencial: o custo de criar os workers e copiar os dados superou o trabalho útil, o que é comum com poucas imagens ou imagens pequenas.`);
+  const even=parallel.filter(run=>Math.abs(speedup(run)-1)<=NOISE).map(run=>run.workers);
+  if (even.length) reasons.push(`Com ${list(even)} processos o tempo ficou praticamente igual ao sequencial (diferença de até 5%). Isso costuma ser variação de medição: os workers podem ter rodado em núcleos de eficiência, ou a CPU reduziu a frequência por temperatura ou bateria.`);
+  const superlinear=parallel.filter(run=>speedup(run)>run.workers*(1+NOISE)).map(run=>run.workers);
   if (superlinear.length) reasons.push(`Com ${list(superlinear)} processos o ganho passou do ideal: efeitos de cache, aquecimento do JIT ou variação de frequência da CPU durante a medição.`);
-  reasons.push("Os tempos mudam entre execuções: outras abas, modo de economia de energia, aquecimento do celular (throttling), coleta de lixo e núcleos de desempenho/eficiência.");
+  reasons.push("Os tempos mudam entre execuções: outras abas, modo de economia de energia, aquecimento do celular (throttling), coleta de lixo e núcleos de desempenho/eficiência. Por isso cada configuração roda 3 vezes e o gráfico mostra a mediana.");
   return reasons;
 }
