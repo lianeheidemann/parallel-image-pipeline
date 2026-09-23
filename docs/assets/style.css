@@ -62,8 +62,7 @@ h2 { font-size:1.4rem; margin-bottom:24px; }
 .chart-value span { color:#66758d; }
 .comparison { border-top:1px solid #e4eaf3; margin-top:24px; padding-top:20px; }
 h3 { font-size:1.05rem; margin-bottom:18px; }
-.gallery { margin-top:20px; }
-.gallery-title { margin:0 0 10px; font-size:.9rem; }
+.gallery { margin-top:16px; }
 .thumbs { display:grid; grid-template-columns:repeat(auto-fill,minmax(64px,1fr)); gap:10px; }
 .thumb { aspect-ratio:1; padding:4px; border:1px solid #e4eaf3; border-radius:8px; background:#edf1f6; cursor:pointer; }
 .thumb img { display:block; width:100%; height:100%; object-fit:contain; border-radius:4px; }

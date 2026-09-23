@@ -1,4 +1,4 @@
-import { processRows } from "./processor.js?v=20260924e";
+import { processRows } from "./processor.js?v=20260924f";
 self.onmessage = ({data}) => {
   try {
     const output = processRows(new Uint8ClampedArray(data.rgba), data.width, data.height, data.sliceStart, data.outStart, data.outEnd);

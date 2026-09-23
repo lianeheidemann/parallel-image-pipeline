@@ -1,5 +1,5 @@
-import { processPixels, HALO } from "./processor.js?v=20260924e";
-import { explainTimes } from "./explain.js?v=20260924e";
+import { processPixels, HALO } from "./processor.js?v=20260924f";
+import { explainTimes } from "./explain.js?v=20260924f";
 const $ = (id) => document.getElementById(id);
 const state = {sources: [], preview: null, busy: false};
 const LIMIT = 12;
@@ -84,7 +84,7 @@ function runParallel(images, requested) {
     };
     try {
       for (let i=0; i<requested; i++) {
-        const worker=new Worker(new URL("./worker.js?v=20260924e",import.meta.url),{type:"module"});
+        const worker=new Worker(new URL("./worker.js?v=20260924f",import.meta.url),{type:"module"});
         workers.push(worker);
         worker.onerror=() => finish(new Error("Não foi possível executar os Web Workers neste navegador."));
         worker.onmessage=({data}) => {
