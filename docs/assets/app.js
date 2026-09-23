@@ -1,5 +1,5 @@
-import { processPixels, HALO } from "./processor.js?v=20260924i";
-import { explainTimes, NOISE } from "./explain.js?v=20260924i";
+import { processPixels, HALO } from "./processor.js?v=20260924j";
+import { explainTimes, NOISE } from "./explain.js?v=20260924j";
 const $ = (id) => document.getElementById(id);
 const state = {sources: [], preview: null, busy: false};
 const LIMIT = 12;
@@ -84,7 +84,7 @@ function runParallel(images, requested, prefix) {
     };
     try {
       for (let i=0; i<requested; i++) {
-        const worker=new Worker(new URL("./worker.js?v=20260924i",import.meta.url),{type:"module"});
+        const worker=new Worker(new URL("./worker.js?v=20260924j",import.meta.url),{type:"module"});
         workers.push(worker);
         worker.onerror=() => finish(new Error("Não foi possível executar os Web Workers neste navegador."));
         worker.onmessage=({data}) => {
@@ -175,9 +175,9 @@ function display(images,sequential,runs,workers) {
   const info=[
     ["Imagens",`${images.length}`],
     ["Gráfico","Sequencial (thread principal) e 2, 4 e 8 Web Workers"],
-    ["Cartões",`${workers} processos`],
-    ["Divisão","Cada imagem é dividida em faixas horizontais entre os workers"],
-    ["Verificação","Pixels de todas as saídas comparados com o sequencial"],
+    ["Quadros do topo",`"Paralelo" usa ${workers} processos, a opção escolhida em Processos`],
+    ["Divisão do trabalho","Cada imagem é cortada em faixas horizontais, uma por processo, que rodam ao mesmo tempo e depois são juntadas"],
+    ["Conferência","Cada pixel do resultado paralelo é comparado com o sequencial, para garantir que dividir o trabalho não mudou a imagem"],
     ["Tempo medido",`Mediana de ${ROUNDS} rodadas, incluindo o envio de dados aos workers`],
   ];
   $("detail").replaceChildren(...info.map(([term,text]) => {
