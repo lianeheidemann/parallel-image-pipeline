@@ -1,5 +1,5 @@
-import { processPixels, HALO } from "./processor.js?v=20260923d";
-import { explainTimes } from "./explain.js?v=20260923d";
+import { processPixels, HALO } from "./processor.js?v=20260924a";
+import { explainTimes } from "./explain.js?v=20260924a";
 const $ = (id) => document.getElementById(id);
 const state = {sources: [], preview: null, busy: false};
 const LIMIT = 12;
@@ -84,7 +84,7 @@ function runParallel(images, requested) {
     };
     try {
       for (let i=0; i<requested; i++) {
-        const worker=new Worker(new URL("./worker.js?v=20260923d",import.meta.url),{type:"module"});
+        const worker=new Worker(new URL("./worker.js?v=20260924a",import.meta.url),{type:"module"});
         workers.push(worker);
         worker.onerror=() => finish(new Error("Não foi possível executar os Web Workers neste navegador."));
         worker.onmessage=({data}) => {
@@ -145,7 +145,18 @@ function display(images,sequential,runs,workers) {
   const context=canvas.getContext("2d"); const frame=context.createImageData(width,height); const edges=sequential.outputs[0];
   for (let i=0; i<edges.length; i++) { const j=i*4; frame.data[j]=frame.data[j+1]=frame.data[j+2]=edges[i]; frame.data[j+3]=255; }
   context.putImageData(frame,0,0);
-  $("detail").textContent=`${images.length} ${images.length===1?"imagem":"imagens"} · gráfico: 1 processo (sequencial, thread principal), 2, 4 e 8 Web Workers · cartões: ${workers} processos · cada imagem é dividida em faixas horizontais entre os workers · comparação dos pixels de todas as saídas. O tempo inclui o envio de dados aos workers.`;
+  const info=[
+    ["Imagens",`${images.length}`],
+    ["Gráfico","Sequencial (thread principal) e 2, 4 e 8 Web Workers"],
+    ["Cartões",`${workers} processos`],
+    ["Divisão","Cada imagem é dividida em faixas horizontais entre os workers"],
+    ["Verificação","Pixels de todas as saídas comparados com o sequencial"],
+    ["Tempo medido","Inclui o envio de dados aos workers"],
+  ];
+  $("detail").replaceChildren(...info.map(([term,text]) => {
+    const pair=document.createElement("div"), dt=document.createElement("dt"), dd=document.createElement("dd");
+    dt.textContent=term; dd.textContent=text; pair.append(dt,dd); return pair;
+  }));
   const runsAll=[{workers:1,seconds:sequential.seconds},...runs];
   $("explain-list").replaceChildren(...explainTimes(runsAll,workers,navigator.hardwareConcurrency).map(text => {
     const item=document.createElement("li"); item.textContent=text; return item;
