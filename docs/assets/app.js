@@ -93,7 +93,7 @@ function runParallel(images, requested) {
           if (settled) return;
           if (data.error) { finish(new Error(data.error)); return; }
           outputs[data.index]=new Uint8ClampedArray(data.output); done++;
-          status(`Processamento paralelo: ${done}/${images.length}`);
+          status(`Processamento paralelo (${requested} processos): ${done}/${images.length}`);
           if (done===images.length) finish(); else dispatch(worker);
         };
         dispatch(worker);
@@ -104,21 +104,42 @@ function runParallel(images, requested) {
 function identical(a,b) {
   return a.length === b.length && a.every((pixels,i) => pixels.length === b[i].length && pixels.every((value,j) => value === b[i][j]));
 }
-function display(images,sequential,parallel,workers) {
-  const format = n => `${n.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})} s`;
+const format = n => `${n.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})} s`;
+const times = n => `${n.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})}×`;
+function renderChart(runs,selected) {
+  const chart=$("chart"); chart.replaceChildren();
+  const base=runs[0].seconds, max=Math.max(...runs.map(run=>run.seconds));
+  for (const run of runs) {
+    const row=document.createElement("div"); row.className="chart-row"; row.classList.toggle("selected",run.workers===selected);
+    const label=document.createElement("span"); label.className="chart-label";
+    label.textContent=run.workers===1 ? "1 (sequencial)" : `${run.workers} processos`;
+    const track=document.createElement("div"); track.className="chart-track";
+    const bar=document.createElement("div"); bar.className="chart-bar"; bar.style.width=`${max>0 ? run.seconds/max*100 : 0}%`;
+    track.append(bar);
+    const value=document.createElement("span"); value.className="chart-value";
+    const speed=document.createElement("span"); speed.textContent=` · ${times(base/run.seconds)}`;
+    value.append(format(run.seconds),speed);
+    row.title=`${label.textContent}: ${format(run.seconds)} (${times(base/run.seconds)} em relação ao sequencial)`;
+    row.append(label,track,value); chart.append(row);
+  }
+  chart.setAttribute("aria-label",`Tempo por número de processos: ${runs.map(run=>`${run.workers}: ${format(run.seconds)}`).join("; ")}`);
+}
+function display(images,sequential,runs,workers) {
+  const parallel=runs.find(run=>run.workers===workers);
   $("sequential-time").textContent=format(sequential.seconds);
   $("parallel-time").textContent=format(parallel.seconds);
   const ratio=sequential.seconds/parallel.seconds;
   $("speedup").textContent=ratio >= 1 ? `${ratio.toLocaleString("pt-BR",{maximumFractionDigits:2})}× mais rápido` : `${(1/ratio).toLocaleString("pt-BR",{maximumFractionDigits:2})}× mais lento`;
-  const same=identical(sequential.outputs,parallel.outputs);
-  $("verification").textContent=same ? "✓ Resultados idênticos" : "As saídas apresentaram diferenças";
+  const same=runs.every(run=>identical(sequential.outputs,run.outputs));
+  $("verification").textContent=same ? "✓ Resultados idênticos nas 4 configurações" : "As saídas apresentaram diferenças";
+  renderChart([{workers:1,seconds:sequential.seconds},...runs],workers);
   $("verification").classList.toggle("failed",!same);
   $("original-preview").src=images[0].preview;
   const canvas=$("edge-preview"), {width,height}=images[0]; canvas.width=width; canvas.height=height;
   const context=canvas.getContext("2d"); const frame=context.createImageData(width,height); const edges=sequential.outputs[0];
   for (let i=0; i<edges.length; i++) { const j=i*4; frame.data[j]=frame.data[j+1]=frame.data[j+2]=edges[i]; frame.data[j+3]=255; }
   context.putImageData(frame,0,0);
-  $("detail").textContent=`${images.length} ${images.length===1?"imagem":"imagens"} · ${Math.min(workers,images.length)} Web Workers · comparação dos pixels de todas as saídas. O tempo inclui o envio de dados aos workers. O código Python usa multiprocessing e pode apresentar tempos diferentes.`;
+  $("detail").textContent=`${images.length} ${images.length===1?"imagem":"imagens"} · gráfico: 1 processo (sequencial, thread principal), 2, 4 e 8 Web Workers · cartões: ${workers} processos · comparação dos pixels de todas as saídas. O tempo inclui o envio de dados aos workers. O código Python usa multiprocessing e pode apresentar tempos diferentes.`;
   $("empty").hidden=true; $("results").hidden=false;
 }
 $("run").addEventListener("click",async () => {
@@ -131,9 +152,13 @@ $("run").addEventListener("click",async () => {
     await nextFrame();
     const sequential=await runSequential(images);
     await nextFrame();
+    const runs=[];
+    for (const count of [2,4,8]) {
+      await nextFrame();
+      runs.push({workers:count,...await runParallel(images,count)});
+    }
     const workers=Number(document.querySelector('input[name="workers"]:checked').value);
-    const parallel=await runParallel(images,workers);
-    display(images,sequential,parallel,workers);
+    display(images,sequential,runs,workers);
     status("Processamento concluído.");
   } catch (error) { status(error.message || "Não foi possível processar as imagens.",true); }
   finally { state.busy=false; $("run").disabled=false; $("examples").disabled=false; $("images").disabled=false; }
