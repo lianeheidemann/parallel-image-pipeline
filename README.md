@@ -44,6 +44,9 @@ src/
   parallel.py              versão paralela (multiprocessing.Pool)
   verify.py                compara saídas via SHA-256
   benchmark.py             roda sequencial + paralelo e calcula o speedup
+  server.py                painel de resultados (HTTP, só leitura) para a nuvem
+cloud/
+  user-data.sh             preparação da instância EC2 (campo "User data")
 docs/                     página web (GitHub Pages)
 tests/                    testes (pytest + node --test)
 ```
@@ -186,6 +189,89 @@ benchmark Python (`multiprocessing`/OpenCV). Para rodar a página localmente
 ```bash
 npx http-server docs
 ```
+
+## Execução na nuvem (AWS Academy)
+
+A lauda pede a execução numa instância criada pela equipe, com um grupo de
+segurança que libera a porta administrativa só para a equipe e abre apenas a
+porta do serviço. Neste projeto:
+
+```
+Seu computador ──SSH 22 (só o seu IP/32)──► EC2 Ubuntu 24.04 · c5.large (2 vCPU) · EBS 30 GiB
+Navegador     ──HTTP 80 (qualquer origem)─► painel de resultados (src/server.py, só leitura)
+```
+
+- **Serviço (porta 80):** `src/server.py`, um painel HTTP somente leitura com o
+  último benchmark da instância (tempos, speedup, Amdahl, verificação, tipo de
+  instância, zona e núcleos). Só responde `GET` em `/` e `/benchmark.csv`; não
+  dispara processamento. Para testar localmente: `python src/server.py`
+  (abre em `http://localhost:8080/`).
+- **Preparação:** `cloud/user-data.sh`, colado no campo *User data* ao criar a
+  instância. No primeiro boot ele instala o Python, baixa este repositório em
+  `/home/ubuntu/parallel-image-pipeline`, sobe o painel como serviço `systemd`
+  (volta sozinho quando a instância é religada), gera as 2000 imagens Full HD e
+  roda o benchmark. Os parâmetros ficam no topo do script.
+
+### Passo a passo no console
+
+1. No AWS Academy, abra o **Learner Lab**, clique em *Start Lab* e, quando o
+   indicador ficar verde, em *AWS*. Confira a região **us-east-1** (N. Virginia).
+2. **EC2 → Launch instance**:
+   - *Name*: `pipeline-imagens`
+   - *AMI*: **Ubuntu Server 24.04 LTS**
+   - *Instance type*: **c5.large** (2 vCPU, otimizada para computação). Se não
+     estiver liberada no Learner Lab, use **t3.large** e anote no relatório.
+   - *Key pair*: **vockey** (baixe `labsuser.pem` em *AWS Details* no Learner Lab)
+   - *Network settings → Edit → Create security group*, nome `pipeline-sg`,
+     com **exatamente estas duas regras de entrada**:
+
+     | Tipo | Porta | Origem | Para quê |
+     |---|---|---|---|
+     | SSH | 22 | **My IP** (`x.x.x.x/32`) | administração (porta administrativa) |
+     | HTTP | 80 | Anywhere (`0.0.0.0/0`) | painel de resultados (porta do serviço) |
+
+   - *Configure storage*: **30 GiB gp3** (entrada + saídas ≈ 11 GB)
+   - *Advanced details → User data*: cole o conteúdo de `cloud/user-data.sh`
+3. *Launch instance*. Em alguns minutos, abra `http://IP-PÚBLICO/` (o IP aparece
+   nos detalhes da instância): o painel mostra "Benchmark em andamento" e, ao
+   terminar, a tabela. Com 2000 imagens Full HD em 2 vCPU, conte com cerca de
+   meia hora (3 rodadas do sequencial e do paralelo).
+4. Para entrar na instância:
+
+   ```bash
+   ssh -i labsuser.pem ubuntu@IP-PÚBLICO
+   tail -f ~/parallel-image-pipeline/results/setup.log
+   ```
+
+**Por que a porta 22 não fica aberta para `0.0.0.0/0`:** é a porta de
+administração. Aberta para qualquer origem, ela recebe varreduras e tentativas
+de login da internet inteira; a lauda considera isso falha de projeto e zera o
+critério. **No dia da apresentação, edite a regra 22 para "My IP" de novo**,
+porque o IP da rede da sala é outro. A porta 80 pode ficar aberta: o painel só
+mostra resultados e não aceita comandos.
+
+### Na apresentação
+
+- **Console, ao vivo:** a instância (estado, tipo, zona), a aba *Security* com
+  as duas regras e a origem de cada uma, e o disco.
+- **Execução, ao vivo:** pelo SSH, rode um volume menor para caber nos 3 minutos,
+  enquanto o painel mostra a medição completa de 2000 imagens feita antes:
+
+  ```bash
+  cd ~/parallel-image-pipeline && source .venv/bin/activate
+  python src/generate_dataset.py --count 300 --width 1920 --height 1080 --output /tmp/demo
+  python src/benchmark.py --dataset /tmp/demo --results /tmp/demo-results --workers 2 --repeat 1
+  ```
+
+- Com 2 vCPU, o benchmark mede 1 e 2 processos (4 e 8 são ignorados com aviso),
+  e o teto da Lei de Amdahl fica abaixo de 2.
+
+### Custos e sessão
+
+O Learner Lab encerra a sessão depois de 4 horas e **para** a instância (o disco
+e os resultados continuam). Ao religar, o IP público muda e o painel volta
+sozinho. Pare a instância (*Instance state → Stop*) quando não estiver usando;
+apague (*Terminate*) quando a disciplina acabar.
 
 ## Testes
 
