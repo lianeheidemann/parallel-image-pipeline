@@ -1,17 +1,18 @@
 // Timing of the sequential run (main thread) and the parallel runs (Web Workers).
-// No DOM access: progress is reported through the onStatus callback.
-import { processPixels, HALO } from "./processor.js?v=20260925b";
+// No DOM access: progress is reported as data through the onProgress callback.
+import { processPixels, HALO } from "./processor.js?v=20260925c";
 export const ROUNDS = 3; // each configuration is timed this many times; the median is shown
 export const WORKER_COUNTS = [2,4,8];
 const nextFrame = () => new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 0)));
 export const median = values => [...values].sort((a,b)=>a-b)[Math.floor(values.length/2)];
-async function runSequential(images, onStatus) {
+async function runSequential(images, onStep) {
   const outputs = []; let elapsed = 0;
+  onStep(0, images.length);
   for (let i=0; i<images.length; i++) {
     const img=images[i]; const start=performance.now();
     outputs.push(processPixels(img.rgba,img.width,img.height));
     elapsed += performance.now() - start;
-    onStatus(`Processamento sequencial: ${i+1}/${images.length}`);
+    onStep(i+1, images.length);
     await nextFrame();
   }
   return {outputs,seconds:elapsed/1000};
@@ -34,10 +35,11 @@ export function stripSlice(img, {outStart,outEnd}) {
   const sliceStart=Math.max(0,outStart-HALO), sliceEnd=Math.min(img.height,outEnd+HALO);
   return {sliceStart, rgba:img.rgba.slice(sliceStart*img.width*4,sliceEnd*img.width*4)};
 }
-function runParallel(images, requested, onStatus) {
+function runParallel(images, requested, onStep) {
   return new Promise((resolve,reject) => {
     const outputs=images.map(img => new Uint8ClampedArray(img.width*img.height));
     const tasks=stripTasks(images,requested); const workers=[];
+    onStep(0, tasks.length);
     let next=0, done=0, settled=false;
     const start=performance.now();
     const finish=(error) => {
@@ -52,7 +54,7 @@ function runParallel(images, requested, onStatus) {
     };
     try {
       for (let i=0; i<requested; i++) {
-        const worker=new Worker(new URL("./worker.js?v=20260925b",import.meta.url),{type:"module"});
+        const worker=new Worker(new URL("./worker.js?v=20260925c",import.meta.url),{type:"module"});
         workers.push(worker);
         worker.onerror=() => finish(new Error("Não foi possível executar os Web Workers neste navegador."));
         worker.onmessage=({data}) => {
@@ -60,7 +62,7 @@ function runParallel(images, requested, onStatus) {
           if (data.error) { finish(new Error(data.error)); return; }
           const {image,outStart}=tasks[data.task];
           outputs[image].set(new Uint8ClampedArray(data.output),outStart*images[image].width); done++;
-          onStatus(`Processamento paralelo (${requested} processos): ${done}/${tasks.length} faixas`);
+          onStep(done, tasks.length);
           if (done===tasks.length) finish(); else dispatch(worker);
         };
         dispatch(worker);
@@ -76,20 +78,24 @@ function differences(a,b) {
 }
 // Returns the sequential result and, per worker count, the median time and the
 // number of pixels that differed from the sequential output across all rounds.
-export async function benchmark(images, onStatus) {
+// onProgress receives {round, rounds, stage, stages, workers, done, total}: stages
+// lists the worker counts in run order (1 = sequential) and done/total count
+// images (sequential) or strips (parallel) of the current stage.
+export const STAGES = [1, ...WORKER_COUNTS];
+export async function benchmark(images, onProgress) {
   // Rounds interleave the configurations so a slowdown (heat, battery) hits all of them alike.
   const times={1:[]}, mismatch={};
   for (const count of WORKER_COUNTS) { times[count]=[]; mismatch[count]=0; }
   let reference=null;
   for (let round=0; round<ROUNDS; round++) {
-    const report=message => onStatus(`Rodada ${round+1}/${ROUNDS} · ${message}`);
+    const step=(stage) => (done,total) => onProgress({round,rounds:ROUNDS,stage,stages:STAGES,workers:STAGES[stage],done,total});
     await nextFrame();
-    const sequential=await runSequential(images,report);
+    const sequential=await runSequential(images,step(0));
     times[1].push(sequential.seconds);
     reference ??= sequential.outputs;
     for (const count of WORKER_COUNTS) {
       await nextFrame();
-      const run=await runParallel(images,count,report);
+      const run=await runParallel(images,count,step(STAGES.indexOf(count)));
       times[count].push(run.seconds);
       mismatch[count]+=differences(reference,run.outputs);
     }

@@ -13,6 +13,22 @@ de bordas (Sobel) — com verificação de corretude bit a bit e medição de
 
 🌐 **[Página do projeto](https://lianeheidemann.github.io/parallel-image-pipeline/)** 
 
+## Python ou página web?
+
+O projeto tem duas formas de rodar o mesmo pipeline:
+
+| | Scripts Python (`src/`) | Página web (GitHub Pages) |
+|---|---|---|
+| Onde roda | No seu computador, por um terminal | No navegador, sem instalar nada |
+| Imagens de entrada | Arquivos `.jpg` na pasta `dataset/` (ou outra, com `--dataset`) | As que você escolher na página |
+| Resultados | Salvos em `output/` e `results/` | Só na tela; nada é salvo |
+| Paralelismo | Processos (`multiprocessing`) + OpenCV | Web Workers + JavaScript |
+| Para que serve | Medição do trabalho: tempos, speedup, Lei de Amdahl, verificação SHA-256 | Visualizar rapidamente o resultado com as suas imagens |
+
+Para rodar com as suas imagens e guardar os resultados, use os **scripts Python**.
+Não é preciso IDE: qualquer terminal serve (PowerShell, Terminal do macOS/Linux
+ou o terminal integrado do VS Code/PyCharm).
+
 ## Estrutura
 
 ```
@@ -94,11 +110,55 @@ python src/verify.py --sequential output/sequential --parallel output/parallel
 python src/benchmark.py --dataset dataset --workers 2 4 8 --repeat 3
 ```
 
+### Usar suas próprias imagens
+
+1. Copie as imagens para a pasta `dataset/`. Só arquivos **`.jpg`** são lidos
+   (`.png`, `.jpeg` e `.webp` são ignorados; no Linux/macOS, `.JPG` em
+   maiúsculas também).
+2. Rode os scripts pelo terminal, a partir da pasta do projeto:
+
+```bash
+python src/sequential.py
+python src/parallel.py --workers 4
+python src/verify.py
+```
+
+Para usar outra pasta sem copiar nada, passe `--dataset`:
+
+```bash
+python src/benchmark.py --dataset C:\Users\voce\Fotos --workers 2 4 --repeat 3
+```
+
+Para o volume registrado na ficha da Etapa 1 (sequencial levando minutos):
+
+```bash
+python src/generate_dataset.py --count 2000 --width 1920 --height 1080   # ≈ 3,6 GB
+python src/benchmark.py --workers 2 4 8 --repeat 3                        # ≈ 3 min por rodada sequencial
+```
+
+Contando entrada e as duas saídas, isso ocupa cerca de 11 GB de disco.
+
 O benchmark Python grava `results/benchmark.csv` com as colunas `processos`,
 `tempo_s`, `speedup`, `speedup_amdahl_previsto` e `verificado`. Cada
 configuração roda `--repeat` vezes (padrão 3), com as rodadas intercaladas, e o
 CSV guarda a mediana. O comando termina com código 1 se alguma saída paralela
 diferir da sequencial. As pastas `output/` são limpas a cada execução.
+
+## Onde ficam os arquivos
+
+Tudo fica **no seu computador**, dentro da pasta do projeto:
+
+| Pasta | O que guarda |
+|---|---|
+| `dataset/` | Imagens de entrada (`.jpg`), suas ou geradas por `generate_dataset.py` |
+| `output/sequential/` | Uma imagem de bordas (`.png`) por entrada, gerada pela versão sequencial |
+| `output/parallel/` | O mesmo, gerado pela versão paralela (idêntico byte a byte) |
+| `results/` | `sequential_report.csv` e `parallel_report_N.csv` (tempo de cada imagem e processo que a tratou) e `benchmark.csv` (resumo) |
+
+- Cada execução **apaga os `.png` antigos** da pasta de saída antes de começar;
+  copie para outro lugar o que quiser guardar.
+- Essas pastas estão no `.gitignore`: as imagens e os relatórios **não vão
+  para o GitHub** num `git push`.
 
 ## Página web
 
@@ -113,6 +173,11 @@ roda o mesmo pipeline em JavaScript, direto no navegador:
 - aceita imagens **JPG, PNG ou WebP, sem limite de quantidade nem de tamanho**.
   O limite prático é a memória do navegador/aparelho; se uma imagem não puder
   ser carregada, a página diz qual foi.
+
+As imagens **não são enviadas para nenhum servidor e não são salvas**: ficam só
+na memória da aba e somem ao recarregar ou fechar a página. A página também não
+lê a pasta `dataset/` nem grava em `output/`. Para guardar uma imagem de bordas,
+clique com o botão direito em "Bordas detectadas" e escolha "Salvar imagem como…".
 
 Os tempos são medidos no navegador e não se comparam diretamente com o
 benchmark Python (`multiprocessing`/OpenCV). Para rodar a página localmente
