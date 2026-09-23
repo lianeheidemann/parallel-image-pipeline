@@ -1,6 +1,6 @@
 // Timing of the sequential run (main thread) and the parallel runs (Web Workers).
 // No DOM access: progress is reported through the onStatus callback.
-import { processPixels, HALO } from "./processor.js?v=20260925a";
+import { processPixels, HALO } from "./processor.js?v=20260925b";
 export const ROUNDS = 3; // each configuration is timed this many times; the median is shown
 export const WORKER_COUNTS = [2,4,8];
 const nextFrame = () => new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 0)));
@@ -52,7 +52,7 @@ function runParallel(images, requested, onStatus) {
     };
     try {
       for (let i=0; i<requested; i++) {
-        const worker=new Worker(new URL("./worker.js?v=20260925a",import.meta.url),{type:"module"});
+        const worker=new Worker(new URL("./worker.js?v=20260925b",import.meta.url),{type:"module"});
         workers.push(worker);
         worker.onerror=() => finish(new Error("Não foi possível executar os Web Workers neste navegador."));
         worker.onmessage=({data}) => {
