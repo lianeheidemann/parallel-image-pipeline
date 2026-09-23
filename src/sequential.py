@@ -1,9 +1,9 @@
-"""Processa o dataset inteiro em um unico processo, imagem por imagem.
+"""Versao sequencial: todo o dataset em um unico processo, imagem por imagem.
 
-Sem lock: so existe um fluxo de execucao, entao nao ha estado
-compartilhado nem secao critica (contraste direto com parallel.py).
-O tempo medido aqui (retorno de run()) e a referencia usada no
-speedup = tempo_sequencial / tempo_paralelo (slide 12, campo D da ficha).
+E o tempo de referencia do speedup (tempo_sequencial / tempo_paralelo, Ficha D)
+e a resposta correta conhecida contra a qual a versao paralela e verificada.
+Com um so fluxo nao ha estado compartilhado, logo nao ha secao critica nem lock
+(contraste com parallel.py).
 """
 
 import argparse
@@ -19,6 +19,8 @@ def run(dataset_dir: Path, output_dir: Path, report_path: Path) -> float:
     prepare_output_dir(output_dir)
 
     rows = []
+    # Mesmo criterio de tempo da versao paralela: so o processamento do dataset,
+    # sem listar arquivos nem gravar o relatorio.
     start = time.perf_counter()
 
     for image_path in images:

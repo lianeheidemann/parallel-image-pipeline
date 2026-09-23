@@ -1,4 +1,9 @@
-"""Compara, via SHA-256, se as saidas sequencial e paralela sao identicas."""
+"""Verifica, por SHA-256, se as saidas sequencial e paralela sao identicas byte a byte.
+
+E a prova de corretude (condicao 3 da Ficha A): a versao paralela produz o mesmo
+que a sequencial. Rodado a cada execucao do benchmark, tambem mostra que o
+resultado fica estavel com a mesma entrada, como pede o criterio de sincronizacao.
+"""
 
 import argparse
 import hashlib
@@ -8,14 +13,10 @@ from common import PARALLEL_OUTPUT, SEQUENTIAL_OUTPUT
 
 
 def hash_file(path: Path) -> str:
-    # Le o arquivo inteiro em memoria e calcula o hash SHA-256 dos bytes,
-    # usado para comparar o conteudo de duas imagens sem abri-las como imagem.
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 def verify(dir_a: Path, dir_b: Path) -> bool:
-    # Mapeia nome do arquivo -> caminho, para permitir comparar por nome
-    # mesmo que os arquivos estejam em pastas diferentes.
     files_a = {p.name: p for p in dir_a.glob("*.png")}
     files_b = {p.name: p for p in dir_b.glob("*.png")}
 
@@ -25,8 +26,7 @@ def verify(dir_a: Path, dir_b: Path) -> bool:
         print(f"Nenhum .png encontrado em {dir_a} nem em {dir_b}.")
         return False
 
-    # Primeiro verifica se os DOIS conjuntos tem os mesmos nomes de arquivo.
-    # Se algum arquivo existe so em um lado, ja nao ha como comparar conteudo.
+    # Nomes diferentes: uma das versoes deixou de processar (ou processou a mais) alguma imagem.
     if files_a.keys() != files_b.keys():
         only_a = files_a.keys() - files_b.keys()
         only_b = files_b.keys() - files_a.keys()
@@ -34,7 +34,6 @@ def verify(dir_a: Path, dir_b: Path) -> bool:
               f"So em {dir_b}: {sorted(only_b)[:5]}")
         return False
 
-    # Compara o hash de cada par de arquivos com o mesmo nome.
     mismatches = []
     for name in sorted(files_a):
         hash_a = hash_file(files_a[name])
@@ -47,7 +46,6 @@ def verify(dir_a: Path, dir_b: Path) -> bool:
     print(f"{ok}/{total} arquivos identicos.")
 
     if mismatches:
-        # Mostra so os 10 primeiros nomes divergentes para nao poluir a saida.
         print(f"Divergencias em: {mismatches[:10]}{'...' if len(mismatches) > 10 else ''}")
         print("Resultado sequencial != resultado paralelo.")
         return False
@@ -58,15 +56,12 @@ def verify(dir_a: Path, dir_b: Path) -> bool:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Verifica se duas pastas de saida sao identicas (SHA-256)")
-    # Por padrao compara output/sequential com output/parallel na raiz do projeto,
-    # mas os caminhos podem ser sobrescritos via linha de comando.
     parser.add_argument("--sequential", type=Path, default=SEQUENTIAL_OUTPUT)
     parser.add_argument("--parallel", type=Path, default=PARALLEL_OUTPUT)
     args = parser.parse_args()
 
     ok = verify(args.sequential, args.parallel)
-    # Codigo de saida 0 = sucesso (identicos), 1 = falha (divergentes),
-    # convencao usada por scripts/CI para detectar erro.
+    # Codigo de saida 1 quando diverge: o CI e os scripts tratam como falha.
     raise SystemExit(0 if ok else 1)
 
 

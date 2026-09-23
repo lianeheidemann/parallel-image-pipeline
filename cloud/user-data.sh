@@ -6,6 +6,14 @@
 # 2. sobe o painel de resultados (src/server.py) na porta 80 como servico systemd
 # 3. gera o dataset e roda o benchmark; o painel mostra o andamento e o resultado
 #
+# Decisoes da Ficha E que ficam fora deste script (feitas no console):
+# - Grupo de seguranca: 22/TCP so do IP da equipe (/32), nunca 0.0.0.0/0;
+#   80/TCP aberta para o painel, que e somente leitura.
+# - Tipo c5.large: familia sem creditos de CPU. Nas familias t2/t3 a CPU cai quando
+#   os creditos acabam, o que distorceria a medicao.
+# - Disco EBS de 30 GiB: dataset, saidas e resultados sobrevivem a "Stop", mas nao
+#   a "Terminate" (antes de apagar a instancia, copie results/).
+#
 # Acompanhe por SSH:  tail -f ~/parallel-image-pipeline/results/setup.log
 set -euo pipefail
 
@@ -13,7 +21,7 @@ set -euo pipefail
 COUNT=2000          # numero de imagens
 WIDTH=1920          # largura (px)
 HEIGHT=1080         # altura (px)
-WORKERS="2"         # processos medidos; c5.large tem 2 vCPU
+WORKERS="2"         # processos medidos = vCPUs da c5.large
 REPEAT=3            # rodadas; o CSV guarda a mediana
 REPO_URL="https://github.com/lianeheidemann/parallel-image-pipeline.git"
 

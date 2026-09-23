@@ -14,20 +14,23 @@ REPORT_HEADER = ["arquivo", "tempo", "processo"]
 
 
 def list_images(dataset_dir: Path) -> list[Path]:
+    # A unidade de trabalho: um arquivo .jpg. Ordenado para que as duas versoes
+    # recebam a mesma entrada, na mesma ordem.
     return sorted(dataset_dir.glob("*.jpg"))
 
 
 def prepare_output_dir(output_dir: Path) -> None:
-    # Apaga os .png de execucoes anteriores: sobras de um dataset maior
-    # fariam o verify.py comparar arquivos que nao foram gerados agora.
+    # Apaga os .png de execucoes anteriores, para que o verify.py compare so o que
+    # esta execucao gerou (sobras de um dataset maior falseariam a verificacao).
     output_dir.mkdir(parents=True, exist_ok=True)
     for old in output_dir.glob("*.png"):
         old.unlink()
 
 
 def write_report(report_path: Path, rows: Iterable[tuple[str, str, str]] = ()) -> None:
-    # Cria o relatorio por imagem (arquivo, tempo, processo). Sem linhas, grava
-    # so o cabecalho: e o caso do paralelo, em que cada worker anexa a sua.
+    # Relatorio por imagem: arquivo (sobre o que), tempo e processo (quem).
+    # Sem linhas grava so o cabecalho: e o caso da versao paralela, em que cada
+    # processo anexa a sua linha dentro da secao critica.
     report_path.parent.mkdir(parents=True, exist_ok=True)
     with open(report_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)

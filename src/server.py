@@ -1,10 +1,14 @@
-"""Painel de resultados: servico HTTP so de leitura com o ultimo benchmark da maquina.
+"""Painel de resultados: o servico HTTP da instancia na nuvem (Ficha E).
 
-E a "porta do servico" da instancia na nuvem (ver cloud/user-data.sh e o README).
-Rotas fixas, so GET:
-- /               pagina com a tabela de results/benchmark.csv e dados da maquina
-- /benchmark.csv  o CSV bruto
-Nao serve nenhum outro arquivo: todo texto lido do disco e escapado antes de ir para a pagina.
+A lauda pede um grupo de seguranca que abra so a porta do servico e restrinja a
+porta administrativa (SSH) a origem da equipe. Este painel e esse servico, na
+porta 80: mostra o ultimo benchmark (tempos, speedup, Amdahl, verificacao) e a
+maquina em que foi medido (tipo de instancia, zona, nucleos).
+
+Por ser somente leitura, a porta 80 pode ficar aberta a qualquer origem:
+- rotas fixas, so GET: "/" (pagina) e "/benchmark.csv" (dados brutos);
+- nao dispara processamento nem serve outros arquivos;
+- todo texto lido do disco e escapado antes de ir para a pagina.
 """
 
 import argparse

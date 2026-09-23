@@ -1,4 +1,14 @@
-"""Pipeline de processamento aplicado a cada imagem: grayscale -> blur gaussiano -> bordas (Sobel)."""
+"""Pipeline aplicado a cada imagem: escala de cinza -> blur gaussiano -> bordas (Sobel).
+
+E a mesma funcao nas versoes sequencial e paralela; elas so diferem em como
+distribuem as imagens. Por isso a comparacao de tempo e justa.
+- A saida depende so dos pixels da propria imagem: as partes sao independentes
+  e podem rodar ao mesmo tempo (condicao 1 da Ficha A).
+- E deterministica: a mesma entrada gera os mesmos bytes, o que permite verificar
+  a versao paralela contra a sequencial byte a byte (condicao 3).
+- E calculo puro sobre pixels (limitado por processador), o que justifica usar
+  processos em vez de threads (Ficha B).
+"""
 
 from pathlib import Path
 

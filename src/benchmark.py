@@ -1,8 +1,13 @@
-"""Executa sequencial e paralelo (com varias contagens de processos) e compara os tempos.
+"""Medicao de desempenho (criterio de medicao da lauda, Ficha D).
 
-Calcula o speedup observado e o speedup previsto pela Lei de Amdahl,
-usando a fracao paralelizavel estimada a partir da primeira contagem de processos.
-Cada configuracao roda --repeat vezes (intercaladas) e o resultado e a mediana.
+- Tempo sequencial e paralelo na mesma maquina, com a mesma entrada, medidos mais
+  de uma vez: --repeat rodadas intercaladas, e o resultado de cada configuracao e
+  a mediana.
+- Speedup = tempo_sequencial / tempo_paralelo, comparado com o previsto pela Lei de
+  Amdahl para a fracao paralelizavel estimada.
+- A cada rodada verifica que a saida paralela e identica a sequencial; termina com
+  codigo 1 se nao for.
+Resultado em results/benchmark.csv (lido tambem pelo painel, src/server.py).
 """
 
 import argparse
@@ -18,8 +23,8 @@ from common import DATASET_DIR, PARALLEL_OUTPUT, RESULTS_DIR, SEQUENTIAL_OUTPUT,
 
 
 def amdahl_speedup(parallel_fraction: float, workers: int) -> float:
-    # Lei de Amdahl: S = 1 / ((1-p) + p/n) — teto previsto de speedup
-    # para uma fracao paralelizavel p com n processos (slide 12).
+    # Lei de Amdahl: S = 1 / ((1 - p) + p / n). A parte serial (1 - p) fixa o teto:
+    # com p = 0,90, nem infinitos processos passam de 10x.
     serial_fraction = 1 - parallel_fraction
     return 1 / (serial_fraction + parallel_fraction / workers)
 
@@ -27,9 +32,8 @@ def amdahl_speedup(parallel_fraction: float, workers: int) -> float:
 def estimate_parallel_fraction(seq_time: float, par_time: float, workers: int) -> float:
     """Resolve a fracao paralelizavel p a partir do speedup observado com N processos.
 
-    Usada para comparar previsto vs. observado (campo D/E da ficha): se o
-    speedup medido ficar abaixo do previsto, a causa e comunicacao entre
-    processos, divisao desigual do trabalho ou espera na secao critica.
+    E a estimativa de p pedida na Ficha D. Com ela, o speedup previsto para as outras
+    contagens de processos pode ser comparado com o medido.
     """
     if workers <= 1 or seq_time <= 0 or par_time <= 0:
         return 0.0
@@ -80,8 +84,9 @@ def run_benchmark(
             "verificado": ("sim" if verified[workers] else "nao") if verify_outputs else "",
         })
 
-    # A fracao p e estimada com a primeira contagem de processos; nas demais,
-    # o speedup previsto por Amdahl pode ser comparado com o observado.
+    # p vem da primeira contagem de processos; nas demais, previsto x medido. Se o
+    # medido ficar abaixo, a analise do relatorio aponta uma de tres causas:
+    # comunicacao entre processos, divisao desigual do trabalho ou espera na secao critica.
     parallel_fraction = estimate_parallel_fraction(seq_time, medians[worker_counts[0]], worker_counts[0])
     print(f"\nFracao paralelizavel estimada (Amdahl): {parallel_fraction:.3f}")
     for row in rows[1:]:
