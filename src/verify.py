@@ -4,7 +4,7 @@ import argparse
 import hashlib
 from pathlib import Path
 
-from common import PROJECT_ROOT
+from common import PARALLEL_OUTPUT, SEQUENTIAL_OUTPUT
 
 
 def hash_file(path: Path) -> str:
@@ -18,6 +18,12 @@ def verify(dir_a: Path, dir_b: Path) -> bool:
     # mesmo que os arquivos estejam em pastas diferentes.
     files_a = {p.name: p for p in dir_a.glob("*.png")}
     files_b = {p.name: p for p in dir_b.glob("*.png")}
+
+    # Sem nenhum arquivo nao ha o que comparar: tratar como falha evita que
+    # um dataset vazio (ou caminho errado) passe como "tudo identico".
+    if not files_a and not files_b:
+        print(f"Nenhum .png encontrado em {dir_a} nem em {dir_b}.")
+        return False
 
     # Primeiro verifica se os DOIS conjuntos tem os mesmos nomes de arquivo.
     # Se algum arquivo existe so em um lado, ja nao ha como comparar conteudo.
@@ -54,8 +60,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Verifica se duas pastas de saida sao identicas (SHA-256)")
     # Por padrao compara output/sequential com output/parallel na raiz do projeto,
     # mas os caminhos podem ser sobrescritos via linha de comando.
-    parser.add_argument("--sequential", type=Path, default=PROJECT_ROOT / "output" / "sequential")
-    parser.add_argument("--parallel", type=Path, default=PROJECT_ROOT / "output" / "parallel")
+    parser.add_argument("--sequential", type=Path, default=SEQUENTIAL_OUTPUT)
+    parser.add_argument("--parallel", type=Path, default=PARALLEL_OUTPUT)
     args = parser.parse_args()
 
     ok = verify(args.sequential, args.parallel)

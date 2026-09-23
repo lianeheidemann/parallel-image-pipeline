@@ -19,8 +19,8 @@ def process_image(image_path: Path, output_path: Path) -> None:
     magnitude = cv2.magnitude(sobel_x, sobel_y)
     edges = np.clip(magnitude, 0, 255).astype(np.uint8)
 
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    cv2.imwrite(str(output_path), edges)
+    if not cv2.imwrite(str(output_path), edges):
+        raise OSError(f"Nao foi possivel gravar a imagem: {output_path}")
 
 
 def output_filename(image_path: Path) -> str:
