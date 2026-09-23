@@ -1,8 +1,8 @@
-import { processPixels } from "./processor.js";
+import { processRows } from "./processor.js?v=20260923b";
 self.onmessage = ({data}) => {
   try {
-    const output = processPixels(new Uint8ClampedArray(data.rgba), data.width, data.height);
-    self.postMessage({index:data.index, output:output.buffer}, [output.buffer]);
+    const output = processRows(new Uint8ClampedArray(data.rgba), data.width, data.height, data.sliceStart, data.outStart, data.outEnd);
+    self.postMessage({task:data.task, output:output.buffer}, [output.buffer]);
   } catch (error) {
     self.postMessage({error:error.message || "Erro no processamento."});
   }

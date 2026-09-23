@@ -1,4 +1,4 @@
-import { processPixels } from "./processor.js";
+import { processPixels, HALO } from "./processor.js?v=20260923b";
 const $ = (id) => document.getElementById(id);
 const state = {sources: [], preview: null, busy: false};
 const LIMIT = 12;
@@ -68,9 +68,22 @@ async function runSequential(images) {
   }
   return {outputs,seconds:elapsed/1000};
 }
+// Each image is cut into horizontal strips so every worker has work even with few images.
+function stripTasks(images, requested) {
+  const tasks=[];
+  images.forEach((img,image) => {
+    const parts=Math.min(requested,img.height);
+    for (let p=0; p<parts; p++) {
+      const outStart=Math.floor(p*img.height/parts), outEnd=Math.floor((p+1)*img.height/parts);
+      tasks.push({image,outStart,outEnd});
+    }
+  });
+  return tasks;
+}
 function runParallel(images, requested) {
   return new Promise((resolve,reject) => {
-    const outputs=new Array(images.length); const workers=[];
+    const outputs=images.map(img => new Uint8ClampedArray(img.width*img.height));
+    const tasks=stripTasks(images,requested); const workers=[];
     let next=0, done=0, settled=false;
     const start=performance.now();
     const finish=(error) => {
@@ -78,23 +91,25 @@ function runParallel(images, requested) {
       if (error) reject(error); else resolve({outputs,seconds:(performance.now()-start)/1000});
     };
     const dispatch=(worker) => {
-      if (next >= images.length) return;
-      const index=next++; const img=images[index];
-      // Copy only for transfer; preserve the sequential input and previews.
-      const bytes=new Uint8ClampedArray(img.rgba);
-      worker.postMessage({index,width:img.width,height:img.height,rgba:bytes.buffer},[bytes.buffer]);
+      if (next >= tasks.length) return;
+      const task=next++; const {image,outStart,outEnd}=tasks[task]; const img=images[image];
+      const sliceStart=Math.max(0,outStart-HALO), sliceEnd=Math.min(img.height,outEnd+HALO);
+      // slice() copies only the strip's rows, preserving the sequential input.
+      const bytes=img.rgba.slice(sliceStart*img.width*4,sliceEnd*img.width*4);
+      worker.postMessage({task,width:img.width,height:img.height,sliceStart,outStart,outEnd,rgba:bytes.buffer},[bytes.buffer]);
     };
     try {
-      for (let i=0; i<Math.min(requested,images.length); i++) {
-        const worker=new Worker(new URL("./worker.js",import.meta.url),{type:"module"});
+      for (let i=0; i<requested; i++) {
+        const worker=new Worker(new URL("./worker.js?v=20260923b",import.meta.url),{type:"module"});
         workers.push(worker);
         worker.onerror=() => finish(new Error("Não foi possível executar os Web Workers neste navegador."));
         worker.onmessage=({data}) => {
           if (settled) return;
           if (data.error) { finish(new Error(data.error)); return; }
-          outputs[data.index]=new Uint8ClampedArray(data.output); done++;
-          status(`Processamento paralelo (${requested} processos): ${done}/${images.length}`);
-          if (done===images.length) finish(); else dispatch(worker);
+          const {image,outStart}=tasks[data.task];
+          outputs[image].set(new Uint8ClampedArray(data.output),outStart*images[image].width); done++;
+          status(`Processamento paralelo (${requested} processos): ${done}/${tasks.length} faixas`);
+          if (done===tasks.length) finish(); else dispatch(worker);
         };
         dispatch(worker);
       }
@@ -139,7 +154,7 @@ function display(images,sequential,runs,workers) {
   const context=canvas.getContext("2d"); const frame=context.createImageData(width,height); const edges=sequential.outputs[0];
   for (let i=0; i<edges.length; i++) { const j=i*4; frame.data[j]=frame.data[j+1]=frame.data[j+2]=edges[i]; frame.data[j+3]=255; }
   context.putImageData(frame,0,0);
-  $("detail").textContent=`${images.length} ${images.length===1?"imagem":"imagens"} · gráfico: 1 processo (sequencial, thread principal), 2, 4 e 8 Web Workers · cartões: ${workers} processos · comparação dos pixels de todas as saídas. O tempo inclui o envio de dados aos workers. O código Python usa multiprocessing e pode apresentar tempos diferentes.`;
+  $("detail").textContent=`${images.length} ${images.length===1?"imagem":"imagens"} · gráfico: 1 processo (sequencial, thread principal), 2, 4 e 8 Web Workers · cartões: ${workers} processos · cada imagem é dividida em faixas horizontais entre os workers · comparação dos pixels de todas as saídas. O tempo inclui o envio de dados aos workers. O código Python usa multiprocessing e pode apresentar tempos diferentes.`;
   $("empty").hidden=true; $("results").hidden=false;
 }
 $("run").addEventListener("click",async () => {
