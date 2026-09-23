@@ -4,7 +4,7 @@ import argparse
 import hashlib
 from pathlib import Path
 
-from common import PROJECT_ROOT
+from common import PARALLEL_OUTPUT, SEQUENTIAL_OUTPUT
 
 
 def hash_file(path: Path) -> str:
@@ -60,8 +60,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Verifica se duas pastas de saida sao identicas (SHA-256)")
     # Por padrao compara output/sequential com output/parallel na raiz do projeto,
     # mas os caminhos podem ser sobrescritos via linha de comando.
-    parser.add_argument("--sequential", type=Path, default=PROJECT_ROOT / "output" / "sequential")
-    parser.add_argument("--parallel", type=Path, default=PROJECT_ROOT / "output" / "parallel")
+    parser.add_argument("--sequential", type=Path, default=SEQUENTIAL_OUTPUT)
+    parser.add_argument("--parallel", type=Path, default=PARALLEL_OUTPUT)
     args = parser.parse_args()
 
     ok = verify(args.sequential, args.parallel)

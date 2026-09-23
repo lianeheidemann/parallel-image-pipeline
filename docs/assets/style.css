@@ -1,5 +1,7 @@
 :root { font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; color:#101b36; background:#f7f8fc; font-synthesis:none; --accent:#4263eb; --accent-dark:#3151d4; --border:#dfe4ef; --muted:#68758e; }
 * { box-sizing:border-box; }
+/* Class rules such as .empty { display:flex } would otherwise override the hidden attribute. */
+[hidden] { display:none !important; }
 body { margin:0; }
 button,input { font:inherit; }
 button { cursor:pointer; }
@@ -39,8 +41,6 @@ h2 { font-size:1.35rem; margin-bottom:22px; letter-spacing:-.015em; }
 .results-panel { min-height:570px; display:flex; flex-direction:column; }
 .empty { flex:1; min-height:460px; color:var(--muted); border:1px solid #e5e8f0; border-radius:12px; text-align:center; padding:64px 20px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; }
 .empty-icon { width:70px; height:70px; fill:none; stroke:#c3c9d6; stroke-width:1.25; stroke-linecap:round; stroke-linejoin:round; }
-.loading { display:flex; flex-direction:column; align-items:center; gap:14px; }
-.loading[hidden] { display:none; }
 .spinner { width:36px; height:36px; border:4px solid #dbe4f2; border-top-color:#2563d9; border-radius:50%; animation:spin .8s linear infinite; }
 @keyframes spin { to { transform:rotate(360deg); } }
 @media(prefers-reduced-motion:reduce) { .spinner { animation-duration:2.4s; } }

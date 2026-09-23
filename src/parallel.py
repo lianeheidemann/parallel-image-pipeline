@@ -14,7 +14,15 @@ import multiprocessing as mp
 import time
 from pathlib import Path
 
-from common import PROJECT_ROOT, REPORT_HEADER, list_images, positive_int, prepare_output_dir
+from common import (
+    DATASET_DIR,
+    PARALLEL_OUTPUT,
+    RESULTS_DIR,
+    list_images,
+    positive_int,
+    prepare_output_dir,
+    write_report,
+)
 from image_processor import output_filename, process_image
 
 _lock = None
@@ -56,10 +64,7 @@ def _process_one(image_path: Path) -> None:
 def run(dataset_dir: Path, output_dir: Path, report_path: Path, workers: int) -> float:
     images = list_images(dataset_dir)
     prepare_output_dir(output_dir)
-    report_path.parent.mkdir(parents=True, exist_ok=True)
-
-    with open(report_path, "w", newline="", encoding="utf-8") as f:
-        csv.writer(f).writerow(REPORT_HEADER)
+    write_report(report_path)
 
     # Processos nao compartilham memoria como threads, entao o estado comum
     # precisa ser criado explicitamente: Lock e Value ficam em memoria
@@ -86,9 +91,9 @@ def run(dataset_dir: Path, output_dir: Path, report_path: Path, workers: int) ->
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Processamento paralelo de imagens")
-    parser.add_argument("--dataset", type=Path, default=PROJECT_ROOT / "dataset")
-    parser.add_argument("--output", type=Path, default=PROJECT_ROOT / "output" / "parallel")
-    parser.add_argument("--report", type=Path, default=PROJECT_ROOT / "results" / "parallel_report.csv")
+    parser.add_argument("--dataset", type=Path, default=DATASET_DIR)
+    parser.add_argument("--output", type=Path, default=PARALLEL_OUTPUT)
+    parser.add_argument("--report", type=Path, default=RESULTS_DIR / "parallel_report.csv")
     parser.add_argument("--workers", type=positive_int, default=mp.cpu_count())
     args = parser.parse_args()
 

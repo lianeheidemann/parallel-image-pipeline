@@ -14,7 +14,7 @@ from pathlib import Path
 import parallel
 import sequential
 import verify as verify_module
-from common import PROJECT_ROOT, positive_int
+from common import DATASET_DIR, PARALLEL_OUTPUT, RESULTS_DIR, SEQUENTIAL_OUTPUT, positive_int
 
 
 def amdahl_speedup(parallel_fraction: float, workers: int) -> float:
@@ -47,9 +47,9 @@ def run_benchmark(
 ) -> bool:
     """Roda o benchmark e retorna False se alguma saida paralela divergir da sequencial."""
     results_dir.mkdir(parents=True, exist_ok=True)
-    seq_output = PROJECT_ROOT / "output" / "sequential"
+    seq_output = SEQUENTIAL_OUTPUT
     seq_report = results_dir / "sequential_report.csv"
-    par_output = PROJECT_ROOT / "output" / "parallel"
+    par_output = PARALLEL_OUTPUT
 
     # Rodadas intercalam sequencial e paralelo: o cache de disco e a variacao
     # de frequencia da CPU afetam todas as configuracoes por igual, em vez de
@@ -107,8 +107,8 @@ def run_benchmark(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Benchmark sequencial vs paralelo")
-    parser.add_argument("--dataset", type=Path, default=PROJECT_ROOT / "dataset")
-    parser.add_argument("--results", type=Path, default=PROJECT_ROOT / "results")
+    parser.add_argument("--dataset", type=Path, default=DATASET_DIR)
+    parser.add_argument("--results", type=Path, default=RESULTS_DIR)
     parser.add_argument("--workers", type=positive_int, nargs="+", default=[2, 4, 8])
     parser.add_argument("--repeat", type=positive_int, default=3, help="Rodadas por configuracao (usa a mediana)")
     parser.add_argument("--no-verify", action="store_true", help="Pula a verificacao SHA-256")

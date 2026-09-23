@@ -21,13 +21,21 @@ output/sequential/        saída da versão sequencial
 output/parallel/          saída da versão paralela
 results/                  relatórios CSV + benchmark.csv
 src/
-  common.py                 caminhos e utilitarios compartilhados
+  common.py                caminhos padrão, relatório CSV e utilitários compartilhados
   image_processor.py       pipeline aplicado a uma imagem
   generate_dataset.py      gera um dataset sintético
-  sequential.py             versão sequencial (1 processo)
-  parallel.py                versão paralela (multiprocessing.Pool)
-  verify.py                   compara saídas via SHA-256
-  benchmark.py                roda sequencial + paralelo e calcula o speedup
+  sequential.py            versão sequencial (1 processo)
+  parallel.py              versão paralela (multiprocessing.Pool)
+  verify.py                compara saídas via SHA-256
+  benchmark.py             roda sequencial + paralelo e calcula o speedup
+docs/                     página web (GitHub Pages)
+  assets/app.js            seleção de imagens e botão "Processar"
+  assets/runner.js         medição: sequencial, Web Workers e corte em faixas
+  assets/render.js         desenho dos resultados (métricas, gráfico, imagens)
+  assets/explain.js        explicações sobre a variação dos tempos
+  assets/format.js         formatação de números (pt-BR)
+  assets/processor.js      mesmo pipeline de image_processor.py, em JavaScript
+  assets/worker.js         Web Worker que processa uma faixa
 tests/                    testes (pytest + node --test)
 ```
 
@@ -59,7 +67,7 @@ flowchart LR
 imagem e é reutilizado tanto pela versão sequencial quanto pela paralela —
 as duas diferem apenas em **como** distribuem o trabalho, nunca no
 resultado. `common.py` centraliza o que é puramente infraestrutural
-(raiz do projeto, listagem do dataset, cabeçalho do relatório), evitando
+(caminhos padrão, listagem do dataset, escrita do relatório CSV), evitando
 que cada script redefina o mesmo caminho ou formato de CSV. `benchmark.py`
 não reimplementa nada: chama `sequential.run`, `parallel.run` e
 `verify.verify` diretamente, garantindo que o número comparado é sempre o
@@ -103,7 +111,7 @@ diferir da sequencial. As pastas `output/` são limpas a cada execução.
 ```bash
 pip install -r requirements-dev.txt
 pytest -q                               # Amdahl, verify.py, sequencial == paralelo
-node --test tests/processor.test.mjs    # versão web: faixas == imagem inteira
+node --test tests/*.test.mjs            # versão web: faixas == imagem inteira, versões ?v= iguais
 ``` A interface web faz sua
 própria medição no navegador com Web Workers; seus resultados não são importados
 do CSV nem equivalem ao benchmark com `multiprocessing`/OpenCV.

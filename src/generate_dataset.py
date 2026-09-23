@@ -6,7 +6,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image, ImageDraw
 
-from common import PROJECT_ROOT
+from common import DATASET_DIR
 
 DEFAULT_SIZE = (640, 480)
 
@@ -46,7 +46,7 @@ def generate_dataset(output_dir: Path, count: int, size=DEFAULT_SIZE) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Gera dataset sintetico de imagens")
     parser.add_argument("--count", type=int, default=1000, help="Numero de imagens a gerar")
-    parser.add_argument("--output", type=Path, default=PROJECT_ROOT / "dataset", help="Pasta de saida")
+    parser.add_argument("--output", type=Path, default=DATASET_DIR, help="Pasta de saida")
     parser.add_argument("--width", type=int, default=DEFAULT_SIZE[0])
     parser.add_argument("--height", type=int, default=DEFAULT_SIZE[1])
     args = parser.parse_args()

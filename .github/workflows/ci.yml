@@ -54,5 +54,5 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Strip processing == whole-image processing
-        run: node --test tests/processor.test.mjs
+      - name: Web tests (strips == whole image, cache versions)
+        run: node --test tests/*.test.mjs

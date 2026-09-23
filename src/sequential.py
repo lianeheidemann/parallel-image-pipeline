@@ -7,18 +7,16 @@ speedup = tempo_sequencial / tempo_paralelo (slide 12, campo D da ficha).
 """
 
 import argparse
-import csv
 import time
 from pathlib import Path
 
-from common import PROJECT_ROOT, REPORT_HEADER, list_images, prepare_output_dir
+from common import DATASET_DIR, RESULTS_DIR, SEQUENTIAL_OUTPUT, list_images, prepare_output_dir, write_report
 from image_processor import output_filename, process_image
 
 
 def run(dataset_dir: Path, output_dir: Path, report_path: Path) -> float:
     images = list_images(dataset_dir)
     prepare_output_dir(output_dir)
-    report_path.parent.mkdir(parents=True, exist_ok=True)
 
     rows = []
     start = time.perf_counter()
@@ -31,10 +29,7 @@ def run(dataset_dir: Path, output_dir: Path, report_path: Path) -> float:
 
     total_time = time.perf_counter() - start
 
-    with open(report_path, "w", newline="", encoding="utf-8") as f:
-        writer = csv.writer(f)
-        writer.writerow(REPORT_HEADER)
-        writer.writerows(rows)
+    write_report(report_path, rows)
 
     print(f"{len(rows)}/{len(images)} imagens processadas")
     print(f"Tempo total: {total_time:.2f}s")
@@ -43,9 +38,9 @@ def run(dataset_dir: Path, output_dir: Path, report_path: Path) -> float:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Processamento sequencial de imagens")
-    parser.add_argument("--dataset", type=Path, default=PROJECT_ROOT / "dataset")
-    parser.add_argument("--output", type=Path, default=PROJECT_ROOT / "output" / "sequential")
-    parser.add_argument("--report", type=Path, default=PROJECT_ROOT / "results" / "sequential_report.csv")
+    parser.add_argument("--dataset", type=Path, default=DATASET_DIR)
+    parser.add_argument("--output", type=Path, default=SEQUENTIAL_OUTPUT)
+    parser.add_argument("--report", type=Path, default=RESULTS_DIR / "sequential_report.csv")
     args = parser.parse_args()
 
     run(args.dataset, args.output, args.report)
