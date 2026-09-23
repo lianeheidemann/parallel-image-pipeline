@@ -1,5 +1,5 @@
-import { processPixels, HALO } from "./processor.js?v=20260924f";
-import { explainTimes } from "./explain.js?v=20260924f";
+import { processPixels, HALO } from "./processor.js?v=20260924g";
+import { explainTimes } from "./explain.js?v=20260924g";
 const $ = (id) => document.getElementById(id);
 const state = {sources: [], preview: null, busy: false};
 const LIMIT = 12;
@@ -34,7 +34,7 @@ async function prepare(source) {
   try {
     bitmap = await createImageBitmap(source.file);
     const {width,height} = bitmap;
-    if (width < 3 || height < 3 || width * height > MAX_PIXELS) throw new Error("Cada imagem deve ter pelo menos 3 × 3 pixels e no máximo 4 megapixels.");
+    if (width * height > MAX_PIXELS) throw new Error("Cada imagem deve ter no máximo 4 megapixels.");
     const canvas = document.createElement("canvas"); canvas.width=width; canvas.height=height;
     const ctx=canvas.getContext("2d", {willReadFrequently:true});
     ctx.drawImage(bitmap,0,0); bitmap.close(); bitmap=null;
@@ -84,7 +84,7 @@ function runParallel(images, requested) {
     };
     try {
       for (let i=0; i<requested; i++) {
-        const worker=new Worker(new URL("./worker.js?v=20260924f",import.meta.url),{type:"module"});
+        const worker=new Worker(new URL("./worker.js?v=20260924g",import.meta.url),{type:"module"});
         workers.push(worker);
         worker.onerror=() => finish(new Error("Não foi possível executar os Web Workers neste navegador."));
         worker.onmessage=({data}) => {
@@ -100,8 +100,11 @@ function runParallel(images, requested) {
     } catch (error) { finish(error); }
   });
 }
-function identical(a,b) {
-  return a.length === b.length && a.every((pixels,i) => pixels.length === b[i].length && pixels.every((value,j) => value === b[i][j]));
+// Number of output pixels that differ between two runs (all images).
+function differences(a,b) {
+  let count=0;
+  a.forEach((pixels,i) => { for (let j=0; j<pixels.length; j++) if (pixels[j]!==b[i][j]) count++; });
+  return count;
 }
 const format = n => `${n.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})} s`;
 const times = n => `${n.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})}×`;
@@ -159,8 +162,12 @@ function display(images,sequential,runs,workers) {
   $("parallel-time").textContent=format(parallel.seconds);
   const ratio=sequential.seconds/parallel.seconds;
   $("speedup").textContent=ratio >= 1 ? `${ratio.toLocaleString("pt-BR",{maximumFractionDigits:2})}× mais rápido` : `${(1/ratio).toLocaleString("pt-BR",{maximumFractionDigits:2})}× mais lento`;
-  const same=runs.every(run=>identical(sequential.outputs,run.outputs));
-  $("verification").textContent=same ? "✓ Resultados idênticos nas 4 configurações" : "As saídas apresentaram diferenças";
+  const pixels=sequential.outputs.reduce((sum,out)=>sum+out.length,0).toLocaleString("pt-BR");
+  const mismatched=runs.map(run=>({workers:run.workers,count:differences(sequential.outputs,run.outputs)})).filter(run=>run.count>0);
+  const same=mismatched.length===0;
+  $("verification").textContent=same
+    ? `✓ ${pixels} pixels comparados: 2, 4 e 8 processos geraram exatamente o mesmo resultado do sequencial`
+    : `✗ Diferença em relação ao sequencial: ${mismatched.map(run=>`${run.workers} processos (${run.count.toLocaleString("pt-BR")} pixels)`).join(", ")}`;
   renderChart([{workers:1,seconds:sequential.seconds},...runs],workers);
   $("verification").classList.toggle("failed",!same);
   renderGallery(images,sequential.outputs);

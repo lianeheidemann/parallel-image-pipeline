@@ -18,7 +18,13 @@ export function processRows(rgba, width, height, sliceStart, outStart, outEnd) {
   const blurred = new Uint8Array(count);
   const edges = new Uint8ClampedArray((outEnd - outStart) * width);
   const kernel = [1, 4, 6, 4, 1];
-  const reflect = (n, limit) => n < 0 ? -n : n >= limit ? 2 * limit - n - 2 : n;
+  // OpenCV's BORDER_REFLECT_101, also valid for images only 1 or 2 pixels wide/tall.
+  const reflect = (n, limit) => {
+    if (limit === 1) return 0;
+    const period = 2 * (limit - 1);
+    n = Math.abs(n) % period;
+    return n < limit ? n : period - n;
+  };
   const row = (y) => (reflect(y, height) - sliceStart) * width;
   for (let i = 0; i < count; i++) {
     const j = i * 4;
