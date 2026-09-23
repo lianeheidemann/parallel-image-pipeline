@@ -19,6 +19,12 @@ def verify(dir_a: Path, dir_b: Path) -> bool:
     files_a = {p.name: p for p in dir_a.glob("*.png")}
     files_b = {p.name: p for p in dir_b.glob("*.png")}
 
+    # Sem nenhum arquivo nao ha o que comparar: tratar como falha evita que
+    # um dataset vazio (ou caminho errado) passe como "tudo identico".
+    if not files_a and not files_b:
+        print(f"Nenhum .png encontrado em {dir_a} nem em {dir_b}.")
+        return False
+
     # Primeiro verifica se os DOIS conjuntos tem os mesmos nomes de arquivo.
     # Se algum arquivo existe so em um lado, ja nao ha como comparar conteudo.
     if files_a.keys() != files_b.keys():

@@ -1,8 +1,8 @@
 """Processa o dataset distribuindo as imagens entre varios processos (multiprocessing).
 
 Estado compartilhado entre os processos:
-- contador de imagens concluidas (multiprocessing.Value)
-- arquivo results.csv (escrita protegida por Lock)
+- contador de imagens concluidas (multiprocessing.Value, memoria compartilhada)
+- arquivo de relatorio CSV (escrita protegida por multiprocessing.Lock)
 
 As duas escritas compartilhadas acontecem dentro da mesma secao critica,
 delimitada pelo menor trecho de codigo possivel (o "with lock:" abaixo).
@@ -14,7 +14,7 @@ import multiprocessing as mp
 import time
 from pathlib import Path
 
-from common import PROJECT_ROOT, REPORT_HEADER, list_images
+from common import PROJECT_ROOT, REPORT_HEADER, list_images, positive_int, prepare_output_dir
 from image_processor import output_filename, process_image
 
 _lock = None
@@ -34,7 +34,8 @@ def _init_worker(lock, counter, output_dir: Path, report_path: Path) -> None:
 def _process_one(image_path: Path) -> None:
     # Estrategia = paralelismo de DADOS: cada worker do Pool recebe uma
     # imagem (chunksize=1 em run()) e aplica a mesma operacao (slide 7/8).
-    process_label = f"P{mp.current_process()._identity[0]}" if mp.current_process()._identity else "P1"
+    # Workers do Pool se chamam "ForkPoolWorker-3" / "SpawnPoolWorker-3".
+    process_label = f"P{mp.current_process().name.rsplit('-', 1)[-1]}"
 
     # Fora da secao critica: cada processo tem sua copia da imagem e escreve
     # em um arquivo .png proprio, entao nao ha concorrencia aqui.
@@ -43,8 +44,8 @@ def _process_one(image_path: Path) -> None:
     elapsed = time.perf_counter() - img_start
 
     # SECAO CRITICA (o que a ficha pede no campo C): _counter e _report_path
-    # sao escritos por todos os workers. Primitiva = Lock (multiprocessing
-    # Manager), delimitando so o incremento + a linha de CSV, nunca o
+    # sao escritos por todos os workers. Primitiva = multiprocessing.Lock,
+    # delimitando so o incremento + a linha de CSV, nunca o
     # processamento da imagem (senao o programa vira serializado, slide 10).
     with _lock:
         _counter.value += 1
@@ -54,17 +55,20 @@ def _process_one(image_path: Path) -> None:
 
 def run(dataset_dir: Path, output_dir: Path, report_path: Path, workers: int) -> float:
     images = list_images(dataset_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
+    prepare_output_dir(output_dir)
     report_path.parent.mkdir(parents=True, exist_ok=True)
 
     with open(report_path, "w", newline="", encoding="utf-8") as f:
         csv.writer(f).writerow(REPORT_HEADER)
 
-    # Lock e Value via Manager: unico jeito de compartilhar estado entre
-    # processos separados (memoria nao e compartilhada como em threads).
-    manager = mp.Manager()
-    lock = manager.Lock()
-    counter = manager.Value("i", 0)
+    # Processos nao compartilham memoria como threads, entao o estado comum
+    # precisa ser criado explicitamente: Lock e Value ficam em memoria
+    # compartilhada e sao herdados pelos workers via initargs. (Um Manager
+    # tambem funcionaria, mas cada acesso viraria uma chamada IPC a um
+    # processo servidor, inflando o custo da secao critica.)
+    lock = mp.Lock()
+    # lock=False: o incremento ja acontece dentro de "with _lock:".
+    counter = mp.Value("i", 0, lock=False)
 
     start = time.perf_counter()
     with mp.Pool(
@@ -85,7 +89,7 @@ def main() -> None:
     parser.add_argument("--dataset", type=Path, default=PROJECT_ROOT / "dataset")
     parser.add_argument("--output", type=Path, default=PROJECT_ROOT / "output" / "parallel")
     parser.add_argument("--report", type=Path, default=PROJECT_ROOT / "results" / "parallel_report.csv")
-    parser.add_argument("--workers", type=int, default=mp.cpu_count())
+    parser.add_argument("--workers", type=positive_int, default=mp.cpu_count())
     args = parser.parse_args()
 
     run(args.dataset, args.output, args.report, args.workers)

@@ -28,6 +28,7 @@ src/
   parallel.py                versão paralela (multiprocessing.Pool)
   verify.py                   compara saídas via SHA-256
   benchmark.py                roda sequencial + paralelo e calcula o speedup
+tests/                    testes (pytest + node --test)
 ```
 
 ## Arquitetura
@@ -88,11 +89,22 @@ python src/parallel.py --dataset dataset --output output/parallel --report resul
 python src/verify.py --sequential output/sequential --parallel output/parallel
 
 # 5. benchmark completo (sequencial + N processos, com verificação e Lei de Amdahl)
-python src/benchmark.py --dataset dataset --workers 2 4 8
+python src/benchmark.py --dataset dataset --workers 2 4 8 --repeat 3
 ```
 
 O benchmark Python grava `results/benchmark.csv` com as colunas `processos`,
-`tempo_s`, `speedup` e `speedup_amdahl_previsto`. A interface web faz sua
+`tempo_s`, `speedup`, `speedup_amdahl_previsto` e `verificado`. Cada
+configuração roda `--repeat` vezes (padrão 3), com as rodadas intercaladas, e o
+CSV guarda a mediana. O comando termina com código 1 se alguma saída paralela
+diferir da sequencial. As pastas `output/` são limpas a cada execução.
+
+## Testes
+
+```bash
+pip install -r requirements-dev.txt
+pytest -q                               # Amdahl, verify.py, sequencial == paralelo
+node --test tests/processor.test.mjs    # versão web: faixas == imagem inteira
+``` A interface web faz sua
 própria medição no navegador com Web Workers; seus resultados não são importados
 do CSV nem equivalem ao benchmark com `multiprocessing`/OpenCV.
 
@@ -106,9 +118,9 @@ CPU (OpenCV/NumPy) e, no CPython, threads não somam núcleos para esse tipo
 de carga (GIL); cada processo tem seu próprio interpretador.
 
 **Seção crítica.** Na versão paralela, os processos compartilham um contador
-de progresso (`multiprocessing.Value`) e o relatório CSV — esse é o único
+de progresso (`multiprocessing.Value`, em memória compartilhada) e o relatório CSV — esse é o único
 estado compartilhado do programa. Ambos são protegidos pelo mesmo
-`multiprocessing.Lock` (via `Manager`), delimitando a menor seção crítica
+`multiprocessing.Lock`, delimitando a menor seção crítica
 possível — o processamento da imagem em si fica fora do lock:
 
 ```python

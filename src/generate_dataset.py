@@ -15,7 +15,7 @@ def make_image(seed: int, size=DEFAULT_SIZE) -> Image.Image:
     rng = np.random.default_rng(seed)
 
     noise = rng.integers(0, 256, (size[1], size[0], 3), dtype=np.uint8)
-    img = Image.fromarray(noise, mode="RGB")
+    img = Image.fromarray(noise)
     draw = ImageDraw.Draw(img)
 
     for _ in range(rng.integers(3, 8)):

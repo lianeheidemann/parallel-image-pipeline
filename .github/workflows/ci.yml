@@ -7,8 +7,11 @@ on:
     branches: [main]
 
 jobs:
-  smoke-test:
+  python:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.12"]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -16,11 +19,14 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: ${{ matrix.python-version }}
           cache: pip
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: pip install -r requirements-dev.txt
+
+      - name: Unit tests
+        run: pytest -q
 
       - name: Generate sample dataset
         run: python src/generate_dataset.py --count 20 --output dataset
@@ -33,3 +39,20 @@ jobs:
 
       - name: Verify sequential == parallel (SHA-256)
         run: python src/verify.py --sequential output/sequential --parallel output/parallel
+
+      - name: Benchmark (fails if any output differs)
+        run: python src/benchmark.py --dataset dataset --workers 2 --repeat 1
+
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Strip processing == whole-image processing
+        run: node --test tests/processor.test.mjs
