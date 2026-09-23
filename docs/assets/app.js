@@ -1,5 +1,5 @@
-import { processPixels, HALO } from "./processor.js?v=20260924g";
-import { explainTimes } from "./explain.js?v=20260924g";
+import { processPixels, HALO } from "./processor.js?v=20260924h";
+import { explainTimes } from "./explain.js?v=20260924h";
 const $ = (id) => document.getElementById(id);
 const state = {sources: [], preview: null, busy: false};
 const LIMIT = 12;
@@ -7,10 +7,9 @@ const MAX_PIXELS = 4_000_000;
 const status = (message, error = false) => { $("status").textContent = message; $("status").classList.toggle("error", error); };
 const nextFrame = () => new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 0)));
 function resetResults() { $("results").hidden = true; $("empty").hidden = false; }
-function selectSources(sources, label) {
+function selectSources(sources) {
   if (state.busy) return;
   state.sources = sources;
-  $("selection").textContent = label;
   resetResults();
   status(`${sources.length} ${sources.length === 1 ? "imagem pronta" : "imagens prontas"} para processar.`);
 }
@@ -22,7 +21,7 @@ function pickFiles(files) {
   if (list.some(file => !["image/jpeg","image/png","image/webp"].includes(file.type))) {
     status("Use apenas imagens JPG, PNG ou WebP.", true); return;
   }
-  selectSources(list.map(file => ({file})), `${list.length} ${list.length === 1 ? "imagem selecionada" : "imagens selecionadas"}`);
+  selectSources(list.map(file => ({file})));
 }
 $("images").addEventListener("change", event => pickFiles(event.target.files));
 const drop = $("drop-zone");
@@ -84,7 +83,7 @@ function runParallel(images, requested) {
     };
     try {
       for (let i=0; i<requested; i++) {
-        const worker=new Worker(new URL("./worker.js?v=20260924g",import.meta.url),{type:"module"});
+        const worker=new Worker(new URL("./worker.js?v=20260924h",import.meta.url),{type:"module"});
         workers.push(worker);
         worker.onerror=() => finish(new Error("Não foi possível executar os Web Workers neste navegador."));
         worker.onmessage=({data}) => {
