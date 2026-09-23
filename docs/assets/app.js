@@ -1,5 +1,5 @@
-import { processPixels, HALO } from "./processor.js?v=20260924b";
-import { explainTimes } from "./explain.js?v=20260924b";
+import { processPixels, HALO } from "./processor.js?v=20260924c";
+import { explainTimes } from "./explain.js?v=20260924c";
 const $ = (id) => document.getElementById(id);
 const state = {sources: [], preview: null, busy: false};
 const LIMIT = 12;
@@ -84,7 +84,7 @@ function runParallel(images, requested) {
     };
     try {
       for (let i=0; i<requested; i++) {
-        const worker=new Worker(new URL("./worker.js?v=20260924b",import.meta.url),{type:"module"});
+        const worker=new Worker(new URL("./worker.js?v=20260924c",import.meta.url),{type:"module"});
         workers.push(worker);
         worker.onerror=() => finish(new Error("Não foi possível executar os Web Workers neste navegador."));
         worker.onmessage=({data}) => {
@@ -130,6 +130,29 @@ function renderChart(runs,selected) {
   }
   chart.setAttribute("aria-label",`Tempo por número de processos: ${runs.map(run=>`${run.workers}: ${format(run.seconds)}${run.workers>1 ? ` (ideal ${format(base/run.workers)})` : ""}`).join("; ")}`);
 }
+function showPreview(images,outputs,index) {
+  const img=images[index], ordinal=`imagem ${index+1} de ${images.length}`;
+  $("original-preview").src=img.preview; $("original-preview").alt=`Original, ${ordinal}`;
+  const canvas=$("edge-preview"), {width,height}=img; canvas.width=width; canvas.height=height;
+  canvas.setAttribute("aria-label",`Bordas detectadas, ${ordinal}`);
+  const context=canvas.getContext("2d"); const frame=context.createImageData(width,height); const edges=outputs[index];
+  for (let i=0; i<edges.length; i++) { const j=i*4; frame.data[j]=frame.data[j+1]=frame.data[j+2]=edges[i]; frame.data[j+3]=255; }
+  context.putImageData(frame,0,0);
+  for (const [i,thumb] of Array.from($("thumbs").children).entries()) thumb.setAttribute("aria-pressed",String(i===index));
+}
+// Thumbnails of every processed image; clicking one swaps the comparison above.
+function renderGallery(images,outputs) {
+  $("thumbs").replaceChildren(...images.map((img,index) => {
+    const button=document.createElement("button"); button.type="button"; button.className="thumb";
+    button.setAttribute("aria-label",`Mostrar imagem ${index+1} de ${images.length}`);
+    const picture=document.createElement("img"); picture.src=img.preview; picture.alt="";
+    button.append(picture);
+    button.addEventListener("click",() => showPreview(images,outputs,index));
+    return button;
+  }));
+  $("gallery").hidden=images.length<2;
+  showPreview(images,outputs,0);
+}
 function display(images,sequential,runs,workers) {
   const parallel=runs.find(run=>run.workers===workers);
   $("sequential-time").textContent=format(sequential.seconds);
@@ -140,11 +163,7 @@ function display(images,sequential,runs,workers) {
   $("verification").textContent=same ? "✓ Resultados idênticos nas 4 configurações" : "As saídas apresentaram diferenças";
   renderChart([{workers:1,seconds:sequential.seconds},...runs],workers);
   $("verification").classList.toggle("failed",!same);
-  $("original-preview").src=images[0].preview;
-  const canvas=$("edge-preview"), {width,height}=images[0]; canvas.width=width; canvas.height=height;
-  const context=canvas.getContext("2d"); const frame=context.createImageData(width,height); const edges=sequential.outputs[0];
-  for (let i=0; i<edges.length; i++) { const j=i*4; frame.data[j]=frame.data[j+1]=frame.data[j+2]=edges[i]; frame.data[j+3]=255; }
-  context.putImageData(frame,0,0);
+  renderGallery(images,sequential.outputs);
   const info=[
     ["Imagens",`${images.length}`],
     ["Gráfico","Sequencial (thread principal) e 2, 4 e 8 Web Workers"],

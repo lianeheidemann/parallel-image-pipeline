@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Compare o processamento sequencial e paralelo de imagens no navegador.">
   <title>Pipeline de Imagens</title>
-  <link rel="stylesheet" href="assets/style.css?v=20260924b">
+  <link rel="stylesheet" href="assets/style.css?v=20260924c">
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-  <script type="module" src="assets/app.js?v=20260924b"></script>
+  <script type="module" src="assets/app.js?v=20260924c"></script>
 </head>
 <body>
   <main class="page">
@@ -57,6 +57,10 @@
             <div class="image-pair">
               <figure><figcaption>Original</figcaption><img id="original-preview" alt="Primeira imagem original selecionada"></figure>
               <figure><figcaption>Bordas detectadas</figcaption><canvas id="edge-preview" role="img" aria-label="Bordas detectadas na primeira imagem"></canvas></figure>
+            </div>
+            <div class="gallery" id="gallery" hidden>
+              <div class="gallery-head"><h4>Outras imagens</h4><span>Toque em uma miniatura para atualizar a visualização acima</span></div>
+              <div class="thumbs" id="thumbs"></div>
             </div>
           </div>
           <div class="run-info">
