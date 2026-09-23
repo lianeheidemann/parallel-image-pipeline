@@ -29,13 +29,6 @@ src/
   verify.py                compara saídas via SHA-256
   benchmark.py             roda sequencial + paralelo e calcula o speedup
 docs/                     página web (GitHub Pages)
-  assets/app.js            seleção de imagens e botão "Processar"
-  assets/runner.js         medição: sequencial, Web Workers e corte em faixas
-  assets/render.js         desenho dos resultados (métricas, gráfico, imagens)
-  assets/explain.js        explicações sobre a variação dos tempos
-  assets/format.js         formatação de números (pt-BR)
-  assets/processor.js      mesmo pipeline de image_processor.py, em JavaScript
-  assets/worker.js         Web Worker que processa uma faixa
 tests/                    testes (pytest + node --test)
 ```
 
