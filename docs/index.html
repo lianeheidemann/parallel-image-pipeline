@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Compare o processamento sequencial e paralelo de imagens no navegador.">
   <title>Pipeline de Imagens</title>
-  <link rel="stylesheet" href="assets/style.css?v=20260923c">
-  <script type="module" src="assets/app.js?v=20260923c"></script>
+  <link rel="stylesheet" href="assets/style.css?v=20260923d">
+  <script type="module" src="assets/app.js?v=20260923d"></script>
 </head>
 <body>
   <main class="page">
@@ -48,6 +48,7 @@
           <div class="chart-block">
             <h3>Tempo por número de processos</h3>
             <div id="chart" class="chart" role="img" aria-label="Tempo de processamento com 1, 2, 4 e 8 processos"></div>
+            <p class="chart-legend"><span class="ideal-swatch" aria-hidden="true"></span> tempo ideal (sequencial ÷ N)</p>
           </div>
           <div class="comparison">
             <h3>Comparação visual</h3>
@@ -57,6 +58,10 @@
             </div>
           </div>
           <p class="detail" id="detail"></p>
+          <details class="explain" id="explain" open>
+            <summary>Por que os tempos variam?</summary>
+            <ul id="explain-list"></ul>
+          </details>
         </div>
       </section>
     </div>
