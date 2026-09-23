@@ -1,7 +1,7 @@
 // Draws the results panel: metrics, chart, image comparison, run details and explanations.
-import { explainTimes, NOISE } from "./explain.js?v=20260925b";
-import { ROUNDS, WORKER_COUNTS } from "./runner.js?v=20260925b";
-import { integer, list, num, percent, seconds, times } from "./format.js?v=20260925b";
+import { explainTimes, NOISE } from "./explain.js?v=20260925c";
+import { ROUNDS, WORKER_COUNTS } from "./runner.js?v=20260925c";
+import { integer, list, num, percent, seconds, times } from "./format.js?v=20260925c";
 export const $ = (id) => document.getElementById(id);
 function renderChart(runs,selected) {
   const chart=$("chart"); chart.replaceChildren();
@@ -84,4 +84,35 @@ export function display(images,sequential,runs,workers) {
     const item=document.createElement("li"); item.textContent=text; return item;
   }));
   $("empty").hidden=true; $("results").hidden=false;
+}
+// Progress block shown in the results panel while the benchmark runs.
+export const stageName = workers => workers===1 ? "Sequencial" : `${workers} processos`;
+const count = (done,total,one,many) => `${integer(done)} de ${integer(total)} ${total===1 ? one : many}`;
+function setBars(stepFraction,totalFraction) {
+  $("progress-step-bar").value=stepFraction;
+  $("progress-total-bar").value=totalFraction;
+  // Rounded down so "100%" only appears once the last strip is done.
+  $("progress-total").textContent=percent(Math.floor(totalFraction*100)/100);
+}
+export function renderPreparing(done,total) {
+  $("progress-round").hidden=true; $("progress-stages").hidden=true;
+  $("progress-step").textContent="Preparando imagens";
+  $("progress-count").textContent=count(done,total,"imagem","imagens");
+  setBars(total ? done/total : 0,0);
+}
+// p: {round, rounds, stage, stages, workers, done, total} from runner.benchmark.
+export function renderProgress({round,rounds,stage,stages,workers,done,total}) {
+  $("progress-round").hidden=false;
+  $("progress-round").textContent=`Rodada ${round+1} de ${rounds}`;
+  const list=$("progress-stages"); list.hidden=false;
+  if (list.children.length!==stages.length) list.replaceChildren(...stages.map(() => document.createElement("li")));
+  stages.forEach((w,i) => {
+    const item=list.children[i], state=i<stage ? "done" : i===stage ? "current" : "";
+    item.className=state; item.textContent=`${state==="done" ? "✓ " : ""}${stageName(w)}`;
+    if (state==="current") item.setAttribute("aria-current","step"); else item.removeAttribute("aria-current");
+  });
+  $("progress-step").textContent=workers===1 ? "Sequencial" : `Paralelo · ${workers} processos`;
+  $("progress-count").textContent=workers===1 ? count(done,total,"imagem","imagens") : count(done,total,"faixa","faixas");
+  const stepFraction=total ? done/total : 0;
+  setBars(stepFraction,(round*stages.length+stage+stepFraction)/(rounds*stages.length));
 }

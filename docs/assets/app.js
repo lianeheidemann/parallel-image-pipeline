@@ -1,6 +1,6 @@
 // Page wiring: image selection, preparation and the "Processar imagens" button.
-import { benchmark } from "./runner.js?v=20260925b";
-import { $, display } from "./render.js?v=20260925b";
+import { benchmark } from "./runner.js?v=20260925c";
+import { $, display, renderPreparing, renderProgress, stageName } from "./render.js?v=20260925c";
 const state = {sources: [], busy: false};
 const status = (message, error = false) => { $("status").textContent = message; $("status").classList.toggle("error", error); };
 function resetResults() { $("results").hidden = true; $("empty").hidden = false; }
@@ -49,8 +49,17 @@ $("run").addEventListener("click",async () => {
   $("empty").hidden=true; $("loading").hidden=false;
   try {
     const images=[];
-    for (let i=0; i<state.sources.length; i++) { status(`Preparando imagens: ${i+1}/${state.sources.length}`); images.push(await prepare(state.sources[i],i)); }
-    const {sequential,runs}=await benchmark(images,message => status(message));
+    status("Preparando imagens…");
+    renderPreparing(0,state.sources.length);
+    for (let i=0; i<state.sources.length; i++) { images.push(await prepare(state.sources[i],i)); renderPreparing(i+1,state.sources.length); }
+    // The detailed progress goes to the results panel; the status line (read aloud
+    // by screen readers) only changes when a new round or stage starts.
+    let current="";
+    const {sequential,runs}=await benchmark(images,progress => {
+      renderProgress(progress);
+      const summary=`Rodada ${progress.round+1} de ${progress.rounds} · ${stageName(progress.workers)}`;
+      if (summary!==current) { current=summary; status(summary); }
+    });
     const workers=Number(document.querySelector('input[name="workers"]:checked').value);
     display(images,sequential,runs,workers);
     status("Processamento concluído.");
