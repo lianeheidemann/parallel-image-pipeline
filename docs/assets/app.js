@@ -1,4 +1,5 @@
-import { processPixels, HALO } from "./processor.js?v=20260923c";
+import { processPixels, HALO } from "./processor.js?v=20260923d";
+import { explainTimes } from "./explain.js?v=20260923d";
 const $ = (id) => document.getElementById(id);
 const state = {sources: [], preview: null, busy: false};
 const LIMIT = 12;
@@ -83,7 +84,7 @@ function runParallel(images, requested) {
     };
     try {
       for (let i=0; i<requested; i++) {
-        const worker=new Worker(new URL("./worker.js?v=20260923c",import.meta.url),{type:"module"});
+        const worker=new Worker(new URL("./worker.js?v=20260923d",import.meta.url),{type:"module"});
         workers.push(worker);
         worker.onerror=() => finish(new Error("Não foi possível executar os Web Workers neste navegador."));
         worker.onmessage=({data}) => {
@@ -114,13 +115,20 @@ function renderChart(runs,selected) {
     const track=document.createElement("div"); track.className="chart-track";
     const bar=document.createElement("div"); bar.className="chart-bar"; bar.style.width=`${max>0 ? run.seconds/max*100 : 0}%`;
     track.append(bar);
+    const ideal=base/run.workers;
+    if (run.workers>1) {
+      const marker=document.createElement("div"); marker.className="chart-ideal";
+      marker.style.left=`${max>0 ? ideal/max*100 : 0}%`;
+      track.append(marker);
+    }
     const value=document.createElement("span"); value.className="chart-value";
     const speed=document.createElement("span"); speed.textContent=` · ${times(base/run.seconds)}`;
     value.append(format(run.seconds),speed);
     row.title=`${label.textContent}: ${format(run.seconds)} (${times(base/run.seconds)} em relação ao sequencial)`;
+    if (run.workers>1) row.title+=` · ideal ${format(ideal)} · eficiência ${(base/run.seconds/run.workers).toLocaleString("pt-BR",{style:"percent",maximumFractionDigits:0})}`;
     row.append(label,track,value); chart.append(row);
   }
-  chart.setAttribute("aria-label",`Tempo por número de processos: ${runs.map(run=>`${run.workers}: ${format(run.seconds)}`).join("; ")}`);
+  chart.setAttribute("aria-label",`Tempo por número de processos: ${runs.map(run=>`${run.workers}: ${format(run.seconds)}${run.workers>1 ? ` (ideal ${format(base/run.workers)})` : ""}`).join("; ")}`);
 }
 function display(images,sequential,runs,workers) {
   const parallel=runs.find(run=>run.workers===workers);
@@ -137,7 +145,11 @@ function display(images,sequential,runs,workers) {
   const context=canvas.getContext("2d"); const frame=context.createImageData(width,height); const edges=sequential.outputs[0];
   for (let i=0; i<edges.length; i++) { const j=i*4; frame.data[j]=frame.data[j+1]=frame.data[j+2]=edges[i]; frame.data[j+3]=255; }
   context.putImageData(frame,0,0);
-  $("detail").textContent=`${images.length} ${images.length===1?"imagem":"imagens"} · gráfico: 1 processo (sequencial, thread principal), 2, 4 e 8 Web Workers · cartões: ${workers} processos · cada imagem é dividida em faixas horizontais entre os workers · comparação dos pixels de todas as saídas. O tempo inclui o envio de dados aos workers. O código Python usa multiprocessing e pode apresentar tempos diferentes.`;
+  $("detail").textContent=`${images.length} ${images.length===1?"imagem":"imagens"} · gráfico: 1 processo (sequencial, thread principal), 2, 4 e 8 Web Workers · cartões: ${workers} processos · cada imagem é dividida em faixas horizontais entre os workers · comparação dos pixels de todas as saídas. O tempo inclui o envio de dados aos workers.`;
+  const runsAll=[{workers:1,seconds:sequential.seconds},...runs];
+  $("explain-list").replaceChildren(...explainTimes(runsAll,workers,navigator.hardwareConcurrency).map(text => {
+    const item=document.createElement("li"); item.textContent=text; return item;
+  }));
   $("empty").hidden=true; $("results").hidden=false;
 }
 $("run").addEventListener("click",async () => {
