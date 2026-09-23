@@ -1,5 +1,5 @@
-import { processPixels, HALO } from "./processor.js?v=20260924d";
-import { explainTimes } from "./explain.js?v=20260924d";
+import { processPixels, HALO } from "./processor.js?v=20260924e";
+import { explainTimes } from "./explain.js?v=20260924e";
 const $ = (id) => document.getElementById(id);
 const state = {sources: [], preview: null, busy: false};
 const LIMIT = 12;
@@ -84,7 +84,7 @@ function runParallel(images, requested) {
     };
     try {
       for (let i=0; i<requested; i++) {
-        const worker=new Worker(new URL("./worker.js?v=20260924d",import.meta.url),{type:"module"});
+        const worker=new Worker(new URL("./worker.js?v=20260924e",import.meta.url),{type:"module"});
         workers.push(worker);
         worker.onerror=() => finish(new Error("Não foi possível executar os Web Workers neste navegador."));
         worker.onmessage=({data}) => {
@@ -186,6 +186,7 @@ $("run").addEventListener("click",async () => {
   if (state.busy) return;
   if (!state.sources.length) { status("Adicione imagens para processar.",true); $("images").focus(); return; }
   state.busy=true; $("run").disabled=true; $("images").disabled=true; resetResults();
+  $("empty").hidden=true; $("loading").hidden=false;
   try {
     const images=[];
     for (let i=0; i<state.sources.length; i++) { status(`Preparando imagens: ${i+1}/${state.sources.length}`); images.push(await prepare(state.sources[i])); }
@@ -201,5 +202,8 @@ $("run").addEventListener("click",async () => {
     display(images,sequential,runs,workers);
     status("Processamento concluído.");
   } catch (error) { status(error.message || "Não foi possível processar as imagens.",true); }
-  finally { state.busy=false; $("run").disabled=false; $("images").disabled=false; }
+  finally {
+    state.busy=false; $("run").disabled=false; $("images").disabled=false;
+    $("loading").hidden=true; $("empty").hidden=!$("results").hidden;
+  }
 });

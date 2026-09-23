@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Compare o processamento sequencial e paralelo de imagens no navegador.">
   <title>Pipeline de Imagens</title>
-  <link rel="stylesheet" href="assets/style.css?v=20260924d">
+  <link rel="stylesheet" href="assets/style.css?v=20260924e">
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-  <script type="module" src="assets/app.js?v=20260924d"></script>
+  <script type="module" src="assets/app.js?v=20260924e"></script>
 </head>
 <body>
   <main class="page">
@@ -40,6 +40,7 @@
       <section class="panel results-panel" aria-labelledby="results-heading">
         <h2 id="results-heading">Resultados</h2>
         <div id="empty" class="empty">Os resultados aparecerão aqui após o processamento.</div>
+        <div id="loading" class="empty loading" hidden><span class="spinner" aria-hidden="true"></span><span>Processando imagens…</span></div>
         <div id="results" hidden>
           <div class="metrics">
             <div class="metric"><span>Sequencial</span><strong id="sequential-time">—</strong></div>
