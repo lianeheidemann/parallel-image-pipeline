@@ -52,12 +52,11 @@ tests/   pytest e node --test
 
 ## Instalação
 
-Requer Python 3.10+.
+Requer Python 3.10+ (Windows)
 
 ```bash
 python -m venv .venv
-.venv\Scripts\activate          # Windows
-source .venv/bin/activate       # Linux/macOS
+.venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
