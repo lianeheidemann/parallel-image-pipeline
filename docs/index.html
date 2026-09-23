@@ -20,16 +20,12 @@
       <section class="panel input-panel" aria-labelledby="input-heading">
         <h2 id="input-heading">Entrada</h2>
         <label class="drop-zone" id="drop-zone" for="images">
-          <span class="upload-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" focusable="false">
-              <path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 15.5V19h14v-3.5"/>
-            </svg>
-          </span>
+          <span class="upload-icon" aria-hidden="true">↑</span>
           <strong>Adicionar imagens</strong>
           <span>Arraste aqui ou clique para selecionar</span>
-          <span class="selection">JPG, PNG ou WebP</span>
         </label>
         <input id="images" class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp" multiple>
+        <p class="selection">JPG, PNG ou WebP</p>
         <fieldset class="workers">
           <legend>Processos</legend>
           <div class="choices">
@@ -43,14 +39,7 @@
       </section>
       <section class="panel results-panel" aria-labelledby="results-heading">
         <h2 id="results-heading">Resultados</h2>
-        <div id="empty" class="empty">
-          <svg class="empty-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path d="M4 5.5h16v13H4z"/>
-            <circle cx="16.5" cy="9" r="1.5"/>
-            <path d="m5.5 17 4.25-4.5 3 3 2-2 3.75 3.5"/>
-          </svg>
-          <span>Os resultados aparecerão aqui após o processamento.</span>
-        </div>
+        <div id="empty" class="empty">Os resultados aparecerão aqui após o processamento.</div>
         <div id="loading" class="empty" hidden>
           <span class="spinner" aria-hidden="true"></span><span>Processando imagens…</span>
           <div class="progress">
@@ -96,15 +85,7 @@
         </div>
       </section>
     </div>
-    <footer class="footer">
-      <span>Escala de cinza → blur gaussiano → Sobel</span>
-      <a href="https://github.com/lianeheidemann/parallel-image-pipeline" aria-label="Ver o código do projeto no GitHub">
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <path fill="currentColor" d="M12 .7A11.5 11.5 0 0 0 8.36 23.1c.58.1.79-.25.79-.56v-2.17c-3.22.7-3.9-1.36-3.9-1.36-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.7.08-.7 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.73 1.27 3.4.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.68 0-1.26.45-2.29 1.2-3.09-.12-.29-.52-1.47.11-3.05 0 0 .98-.31 3.16 1.18a10.9 10.9 0 0 1 5.76 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.58.23 2.76.11 3.05.74.8 1.19 1.83 1.19 3.09 0 4.4-2.71 5.38-5.29 5.67.42.36.79 1.06.79 2.14v3.18c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7Z"/>
-        </svg>
-        <span>Ver código no GitHub</span>
-      </a>
-    </footer>
+    <footer>Escala de cinza → blur gaussiano → Sobel · <a href="https://github.com/lianeheidemann/parallel-image-pipeline">Ver código no GitHub</a></footer>
   </main>
 </body>
 </html>
