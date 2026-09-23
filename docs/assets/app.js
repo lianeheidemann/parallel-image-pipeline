@@ -1,4 +1,4 @@
-import { processPixels, HALO } from "./processor.js?v=20260923b";
+import { processPixels, HALO } from "./processor.js?v=20260923c";
 const $ = (id) => document.getElementById(id);
 const state = {sources: [], preview: null, busy: false};
 const LIMIT = 12;
@@ -28,27 +28,10 @@ const drop = $("drop-zone");
 for (const eventName of ["dragenter","dragover"]) drop.addEventListener(eventName, event => { event.preventDefault(); if (!state.busy) drop.classList.add("dragging"); });
 for (const eventName of ["dragleave","drop"]) drop.addEventListener(eventName, event => { event.preventDefault(); drop.classList.remove("dragging"); });
 drop.addEventListener("drop", event => pickFiles(event.dataTransfer.files));
-$("examples").addEventListener("click", () => {
-  const samples = Array.from({length:8}, (_, index) => ({sample:index}));
-  $("images").value = "";
-  selectSources(samples, "8 imagens de exemplo selecionadas");
-});
-function drawSample(index) {
-  const canvas = document.createElement("canvas"); canvas.width = 800; canvas.height = 600;
-  const ctx = canvas.getContext("2d", {willReadFrequently:true});
-  ctx.fillStyle = ["#d6e9ee","#e9d9cc","#cfe0d9","#d9e0eb"][index % 4]; ctx.fillRect(0,0,800,600);
-  let seed = (index + 1) * 87321;
-  const rand = () => { seed = (Math.imul(seed,1664525) + 1013904223) >>> 0; return seed / 4294967296; };
-  for (let i=0; i<18; i++) {
-    ctx.strokeStyle = `hsl(${Math.floor(rand()*360)} 40% 40%)`; ctx.lineWidth = 2 + rand()*8;
-    ctx.beginPath(); ctx.ellipse(rand()*800,rand()*600,20+rand()*150,20+rand()*100,rand()*3,0,Math.PI*2); ctx.stroke();
-  }
-  return canvas;
-}
 async function prepare(source) {
   let bitmap;
   try {
-    bitmap = source.file ? await createImageBitmap(source.file) : await createImageBitmap(drawSample(source.sample));
+    bitmap = await createImageBitmap(source.file);
     const {width,height} = bitmap;
     if (width < 3 || height < 3 || width * height > MAX_PIXELS) throw new Error("Cada imagem deve ter pelo menos 3 × 3 pixels e no máximo 4 megapixels.");
     const canvas = document.createElement("canvas"); canvas.width=width; canvas.height=height;
@@ -100,7 +83,7 @@ function runParallel(images, requested) {
     };
     try {
       for (let i=0; i<requested; i++) {
-        const worker=new Worker(new URL("./worker.js?v=20260923b",import.meta.url),{type:"module"});
+        const worker=new Worker(new URL("./worker.js?v=20260923c",import.meta.url),{type:"module"});
         workers.push(worker);
         worker.onerror=() => finish(new Error("Não foi possível executar os Web Workers neste navegador."));
         worker.onmessage=({data}) => {
@@ -159,8 +142,8 @@ function display(images,sequential,runs,workers) {
 }
 $("run").addEventListener("click",async () => {
   if (state.busy) return;
-  if (!state.sources.length) { status("Adicione imagens ou use as de exemplo.",true); $("images").focus(); return; }
-  state.busy=true; $("run").disabled=true; $("examples").disabled=true; $("images").disabled=true; resetResults();
+  if (!state.sources.length) { status("Adicione imagens para processar.",true); $("images").focus(); return; }
+  state.busy=true; $("run").disabled=true; $("images").disabled=true; resetResults();
   try {
     const images=[];
     for (let i=0; i<state.sources.length; i++) { status(`Preparando imagens: ${i+1}/${state.sources.length}`); images.push(await prepare(state.sources[i])); }
@@ -176,5 +159,5 @@ $("run").addEventListener("click",async () => {
     display(images,sequential,runs,workers);
     status("Processamento concluído.");
   } catch (error) { status(error.message || "Não foi possível processar as imagens.",true); }
-  finally { state.busy=false; $("run").disabled=false; $("examples").disabled=false; $("images").disabled=false; }
+  finally { state.busy=false; $("run").disabled=false; $("images").disabled=false; }
 });
