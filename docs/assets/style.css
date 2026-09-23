@@ -8,7 +8,7 @@ a { color:#235cc8; }
 :focus-visible { outline:3px solid #81a5ef; outline-offset:3px; }
 .page { width:min(1240px,calc(100% - 40px)); margin:0 auto; }
 .header { display:flex; align-items:center; gap:18px; padding:40px 0 30px; }
-.logo { width:52px; height:52px; border-radius:12px; display:grid; place-items:center; background:#2563d9; color:white; font-size:32px; line-height:1; flex:none; }
+.logo { display:block; width:52px; height:52px; flex:none; }
 h1,h2,h3,p { margin-top:0; }
 h1 { margin-bottom:4px; font-size:clamp(1.6rem,3vw,2.15rem); line-height:1.15; }
 .header p { margin:0; color:#596982; }
