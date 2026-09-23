@@ -77,7 +77,8 @@ mesmo que roda isoladamente.
 
 ```bash
 python -m venv .venv
-.venv\Scripts\activate      # Windows
+.venv\Scripts\activate          # Windows
+source .venv/bin/activate       # Linux/macOS
 pip install -r requirements.txt
 ```
 
@@ -106,15 +107,35 @@ configuração roda `--repeat` vezes (padrão 3), com as rodadas intercaladas, e
 CSV guarda a mediana. O comando termina com código 1 se alguma saída paralela
 diferir da sequencial. As pastas `output/` são limpas a cada execução.
 
+## Página web
+
+A [página do projeto](https://lianeheidemann.github.io/parallel-image-pipeline/)
+roda o mesmo pipeline em JavaScript, direto no navegador:
+
+- compara o processamento **sequencial** (thread principal) com **2, 4 e 8
+  Web Workers**; cada imagem é cortada em faixas horizontais, uma por worker;
+- confere pixel a pixel que o resultado paralelo é igual ao sequencial;
+- cada configuração roda 3 vezes, em rodadas intercaladas, e o gráfico mostra
+  a mediana;
+- aceita imagens **JPG, PNG ou WebP, sem limite de quantidade nem de tamanho**.
+  O limite prático é a memória do navegador/aparelho; se uma imagem não puder
+  ser carregada, a página diz qual foi.
+
+Os tempos são medidos no navegador e não se comparam diretamente com o
+benchmark Python (`multiprocessing`/OpenCV). Para rodar a página localmente
+(módulos ES não abrem via `file://`):
+
+```bash
+npx http-server docs
+```
+
 ## Testes
 
 ```bash
 pip install -r requirements-dev.txt
 pytest -q                               # Amdahl, verify.py, sequencial == paralelo
 node --test tests/*.test.mjs            # versão web: faixas == imagem inteira, versões ?v= iguais
-``` A interface web faz sua
-própria medição no navegador com Web Workers; seus resultados não são importados
-do CSV nem equivalem ao benchmark com `multiprocessing`/OpenCV.
+```
 
 ## Detalhes técnicos
 
@@ -126,10 +147,10 @@ CPU (OpenCV/NumPy) e, no CPython, threads não somam núcleos para esse tipo
 de carga (GIL); cada processo tem seu próprio interpretador.
 
 **Seção crítica.** Na versão paralela, os processos compartilham um contador
-de progresso (`multiprocessing.Value`, em memória compartilhada) e o relatório CSV — esse é o único
-estado compartilhado do programa. Ambos são protegidos pelo mesmo
-`multiprocessing.Lock`, delimitando a menor seção crítica
-possível — o processamento da imagem em si fica fora do lock:
+de progresso (`multiprocessing.Value`, em memória compartilhada) e o
+relatório CSV — esse é o único estado compartilhado do programa. Ambos são
+protegidos pelo mesmo `multiprocessing.Lock`, delimitando a menor seção
+crítica possível — o processamento da imagem em si fica fora do lock:
 
 ```python
 with _lock:
