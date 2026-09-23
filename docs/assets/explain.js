@@ -24,6 +24,5 @@ export function explainTimes(runs, selected, cores) {
   const superlinear=parallel.filter(run=>speedup(run)>run.workers).map(run=>run.workers);
   if (superlinear.length) reasons.push(`Com ${list(superlinear)} processos o ganho passou do ideal: efeitos de cache, aquecimento do JIT ou variação de frequência da CPU durante a medição.`);
   reasons.push("Os tempos mudam entre execuções: outras abas, modo de economia de energia, aquecimento do celular (throttling), coleta de lixo e núcleos de desempenho/eficiência.");
-  reasons.push("A versão em Python usa multiprocessing (processos do sistema operacional) e pode ter outros tempos.");
   return reasons;
 }

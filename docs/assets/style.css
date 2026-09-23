@@ -69,6 +69,8 @@ figure img,figure canvas { display:block; width:100%; aspect-ratio:4/3; object-f
 .explain { margin-top:18px; color:#66758d; font-size:.86rem; line-height:1.5; }
 .explain summary { cursor:pointer; color:#14243e; font-weight:600; }
 .explain li { color:#14243e; }
+.note { margin:14px 0 0; color:#66758d; font-size:.75rem; line-height:1.45; }
+.note code { font-size:.95em; }
 .explain ul { display:grid; gap:6px; margin:8px 0 0; padding-left:1.1rem; }
 footer { padding:28px 0 38px; font-size:.86rem; color:#66758d; }
 @media(max-width:760px) { .page { width:min(100% - 28px,540px); } .header { padding:28px 0 24px; } .layout { grid-template-columns:1fr; } .panel { padding:20px; } .results-panel { min-height:0; } .empty { padding:50px 14px; } }
