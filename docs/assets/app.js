@@ -1,4 +1,4 @@
-import { processPixels } from "./processor.js";
+import { processPixels, HALO } from "./processor.js?v=20260923c";
 const $ = (id) => document.getElementById(id);
 const state = {sources: [], preview: null, busy: false};
 const LIMIT = 12;
@@ -28,27 +28,10 @@ const drop = $("drop-zone");
 for (const eventName of ["dragenter","dragover"]) drop.addEventListener(eventName, event => { event.preventDefault(); if (!state.busy) drop.classList.add("dragging"); });
 for (const eventName of ["dragleave","drop"]) drop.addEventListener(eventName, event => { event.preventDefault(); drop.classList.remove("dragging"); });
 drop.addEventListener("drop", event => pickFiles(event.dataTransfer.files));
-$("examples").addEventListener("click", () => {
-  const samples = Array.from({length:8}, (_, index) => ({sample:index}));
-  $("images").value = "";
-  selectSources(samples, "8 imagens de exemplo selecionadas");
-});
-function drawSample(index) {
-  const canvas = document.createElement("canvas"); canvas.width = 800; canvas.height = 600;
-  const ctx = canvas.getContext("2d", {willReadFrequently:true});
-  ctx.fillStyle = ["#d6e9ee","#e9d9cc","#cfe0d9","#d9e0eb"][index % 4]; ctx.fillRect(0,0,800,600);
-  let seed = (index + 1) * 87321;
-  const rand = () => { seed = (Math.imul(seed,1664525) + 1013904223) >>> 0; return seed / 4294967296; };
-  for (let i=0; i<18; i++) {
-    ctx.strokeStyle = `hsl(${Math.floor(rand()*360)} 40% 40%)`; ctx.lineWidth = 2 + rand()*8;
-    ctx.beginPath(); ctx.ellipse(rand()*800,rand()*600,20+rand()*150,20+rand()*100,rand()*3,0,Math.PI*2); ctx.stroke();
-  }
-  return canvas;
-}
 async function prepare(source) {
   let bitmap;
   try {
-    bitmap = source.file ? await createImageBitmap(source.file) : await createImageBitmap(drawSample(source.sample));
+    bitmap = await createImageBitmap(source.file);
     const {width,height} = bitmap;
     if (width < 3 || height < 3 || width * height > MAX_PIXELS) throw new Error("Cada imagem deve ter pelo menos 3 × 3 pixels e no máximo 4 megapixels.");
     const canvas = document.createElement("canvas"); canvas.width=width; canvas.height=height;
@@ -68,9 +51,22 @@ async function runSequential(images) {
   }
   return {outputs,seconds:elapsed/1000};
 }
+// Each image is cut into horizontal strips so every worker has work even with few images.
+function stripTasks(images, requested) {
+  const tasks=[];
+  images.forEach((img,image) => {
+    const parts=Math.min(requested,img.height);
+    for (let p=0; p<parts; p++) {
+      const outStart=Math.floor(p*img.height/parts), outEnd=Math.floor((p+1)*img.height/parts);
+      tasks.push({image,outStart,outEnd});
+    }
+  });
+  return tasks;
+}
 function runParallel(images, requested) {
   return new Promise((resolve,reject) => {
-    const outputs=new Array(images.length); const workers=[];
+    const outputs=images.map(img => new Uint8ClampedArray(img.width*img.height));
+    const tasks=stripTasks(images,requested); const workers=[];
     let next=0, done=0, settled=false;
     const start=performance.now();
     const finish=(error) => {
@@ -78,23 +74,25 @@ function runParallel(images, requested) {
       if (error) reject(error); else resolve({outputs,seconds:(performance.now()-start)/1000});
     };
     const dispatch=(worker) => {
-      if (next >= images.length) return;
-      const index=next++; const img=images[index];
-      // Copy only for transfer; preserve the sequential input and previews.
-      const bytes=new Uint8ClampedArray(img.rgba);
-      worker.postMessage({index,width:img.width,height:img.height,rgba:bytes.buffer},[bytes.buffer]);
+      if (next >= tasks.length) return;
+      const task=next++; const {image,outStart,outEnd}=tasks[task]; const img=images[image];
+      const sliceStart=Math.max(0,outStart-HALO), sliceEnd=Math.min(img.height,outEnd+HALO);
+      // slice() copies only the strip's rows, preserving the sequential input.
+      const bytes=img.rgba.slice(sliceStart*img.width*4,sliceEnd*img.width*4);
+      worker.postMessage({task,width:img.width,height:img.height,sliceStart,outStart,outEnd,rgba:bytes.buffer},[bytes.buffer]);
     };
     try {
-      for (let i=0; i<Math.min(requested,images.length); i++) {
-        const worker=new Worker(new URL("./worker.js",import.meta.url),{type:"module"});
+      for (let i=0; i<requested; i++) {
+        const worker=new Worker(new URL("./worker.js?v=20260923c",import.meta.url),{type:"module"});
         workers.push(worker);
         worker.onerror=() => finish(new Error("Não foi possível executar os Web Workers neste navegador."));
         worker.onmessage=({data}) => {
           if (settled) return;
           if (data.error) { finish(new Error(data.error)); return; }
-          outputs[data.index]=new Uint8ClampedArray(data.output); done++;
-          status(`Processamento paralelo (${requested} processos): ${done}/${images.length}`);
-          if (done===images.length) finish(); else dispatch(worker);
+          const {image,outStart}=tasks[data.task];
+          outputs[image].set(new Uint8ClampedArray(data.output),outStart*images[image].width); done++;
+          status(`Processamento paralelo (${requested} processos): ${done}/${tasks.length} faixas`);
+          if (done===tasks.length) finish(); else dispatch(worker);
         };
         dispatch(worker);
       }
@@ -139,13 +137,13 @@ function display(images,sequential,runs,workers) {
   const context=canvas.getContext("2d"); const frame=context.createImageData(width,height); const edges=sequential.outputs[0];
   for (let i=0; i<edges.length; i++) { const j=i*4; frame.data[j]=frame.data[j+1]=frame.data[j+2]=edges[i]; frame.data[j+3]=255; }
   context.putImageData(frame,0,0);
-  $("detail").textContent=`${images.length} ${images.length===1?"imagem":"imagens"} · gráfico: 1 processo (sequencial, thread principal), 2, 4 e 8 Web Workers · cartões: ${workers} processos · comparação dos pixels de todas as saídas. O tempo inclui o envio de dados aos workers. O código Python usa multiprocessing e pode apresentar tempos diferentes.`;
+  $("detail").textContent=`${images.length} ${images.length===1?"imagem":"imagens"} · gráfico: 1 processo (sequencial, thread principal), 2, 4 e 8 Web Workers · cartões: ${workers} processos · cada imagem é dividida em faixas horizontais entre os workers · comparação dos pixels de todas as saídas. O tempo inclui o envio de dados aos workers. O código Python usa multiprocessing e pode apresentar tempos diferentes.`;
   $("empty").hidden=true; $("results").hidden=false;
 }
 $("run").addEventListener("click",async () => {
   if (state.busy) return;
-  if (!state.sources.length) { status("Adicione imagens ou use as de exemplo.",true); $("images").focus(); return; }
-  state.busy=true; $("run").disabled=true; $("examples").disabled=true; $("images").disabled=true; resetResults();
+  if (!state.sources.length) { status("Adicione imagens para processar.",true); $("images").focus(); return; }
+  state.busy=true; $("run").disabled=true; $("images").disabled=true; resetResults();
   try {
     const images=[];
     for (let i=0; i<state.sources.length; i++) { status(`Preparando imagens: ${i+1}/${state.sources.length}`); images.push(await prepare(state.sources[i])); }
@@ -161,5 +159,5 @@ $("run").addEventListener("click",async () => {
     display(images,sequential,runs,workers);
     status("Processamento concluído.");
   } catch (error) { status(error.message || "Não foi possível processar as imagens.",true); }
-  finally { state.busy=false; $("run").disabled=false; $("examples").disabled=false; $("images").disabled=false; }
+  finally { state.busy=false; $("run").disabled=false; $("images").disabled=false; }
 });
