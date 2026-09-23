@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Compare o processamento sequencial e paralelo de imagens no navegador.">
   <title>Pipeline de Imagens</title>
-  <link rel="stylesheet" href="assets/style.css?v=20260923e">
+  <link rel="stylesheet" href="assets/style.css?v=20260924i">
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-  <script type="module" src="assets/app.js?v=20260923d"></script>
+  <script type="module" src="assets/app.js?v=20260924i"></script>
 </head>
 <body>
   <main class="page">
@@ -25,7 +25,7 @@
           <span>Arraste aqui ou clique para selecionar</span>
         </label>
         <input id="images" class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp" multiple>
-        <p class="selection" id="selection">Nenhuma imagem selecionada</p>
+        <p class="selection">JPG, PNG ou WebP · até 12 imagens</p>
         <fieldset class="workers">
           <legend>Processos</legend>
           <div class="choices">
@@ -40,6 +40,7 @@
       <section class="panel results-panel" aria-labelledby="results-heading">
         <h2 id="results-heading">Resultados</h2>
         <div id="empty" class="empty">Os resultados aparecerão aqui após o processamento.</div>
+        <div id="loading" class="empty loading" hidden><span class="spinner" aria-hidden="true"></span><span>Processando imagens…</span></div>
         <div id="results" hidden>
           <div class="metrics">
             <div class="metric"><span>Sequencial</span><strong id="sequential-time">—</strong></div>
@@ -58,12 +59,19 @@
               <figure><figcaption>Original</figcaption><img id="original-preview" alt="Primeira imagem original selecionada"></figure>
               <figure><figcaption>Bordas detectadas</figcaption><canvas id="edge-preview" role="img" aria-label="Bordas detectadas na primeira imagem"></canvas></figure>
             </div>
+            <div class="gallery" id="gallery" hidden>
+              <div class="thumbs" id="thumbs" role="group" aria-label="Outras imagens"></div>
+            </div>
           </div>
-          <p class="detail" id="detail"></p>
+          <div class="run-info">
+            <h3>Sobre esta execução</h3>
+            <dl class="detail" id="detail"></dl>
+          </div>
           <details class="explain" id="explain" open>
             <summary>Por que os tempos variam?</summary>
             <ul id="explain-list"></ul>
           </details>
+          <p class="note">Estes tempos são do navegador. A versão em Python do repositório (<code>src/parallel.py</code>) roda no computador com <code>multiprocessing</code> e terá tempos diferentes.</p>
         </div>
       </section>
     </div>

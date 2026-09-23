@@ -1,16 +1,16 @@
-import { processPixels, HALO } from "./processor.js?v=20260923d";
-import { explainTimes } from "./explain.js?v=20260923d";
+import { processPixels, HALO } from "./processor.js?v=20260924i";
+import { explainTimes, NOISE } from "./explain.js?v=20260924i";
 const $ = (id) => document.getElementById(id);
 const state = {sources: [], preview: null, busy: false};
 const LIMIT = 12;
 const MAX_PIXELS = 4_000_000;
+const ROUNDS = 3; // each configuration is timed this many times; the median is shown
 const status = (message, error = false) => { $("status").textContent = message; $("status").classList.toggle("error", error); };
 const nextFrame = () => new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 0)));
 function resetResults() { $("results").hidden = true; $("empty").hidden = false; }
-function selectSources(sources, label) {
+function selectSources(sources) {
   if (state.busy) return;
   state.sources = sources;
-  $("selection").textContent = label;
   resetResults();
   status(`${sources.length} ${sources.length === 1 ? "imagem pronta" : "imagens prontas"} para processar.`);
 }
@@ -22,7 +22,7 @@ function pickFiles(files) {
   if (list.some(file => !["image/jpeg","image/png","image/webp"].includes(file.type))) {
     status("Use apenas imagens JPG, PNG ou WebP.", true); return;
   }
-  selectSources(list.map(file => ({file})), `${list.length} ${list.length === 1 ? "imagem selecionada" : "imagens selecionadas"}`);
+  selectSources(list.map(file => ({file})));
 }
 $("images").addEventListener("change", event => pickFiles(event.target.files));
 const drop = $("drop-zone");
@@ -34,20 +34,20 @@ async function prepare(source) {
   try {
     bitmap = await createImageBitmap(source.file);
     const {width,height} = bitmap;
-    if (width < 3 || height < 3 || width * height > MAX_PIXELS) throw new Error("Cada imagem deve ter pelo menos 3 × 3 pixels e no máximo 4 megapixels.");
+    if (width * height > MAX_PIXELS) throw new Error("Cada imagem deve ter no máximo 4 megapixels.");
     const canvas = document.createElement("canvas"); canvas.width=width; canvas.height=height;
     const ctx=canvas.getContext("2d", {willReadFrequently:true});
     ctx.drawImage(bitmap,0,0); bitmap.close(); bitmap=null;
     return {width,height,rgba:ctx.getImageData(0,0,width,height).data,preview:canvas.toDataURL("image/png")};
   } finally { bitmap?.close(); }
 }
-async function runSequential(images) {
+async function runSequential(images, prefix) {
   const outputs = []; let elapsed = 0;
   for (let i=0; i<images.length; i++) {
     const img=images[i]; const start=performance.now();
     outputs.push(processPixels(img.rgba,img.width,img.height));
     elapsed += performance.now() - start;
-    status(`Processamento sequencial: ${i+1}/${images.length}`);
+    status(`${prefix}Processamento sequencial: ${i+1}/${images.length}`);
     await nextFrame();
   }
   return {outputs,seconds:elapsed/1000};
@@ -64,7 +64,7 @@ function stripTasks(images, requested) {
   });
   return tasks;
 }
-function runParallel(images, requested) {
+function runParallel(images, requested, prefix) {
   return new Promise((resolve,reject) => {
     const outputs=images.map(img => new Uint8ClampedArray(img.width*img.height));
     const tasks=stripTasks(images,requested); const workers=[];
@@ -84,7 +84,7 @@ function runParallel(images, requested) {
     };
     try {
       for (let i=0; i<requested; i++) {
-        const worker=new Worker(new URL("./worker.js?v=20260923d",import.meta.url),{type:"module"});
+        const worker=new Worker(new URL("./worker.js?v=20260924i",import.meta.url),{type:"module"});
         workers.push(worker);
         worker.onerror=() => finish(new Error("Não foi possível executar os Web Workers neste navegador."));
         worker.onmessage=({data}) => {
@@ -92,7 +92,7 @@ function runParallel(images, requested) {
           if (data.error) { finish(new Error(data.error)); return; }
           const {image,outStart}=tasks[data.task];
           outputs[image].set(new Uint8ClampedArray(data.output),outStart*images[image].width); done++;
-          status(`Processamento paralelo (${requested} processos): ${done}/${tasks.length} faixas`);
+          status(`${prefix}Processamento paralelo (${requested} processos): ${done}/${tasks.length} faixas`);
           if (done===tasks.length) finish(); else dispatch(worker);
         };
         dispatch(worker);
@@ -100,8 +100,11 @@ function runParallel(images, requested) {
     } catch (error) { finish(error); }
   });
 }
-function identical(a,b) {
-  return a.length === b.length && a.every((pixels,i) => pixels.length === b[i].length && pixels.every((value,j) => value === b[i][j]));
+// Number of output pixels that differ between two runs (all images).
+function differences(a,b) {
+  let count=0;
+  a.forEach((pixels,i) => { for (let j=0; j<pixels.length; j++) if (pixels[j]!==b[i][j]) count++; });
+  return count;
 }
 const format = n => `${n.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})} s`;
 const times = n => `${n.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})}×`;
@@ -130,22 +133,57 @@ function renderChart(runs,selected) {
   }
   chart.setAttribute("aria-label",`Tempo por número de processos: ${runs.map(run=>`${run.workers}: ${format(run.seconds)}${run.workers>1 ? ` (ideal ${format(base/run.workers)})` : ""}`).join("; ")}`);
 }
+function showPreview(images,outputs,index) {
+  const img=images[index], ordinal=`imagem ${index+1} de ${images.length}`;
+  $("original-preview").src=img.preview; $("original-preview").alt=`Original, ${ordinal}`;
+  const canvas=$("edge-preview"), {width,height}=img; canvas.width=width; canvas.height=height;
+  canvas.setAttribute("aria-label",`Bordas detectadas, ${ordinal}`);
+  const context=canvas.getContext("2d"); const frame=context.createImageData(width,height); const edges=outputs[index];
+  for (let i=0; i<edges.length; i++) { const j=i*4; frame.data[j]=frame.data[j+1]=frame.data[j+2]=edges[i]; frame.data[j+3]=255; }
+  context.putImageData(frame,0,0);
+  for (const [i,thumb] of Array.from($("thumbs").children).entries()) thumb.setAttribute("aria-pressed",String(i===index));
+}
+// Thumbnails of every processed image; clicking one swaps the comparison above.
+function renderGallery(images,outputs) {
+  $("thumbs").replaceChildren(...images.map((img,index) => {
+    const button=document.createElement("button"); button.type="button"; button.className="thumb";
+    button.setAttribute("aria-label",`Mostrar imagem ${index+1} de ${images.length}`);
+    const picture=document.createElement("img"); picture.src=img.preview; picture.alt="";
+    button.append(picture);
+    button.addEventListener("click",() => showPreview(images,outputs,index));
+    return button;
+  }));
+  $("gallery").hidden=images.length<2;
+  showPreview(images,outputs,0);
+}
+// runs: [{workers,seconds,mismatch}] for 2, 4 and 8 workers; seconds are medians.
 function display(images,sequential,runs,workers) {
   const parallel=runs.find(run=>run.workers===workers);
   $("sequential-time").textContent=format(sequential.seconds);
   $("parallel-time").textContent=format(parallel.seconds);
   const ratio=sequential.seconds/parallel.seconds;
-  $("speedup").textContent=ratio >= 1 ? `${ratio.toLocaleString("pt-BR",{maximumFractionDigits:2})}× mais rápido` : `${(1/ratio).toLocaleString("pt-BR",{maximumFractionDigits:2})}× mais lento`;
-  const same=runs.every(run=>identical(sequential.outputs,run.outputs));
-  $("verification").textContent=same ? "✓ Resultados idênticos nas 4 configurações" : "As saídas apresentaram diferenças";
+  $("speedup").textContent=Math.abs(ratio-1)<=NOISE ? "Praticamente igual" : ratio >= 1 ? `${ratio.toLocaleString("pt-BR",{maximumFractionDigits:2})}× mais rápido` : `${(1/ratio).toLocaleString("pt-BR",{maximumFractionDigits:2})}× mais lento`;
+  const pixels=sequential.outputs.reduce((sum,out)=>sum+out.length,0).toLocaleString("pt-BR");
+  const mismatched=runs.filter(run=>run.mismatch>0);
+  const same=mismatched.length===0;
+  $("verification").textContent=same
+    ? `✓ ${pixels} pixels comparados em ${ROUNDS} rodadas: 2, 4 e 8 processos geraram exatamente o mesmo resultado do sequencial`
+    : `✗ Diferença em relação ao sequencial: ${mismatched.map(run=>`${run.workers} processos (${run.mismatch.toLocaleString("pt-BR")} pixels)`).join(", ")}`;
   renderChart([{workers:1,seconds:sequential.seconds},...runs],workers);
   $("verification").classList.toggle("failed",!same);
-  $("original-preview").src=images[0].preview;
-  const canvas=$("edge-preview"), {width,height}=images[0]; canvas.width=width; canvas.height=height;
-  const context=canvas.getContext("2d"); const frame=context.createImageData(width,height); const edges=sequential.outputs[0];
-  for (let i=0; i<edges.length; i++) { const j=i*4; frame.data[j]=frame.data[j+1]=frame.data[j+2]=edges[i]; frame.data[j+3]=255; }
-  context.putImageData(frame,0,0);
-  $("detail").textContent=`${images.length} ${images.length===1?"imagem":"imagens"} · gráfico: 1 processo (sequencial, thread principal), 2, 4 e 8 Web Workers · cartões: ${workers} processos · cada imagem é dividida em faixas horizontais entre os workers · comparação dos pixels de todas as saídas. O tempo inclui o envio de dados aos workers.`;
+  renderGallery(images,sequential.outputs);
+  const info=[
+    ["Imagens",`${images.length}`],
+    ["Gráfico","Sequencial (thread principal) e 2, 4 e 8 Web Workers"],
+    ["Cartões",`${workers} processos`],
+    ["Divisão","Cada imagem é dividida em faixas horizontais entre os workers"],
+    ["Verificação","Pixels de todas as saídas comparados com o sequencial"],
+    ["Tempo medido",`Mediana de ${ROUNDS} rodadas, incluindo o envio de dados aos workers`],
+  ];
+  $("detail").replaceChildren(...info.map(([term,text]) => {
+    const pair=document.createElement("div"), dt=document.createElement("dt"), dd=document.createElement("dd");
+    dt.textContent=term; dd.textContent=text; pair.append(dt,dd); return pair;
+  }));
   const runsAll=[{workers:1,seconds:sequential.seconds},...runs];
   $("explain-list").replaceChildren(...explainTimes(runsAll,workers,navigator.hardwareConcurrency).map(text => {
     const item=document.createElement("li"); item.textContent=text; return item;
@@ -156,20 +194,34 @@ $("run").addEventListener("click",async () => {
   if (state.busy) return;
   if (!state.sources.length) { status("Adicione imagens para processar.",true); $("images").focus(); return; }
   state.busy=true; $("run").disabled=true; $("images").disabled=true; resetResults();
+  $("empty").hidden=true; $("loading").hidden=false;
   try {
     const images=[];
     for (let i=0; i<state.sources.length; i++) { status(`Preparando imagens: ${i+1}/${state.sources.length}`); images.push(await prepare(state.sources[i])); }
-    await nextFrame();
-    const sequential=await runSequential(images);
-    await nextFrame();
-    const runs=[];
-    for (const count of [2,4,8]) {
+    // Rounds interleave the configurations so a slowdown (heat, battery) hits all of them alike.
+    const times={1:[],2:[],4:[],8:[]}, mismatch={2:0,4:0,8:0};
+    let reference=null;
+    for (let round=0; round<ROUNDS; round++) {
+      const prefix=`Rodada ${round+1}/${ROUNDS} · `;
       await nextFrame();
-      runs.push({workers:count,...await runParallel(images,count)});
+      const sequential=await runSequential(images,prefix);
+      times[1].push(sequential.seconds);
+      reference ??= sequential.outputs;
+      for (const count of [2,4,8]) {
+        await nextFrame();
+        const run=await runParallel(images,count,prefix);
+        times[count].push(run.seconds);
+        mismatch[count]+=differences(reference,run.outputs);
+      }
     }
+    const median=values => [...values].sort((a,b)=>a-b)[Math.floor(values.length/2)];
+    const runs=[2,4,8].map(count=>({workers:count,seconds:median(times[count]),mismatch:mismatch[count]}));
     const workers=Number(document.querySelector('input[name="workers"]:checked').value);
-    display(images,sequential,runs,workers);
+    display(images,{outputs:reference,seconds:median(times[1])},runs,workers);
     status("Processamento concluído.");
   } catch (error) { status(error.message || "Não foi possível processar as imagens.",true); }
-  finally { state.busy=false; $("run").disabled=false; $("images").disabled=false; }
+  finally {
+    state.busy=false; $("run").disabled=false; $("images").disabled=false;
+    $("loading").hidden=true; $("empty").hidden=!$("results").hidden;
+  }
 });
