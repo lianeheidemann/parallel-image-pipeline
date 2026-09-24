@@ -34,7 +34,8 @@
         .node-amber { fill: #422006; stroke: #fbbf24; }
         .node-violet { fill: #2e1065; stroke: #a78bfa; }
         .label { fill: #f8fafc; }
-        .edge { stroke: #94a3b8; }\n        #arrow path { fill: #94a3b8; }
+        .edge { stroke: #94a3b8; }
+        #arrow path { fill: #94a3b8; }
         .edge-label { fill: #cbd5e1; }
       }
     </style>
