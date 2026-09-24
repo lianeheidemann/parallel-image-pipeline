@@ -1,11 +1,11 @@
-<h1 align="center">
+<h1 align="left">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="assets/logo/logo-dark.png">
     <img src="assets/logo/logo.png" alt="Processamento Paralelo de Imagens" width="350">
   </picture>
 </h1>
 
-<div align="center">
+<div align="left">
   
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
 [![OpenCV](https://img.shields.io/badge/OpenCV-4.9%2B-green)](https://opencv.org/)
@@ -23,7 +23,7 @@ sequencial e na paralela, e a diferença de tempo mede o ganho (*speedup*),
 comparado ao teto da Lei de Amdahl. As saídas são verificadas bit a bit. Inclui a
 implantação em uma instância AWS EC2 e uma versão web.
 
-🌐 **[Página do projeto](https://lianeheidemann.github.io/parallel-image-pipeline/)**
+🌐 **[Página do projeto](https://lianeheidemann.github.io/parallel-image-pipeline/)**<br><br>
 
 ## Arquitetura
 
