@@ -35,9 +35,9 @@ O estudo combina três perspectivas:
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/readme-v3/pipeline-dark.svg?v=2">
-    <source media="(prefers-color-scheme: light)" srcset="assets/readme-v3/pipeline-light.svg?v=2">
-    <img src="assets/readme-v3/pipeline-light.svg?v=2" alt="Pipeline visual: imagem BGR, escala de cinza, blur gaussiano, Sobel e mapa de bordas" width="100%">
+    <source media="(prefers-color-scheme: dark)" srcset="assets/readme-v3/pipeline-dark.svg?v=3">
+    <source media="(prefers-color-scheme: light)" srcset="assets/readme-v3/pipeline-light.svg?v=3">
+    <img src="assets/readme-v3/pipeline-light.svg?v=3" alt="Pipeline: imagem BGR, escala de cinza, blur gaussiano, Sobel X e Y, magnitude e saída PNG" width="100%">
   </picture>
 </p>
 
