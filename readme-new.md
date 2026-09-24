@@ -37,23 +37,9 @@ O repositório reúne três ambientes de execução:
 
 ## Arquitetura
 
-```mermaid
-flowchart TD
-    INPUT["Imagens de entrada"] --> PIPE["Escala de cinza → blur gaussiano → Sobel"]
-
-    PIPE --> SEQ["Execução sequencial"]
-    PIPE --> PAR["Execução paralela"]
-
-    SEQ --> OUTPUT["Imagens processadas"]
-    PAR --> OUTPUT
-
-    OUTPUT --> VERIFY["Verificação SHA-256"]
-    SEQ --> BENCH["Benchmark"]
-    PAR --> BENCH
-    VERIFY --> BENCH
-
-    BENCH --> REPORT["Relatórios CSV, speedup e Lei de Amdahl"]
-```
+<div align="center">
+  <img src="assets/architecture.svg" alt="Arquitetura das versões local, AWS e web do pipeline de processamento paralelo de imagens" width="100%">
+</div>
 
 Nas versões local e AWS, as execuções sequencial e paralela compartilham o mesmo `local/image_processor.py`. Assim, a principal diferença entre elas é a forma como as imagens são distribuídas para processamento.
 
