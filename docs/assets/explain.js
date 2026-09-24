@@ -1,7 +1,7 @@
 // Builds plain-language reasons for the gap between measured and ideal times.
 // runs: [{workers:1,seconds}, {workers:2,seconds}, ...]; cores may be undefined.
-import { list, num, percent } from "./format.js?v=20260926a";
-import { ROUNDS } from "./runner.js?v=20260926a";
+import { list, num, percent } from "./format.js?v=20260926b";
+import { ROUNDS } from "./runner.js?v=20260926b";
 // Differences up to 5% are treated as measurement noise, not as a real effect.
 export const NOISE = 0.05;
 export function explainTimes(runs, selected, cores) {

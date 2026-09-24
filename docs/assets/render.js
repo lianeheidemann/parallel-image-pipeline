@@ -1,7 +1,7 @@
 // Draws the results panel: metrics, chart, image comparison, run details and explanations.
-import { explainTimes, NOISE } from "./explain.js?v=20260926a";
-import { ROUNDS, WORKER_COUNTS } from "./runner.js?v=20260926a";
-import { integer, list, num, percent, seconds, times } from "./format.js?v=20260926a";
+import { explainTimes, NOISE } from "./explain.js?v=20260926b";
+import { ROUNDS, WORKER_COUNTS } from "./runner.js?v=20260926b";
+import { integer, list, num, percent, seconds, times } from "./format.js?v=20260926b";
 export const $ = (id) => document.getElementById(id);
 function renderChart(runs,selected) {
   const chart=$("chart"); chart.replaceChildren();
