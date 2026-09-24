@@ -38,7 +38,11 @@ O repositório reúne três ambientes de execução:
 ## Arquitetura
 
 <div align="center">
-  <img src="assets/architecture.svg" alt="Arquitetura das versões local, AWS e web do pipeline de processamento paralelo de imagens" width="100%">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/architecture-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="assets/architecture.svg">
+    <img src="assets/architecture.svg" alt="Arquitetura das versões local, AWS e web do pipeline de processamento paralelo de imagens" width="100%">
+  </picture>
 </div>
 
 Nas versões local e AWS, as execuções sequencial e paralela compartilham o mesmo `local/image_processor.py`. Assim, a principal diferença entre elas é a forma como as imagens são distribuídas para processamento.
