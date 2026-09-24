@@ -16,6 +16,10 @@
     </style>
   </defs>
 
+  <rect class="section local" x="30" y="30" width="940" height="870" rx="26"/>
+  <text class="title" x="70" y="78" fill="#60a5fa">local/</text>
+  <text class="subtitle" x="145" y="78">Python + multiprocessing</text>
+
   <!-- Conectores locais, desenhados antes das caixas -->
   <path class="edge" d="M330 170H400"/>
   <path class="edge" d="M500 215V245H240V285"/>
@@ -31,9 +35,7 @@
   <text class="edge-label" x="350" y="811">gera</text>
   <text class="edge-label" x="778" y="846">orquestra a verificação</text>
 
-  <rect class="section local" x="30" y="30" width="940" height="870" rx="26"/>
-  <text class="title" x="70" y="78" fill="#60a5fa">local/</text>
-  <text class="subtitle" x="145" y="78">Python + multiprocessing</text>
+
 
   <rect class="node blue" x="90" y="125" width="240" height="90" rx="16"/>
   <text class="label" x="210" y="158">generate_dataset.py</text><text class="detail" x="210" y="190">gera as imagens de teste</text>
