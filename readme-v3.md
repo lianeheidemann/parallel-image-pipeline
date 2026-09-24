@@ -35,9 +35,9 @@ O estudo combina três perspectivas:
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/readme-v3/pipeline-dark.svg?v=1">
-    <source media="(prefers-color-scheme: light)" srcset="assets/readme-v3/pipeline-light.svg?v=1">
-    <img src="assets/readme-v3/pipeline-light.svg?v=1" alt="Pipeline visual: imagem BGR, escala de cinza, blur gaussiano, Sobel e mapa de bordas" width="100%">
+    <source media="(prefers-color-scheme: dark)" srcset="assets/readme-v3/pipeline-dark.svg?v=2">
+    <source media="(prefers-color-scheme: light)" srcset="assets/readme-v3/pipeline-light.svg?v=2">
+    <img src="assets/readme-v3/pipeline-light.svg?v=2" alt="Pipeline visual: imagem BGR, escala de cinza, blur gaussiano, Sobel e mapa de bordas" width="100%">
   </picture>
 </p>
 
@@ -57,9 +57,9 @@ O blur reduz pequenas variações e ruído antes do cálculo do gradiente. O Sob
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/architecture-dark.svg?v=3">
-    <source media="(prefers-color-scheme: light)" srcset="assets/architecture.svg?v=3">
-    <img src="assets/architecture.svg?v=3" alt="Arquitetura das versões local, AWS e web do pipeline" width="100%">
+    <source media="(prefers-color-scheme: dark)" srcset="assets/readme-v3/architecture-dark.svg?v=1">
+    <source media="(prefers-color-scheme: light)" srcset="assets/readme-v3/architecture-light.svg?v=1">
+    <img src="assets/readme-v3/architecture-light.svg?v=1" alt="Arquitetura das versões local, AWS e web do pipeline" width="100%">
   </picture>
 </p>
 
@@ -69,9 +69,9 @@ A versão sequencial e a paralela em Python compartilham exatamente a mesma fun�
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/readme-v3/environments-dark.svg?v=1">
-    <source media="(prefers-color-scheme: light)" srcset="assets/readme-v3/environments-light.svg?v=1">
-    <img src="assets/readme-v3/environments-light.svg?v=1" alt="Comparação entre Python local, AWS EC2 e GitHub Pages" width="100%">
+    <source media="(prefers-color-scheme: dark)" srcset="assets/readme-v3/environments-dark.svg?v=2">
+    <source media="(prefers-color-scheme: light)" srcset="assets/readme-v3/environments-light.svg?v=2">
+    <img src="assets/readme-v3/environments-light.svg?v=2" alt="Comparação entre Python local, AWS EC2 e GitHub Pages" width="100%">
   </picture>
 </p>
 
