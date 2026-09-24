@@ -1,6 +1,6 @@
 // Page wiring: image selection, preparation and the "Processar imagens" button.
-import { benchmark } from "./runner.js?v=20260926a";
-import { $, display, renderPreparing, renderProgress, stageName } from "./render.js?v=20260926a";
+import { benchmark } from "./runner.js?v=20260926b";
+import { $, display, renderPreparing, renderProgress, stageName } from "./render.js?v=20260926b";
 const state = {sources: [], busy: false};
 const status = (message, error = false) => { $("status").textContent = message; $("status").classList.toggle("error", error); };
 function resetResults() { $("results").hidden = true; $("empty").hidden = false; }
