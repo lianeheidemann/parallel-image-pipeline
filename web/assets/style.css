@@ -1,4 +1,4 @@
-:root { font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; color:#14243e; background:#f8faff; font-synthesis:none; }
+:root { --accent:#2563d9; --border:#dbe4f2; --muted:#596982; font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; color:#14243e; background:#f8faff; font-synthesis:none; }
 * { box-sizing:border-box; }
 [hidden] { display:none !important; }
 body { margin:0; }

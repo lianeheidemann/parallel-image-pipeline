@@ -1,10 +1,10 @@
 // Timing of the sequential run (main thread) and the parallel runs (Web Workers).
 // No DOM access: progress is reported as data through the onProgress callback.
-import { processPixels, HALO } from "./processor.js?v=20260926c";
+import { processPixels, HALO } from "./processor.js?v=20260927a";
 export const ROUNDS = 3; // each configuration is timed this many times; the median is shown
 export const WORKER_COUNTS = [2,4,8];
 const nextFrame = () => new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 0)));
-export const median = values => [...values].sort((a,b)=>a-b)[Math.floor(values.length/2)];
+const median = values => [...values].sort((a,b)=>a-b)[Math.floor(values.length/2)];
 async function runSequential(images, onStep) {
   const outputs = []; let elapsed = 0;
   onStep(0, images.length);
@@ -54,7 +54,7 @@ function runParallel(images, requested, onStep) {
     };
     try {
       for (let i=0; i<requested; i++) {
-        const worker=new Worker(new URL("./worker.js?v=20260926c",import.meta.url),{type:"module"});
+        const worker=new Worker(new URL("./worker.js?v=20260927a",import.meta.url),{type:"module"});
         workers.push(worker);
         worker.onerror=() => finish(new Error("Não foi possível executar os Web Workers neste navegador."));
         worker.onmessage=({data}) => {
@@ -81,7 +81,7 @@ function differences(a,b) {
 // onProgress receives {round, rounds, stage, stages, workers, done, total}: stages
 // lists the worker counts in run order (1 = sequential) and done/total count
 // images (sequential) or strips (parallel) of the current stage.
-export const STAGES = [1, ...WORKER_COUNTS];
+const STAGES = [1, ...WORKER_COUNTS];
 export async function benchmark(images, onProgress) {
   // Rounds interleave the configurations so a slowdown (heat, battery) hits all of them alike.
   const times={1:[]}, mismatch={};

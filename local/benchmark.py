@@ -7,7 +7,7 @@
   Amdahl para a fracao paralelizavel estimada.
 - A cada rodada verifica que a saida paralela e identica a sequencial; termina com
   codigo 1 se nao for.
-Resultado em results/benchmark.csv (lido tambem pelo painel, src/server.py).
+Resultado em results/benchmark.csv (lido tambem pelo painel, aws/server.py).
 """
 
 import argparse

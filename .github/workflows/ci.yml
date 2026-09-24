@@ -29,22 +29,22 @@ jobs:
         run: pytest -q
 
       - name: Cloud setup script syntax
-        run: bash -n cloud/user-data.sh
+        run: bash -n aws/user-data.sh
 
       - name: Generate sample dataset
-        run: python src/generate_dataset.py --count 20 --output dataset
+        run: python local/generate_dataset.py --count 20 --output dataset
 
       - name: Run sequential pipeline
-        run: python src/sequential.py --dataset dataset --output output/sequential --report results/sequential_report.csv
+        run: python local/sequential.py --dataset dataset --output output/sequential --report results/sequential_report.csv
 
       - name: Run parallel pipeline
-        run: python src/parallel.py --dataset dataset --output output/parallel --report results/parallel_report.csv --workers 2
+        run: python local/parallel.py --dataset dataset --output output/parallel --report results/parallel_report.csv --workers 2
 
       - name: Verify sequential == parallel (SHA-256)
-        run: python src/verify.py --sequential output/sequential --parallel output/parallel
+        run: python local/verify.py --sequential output/sequential --parallel output/parallel
 
       - name: Benchmark (fails if any output differs)
-        run: python src/benchmark.py --dataset dataset --workers 2 --repeat 1
+        run: python local/benchmark.py --dataset dataset --workers 2 --repeat 1
 
   web:
     runs-on: ubuntu-latest
@@ -58,4 +58,4 @@ jobs:
           node-version: "22"
 
       - name: Web tests (strips == whole image, cache versions)
-        run: node --test tests/*.test.mjs
+        run: node --test tests/web/*.test.mjs

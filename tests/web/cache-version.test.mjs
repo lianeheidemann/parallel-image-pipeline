@@ -5,11 +5,11 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
 
-const docs = new URL("../docs/", import.meta.url);
-const files = ["index.html", ...readdirSync(new URL("assets/", docs)).filter(f => f.endsWith(".js")).map(f => `assets/${f}`)];
-const sources = files.map(file => [file, readFileSync(new URL(file, docs), "utf8")]);
+const web = new URL("../../web/", import.meta.url);
+const files = ["index.html", ...readdirSync(new URL("assets/", web)).filter(f => f.endsWith(".js")).map(f => `assets/${f}`)];
+const sources = files.map(file => [file, readFileSync(new URL(file, web), "utf8")]);
 
-test("todos os ?v= de docs/ tem o mesmo valor", () => {
+test("todos os ?v= de web/ tem o mesmo valor", () => {
   const versions = new Set(sources.flatMap(([, text]) => [...text.matchAll(/\?v=([\w.-]+)/g)].map(m => m[1])));
   assert.equal(versions.size, 1, `versoes encontradas: ${[...versions].join(", ")}`);
 });

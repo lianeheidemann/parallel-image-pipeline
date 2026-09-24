@@ -3,7 +3,7 @@
 # "User data" ao lancar a instancia: ele roda como root, uma vez, no primeiro boot.
 #
 # 1. instala Python e baixa o projeto em /home/ubuntu/parallel-image-pipeline
-# 2. sobe o painel de resultados (src/server.py) na porta 80 como servico systemd
+# 2. sobe o painel de resultados (aws/server.py) na porta 80 como servico systemd
 # 3. gera o dataset e roda o benchmark; o painel mostra o andamento e o resultado
 #
 # Decisoes da Ficha E que ficam fora deste script (feitas no console):
@@ -51,7 +51,7 @@ Wants=network-online.target
 [Service]
 User=${APP_USER}
 WorkingDirectory=${APP_DIR}
-ExecStart=${APP_DIR}/.venv/bin/python src/server.py --port 80
+ExecStart=${APP_DIR}/.venv/bin/python aws/server.py --port 80
 AmbientCapabilities=CAP_NET_BIND_SERVICE
 NoNewPrivileges=true
 Restart=always
@@ -71,9 +71,9 @@ sudo -u "${APP_USER}" bash -c "
   trap 'code=\$?; rm -f \"${RESULTS}/setup.running\"; [ \$code -eq 0 ] || echo \"[\$(date \"+%F %T\")] FALHOU (codigo \$code)\" >> \"${RESULTS}/setup.log\"' EXIT
   {
     echo \"[\$(date '+%F %T')] gerando ${COUNT} imagens ${WIDTH}x${HEIGHT}\"
-    .venv/bin/python src/generate_dataset.py --count ${COUNT} --width ${WIDTH} --height ${HEIGHT}
+    .venv/bin/python local/generate_dataset.py --count ${COUNT} --width ${WIDTH} --height ${HEIGHT}
     echo \"[\$(date '+%F %T')] benchmark: processos ${WORKERS}, ${REPEAT} rodadas\"
-    .venv/bin/python src/benchmark.py --workers ${WORKERS} --repeat ${REPEAT}
+    .venv/bin/python local/benchmark.py --workers ${WORKERS} --repeat ${REPEAT}
     echo \"[\$(date '+%F %T')] concluido\"
   } >> '${RESULTS}/setup.log' 2>&1
 "
