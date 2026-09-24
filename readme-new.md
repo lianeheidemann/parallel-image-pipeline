@@ -39,9 +39,9 @@ O repositório reúne três ambientes de execução:
 
 <div align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/architecture-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="assets/architecture.svg">
-    <img src="assets/architecture.svg" alt="Arquitetura das versões local, AWS e web do pipeline de processamento paralelo de imagens" width="100%">
+    <source media="(prefers-color-scheme: dark)" srcset="assets/architecture-dark.svg?v=2">
+    <source media="(prefers-color-scheme: light)" srcset="assets/architecture.svg?v=2">
+    <img src="assets/architecture.svg?v=2" alt="Arquitetura das versões local, AWS e web do pipeline de processamento paralelo de imagens" width="100%">
   </picture>
 </div>
 
