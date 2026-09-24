@@ -29,9 +29,9 @@
   <line class="header-line" x1="60" y1="116" x2="1060" y2="116"/>
 
   <!-- data flow -->
-  <path class="edge" d="M294 178H390"/>
-  <path class="edge" d="M535 226V262H282V302"/>
-  <path class="edge" d="M535 226V262H788V302"/>
+  <path class="edge" d="M324 178H410"/>
+  <path class="edge" d="M545 226V262H282V302"/>
+  <path class="edge" d="M545 226V262H788V302"/>
   <path class="edge" d="M282 394V432H535V470"/>
   <path class="edge" d="M788 394V432H535V470"/>
   <path class="edge" d="M535 562V606"/>
@@ -46,12 +46,12 @@
   <text class="edge-label" x="787" y="802">solicita validação</text>
 
   <rect x="62" y="143" width="34" height="22" rx="5" fill="#60a5fa"/><text class="tag" x="79" y="159">01</text>
-  <rect class="node node-blue" x="114" y="137" width="180" height="82" rx="10"/>
-  <text class="code" x="204" y="171">generate_dataset.py</text><text class="detail" x="204" y="196">gera imagens de teste</text>
+  <rect class="node node-blue" x="114" y="137" width="210" height="82" rx="10"/>
+  <text class="code" x="219" y="171" style="font-size:15px">generate_dataset.py</text><text class="detail" x="219" y="196">gera imagens de teste</text>
 
-  <rect x="338" y="143" width="34" height="22" rx="5" fill="#60a5fa"/><text class="tag" x="355" y="159">02</text>
-  <rect class="store" x="390" y="137" width="290" height="89" rx="10"/>
-  <text class="code" x="535" y="174">dataset/*.jpg</text><text class="detail" x="535" y="199">lote de entrada</text>
+  <rect x="358" y="143" width="34" height="22" rx="5" fill="#60a5fa"/><text class="tag" x="375" y="159">02</text>
+  <rect class="store" x="410" y="137" width="270" height="89" rx="10"/>
+  <text class="code" x="545" y="174">dataset/*.jpg</text><text class="detail" x="545" y="199">lote de entrada</text>
 
   <rect x="62" y="308" width="34" height="22" rx="5" fill="#60a5fa"/><text class="tag" x="79" y="324">03A</text>
   <rect class="node" x="114" y="302" width="336" height="92" rx="10"/>
