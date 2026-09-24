@@ -124,6 +124,23 @@ mudar, a regra 22 é atualizada.
 - **Acesso:** `http://IP-PÚBLICO/` (painel) e `ssh -i labsuser.pem ubuntu@IP-PÚBLICO`.
   Com 2 vCPU, o benchmark mede 1 e 2 processos.
 
+## Python local vs GitHub Pages
+
+As duas versões executam o mesmo pipeline, mas dividem o trabalho de formas diferentes:
+
+| Aspecto | Python | GitHub Pages |
+|---|---|---|
+| Linguagem | Python | JavaScript |
+| Executor | CPython | Navegador |
+| Paralelismo | `multiprocessing` | Web Workers |
+| Pool | Sim (`multiprocessing.Pool`) | Não: fila própria em `runner.js` |
+| `chunksize=1` | Sim | Não literalmente: cada worker recebe uma faixa por vez |
+| Tarefa | 1 imagem | 1 faixa da imagem |
+| GIL | Relevante | Não se aplica |
+| Vários núcleos | Processos podem aproveitar | Workers podem ser executados em paralelo |
+| 1 imagem + 4 workers | Só 1 processo trabalha (a imagem é a unidade) | A imagem é dividida em 4 faixas |
+| Cinza + blur + Sobel | OpenCV | Implementados em JavaScript |
+
 ## Página web
 
 `docs/` roda o mesmo pipeline no navegador (thread principal × 2, 4 e 8 Web Workers,
