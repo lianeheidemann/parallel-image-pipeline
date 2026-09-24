@@ -5,7 +5,7 @@ paralelo sao medidos com a mesma entrada, em qualquer execucao ou maquina (exige
 da medicao na lauda).
 
 Volume de referencia (condicao 2 da Ficha A: o sequencial precisa levar minutos):
-    python src/generate_dataset.py --count 2000 --width 1920 --height 1080
+    python local/generate_dataset.py --count 2000 --width 1920 --height 1080
 """
 
 import argparse

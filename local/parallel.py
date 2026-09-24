@@ -69,7 +69,7 @@ def _process_one(image_path: Path) -> None:
     # E o menor trecho indivisivel: o processamento da imagem fica fora. Com o lock
     # em volta do trabalho todo, o programa ficaria correto, mas serializado (speedup ~1).
     # Prova de estabilidade: contador = total de imagens e CSV com uma linha por imagem
-    # em toda execucao (benchmark.py --repeat, tests/test_pipeline.py).
+    # em toda execucao (benchmark.py --repeat, tests/local/test_pipeline.py).
     with _lock:
         _counter.value += 1
         with open(_report_path, "a", newline="", encoding="utf-8") as f:

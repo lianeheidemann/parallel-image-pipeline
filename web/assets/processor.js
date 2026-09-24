@@ -1,4 +1,4 @@
-// Mirrors src/image_processor.py: BGR->gray, GaussianBlur(5,5), Sobel magnitude.
+// Mirrors local/image_processor.py: BGR->gray, GaussianBlur(5,5), Sobel magnitude.
 // Browser pixel math and OpenCV can differ by a rounding level at some pixels.
 export const HALO = 3; // rows of context a strip needs: 2 for the blur + 1 for Sobel
 

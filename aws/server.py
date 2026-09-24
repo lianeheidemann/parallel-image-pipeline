@@ -17,17 +17,20 @@ import functools
 import html
 import os
 import platform
+import sys
 import urllib.request
 from datetime import datetime
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-from common import DATASET_DIR, RESULTS_DIR, list_images
+# A instancia roda o mesmo codigo da versao local: common.py e benchmark.py vem de local/.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "local"))
+from common import DATASET_DIR, RESULTS_DIR, list_images  # noqa: E402
 
 BENCHMARK_CSV = "benchmark.csv"
 SETUP_LOG = "setup.log"
-# Criado por cloud/user-data.sh enquanto gera o dataset e roda o benchmark.
+# Criado por aws/user-data.sh enquanto gera o dataset e roda o benchmark.
 RUNNING_MARKER = "setup.running"
 LOG_LINES = 15
 
@@ -131,7 +134,7 @@ def render_page(results_dir: Path, dataset_dir: Path) -> str:
             "<th>Previsto (Amdahl)</th><th>Verificado</th></tr></thead>"
             f"<tbody>{body_rows}</tbody></table></div>{fraction}")
     else:
-        results = "<p class='muted'>Nenhum resultado ainda. Rode <code>python src/benchmark.py</code>.</p>"
+        results = "<p class='muted'>Nenhum resultado ainda. Rode <code>python local/benchmark.py</code>.</p>"
 
     status = "<p class='running'>Benchmark em andamento…</p>" if running else ""
     log = last_lines(results_dir / SETUP_LOG, LOG_LINES)

@@ -3,8 +3,8 @@
 // a imagem inteira de uma vez.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { processPixels, processRows } from "../docs/assets/processor.js";
-import { stripSlice, stripTasks } from "../docs/assets/runner.js";
+import { processPixels, processRows } from "../../web/assets/processor.js";
+import { stripSlice, stripTasks } from "../../web/assets/runner.js";
 
 function randomImage(width, height, seed) {
   const rgba = new Uint8ClampedArray(width * height * 4);
@@ -16,7 +16,7 @@ function randomImage(width, height, seed) {
   return rgba;
 }
 
-// Mesmo corte que runParallel (docs/assets/runner.js) envia aos Web Workers.
+// Mesmo corte que runParallel (web/assets/runner.js) envia aos Web Workers.
 function processInStrips(img, parts) {
   const out = new Uint8ClampedArray(img.width * img.height);
   for (const task of stripTasks([img], parts)) {

@@ -29,36 +29,39 @@ implantação em uma instância AWS EC2 e uma versão web.
 
 ```mermaid
 flowchart LR
-    GEN["generate_dataset.py"] --> DS[("dataset/*.jpg")]
-
-    DS --> SEQ["sequential.py\n(1 processo)"]
-    DS --> PAR["parallel.py\n(multiprocessing.Pool)"]
-
-    SEQ --> IP["image_processor.py\ngray → blur → Sobel"]
-    PAR --> IP
-
-    IP --> OUT_SEQ[("output/sequential/*.png")]
-    IP --> OUT_PAR[("output/parallel/*.png")]
-
-    OUT_SEQ --> VER["verify.py\nSHA-256"]
-    OUT_PAR --> VER
-
-    BENCH["benchmark.py"] -.orquestra.-> SEQ
-    BENCH -.orquestra.-> PAR
-    BENCH -.orquestra.-> VER
-    BENCH --> CSV[("results/benchmark.csv\nspeedup + Amdahl")]
-    CSV --> SRV["server.py\npainel HTTP"]
+    subgraph LOCAL["local/ · Python + multiprocessing"]
+        GEN["generate_dataset.py"] --> DS[("dataset/*.jpg")]
+        DS --> SEQ["sequential.py\n(1 processo)"]
+        DS --> PAR["parallel.py\n(multiprocessing.Pool)"]
+        SEQ --> IP["image_processor.py\ngray → blur → Sobel"]
+        PAR --> IP
+        IP --> OUT[("output/sequential/\noutput/parallel/")]
+        OUT --> VER["verify.py\nSHA-256"]
+        BENCH["benchmark.py"] -.orquestra.-> SEQ
+        BENCH -.orquestra.-> PAR
+        BENCH -.orquestra.-> VER
+        BENCH --> CSV[("results/benchmark.csv\nspeedup + Amdahl")]
+    end
+    subgraph AWS["aws/ · EC2"]
+        UD["user-data.sh\n1º boot"] -.executa.-> BENCH
+        CSV --> SRV["server.py\npainel HTTP :80"]
+    end
+    subgraph WEB["web/ · GitHub Pages"]
+        RUN["runner.js\nthread principal × Web Workers"] --> WP["processor.js\ngray → blur → Sobel"]
+    end
 ```
 
-As duas versões usam o mesmo `image_processor.py` e diferem só na distribuição do trabalho.
+As versões sequencial e paralela usam o mesmo `image_processor.py` e diferem só na distribuição do trabalho.
 
 ## Estrutura
 
+Uma pasta por forma de execução; cada uma tem um README próprio.
+
 ```
-src/     pipeline, versões sequencial e paralela, verificação, benchmark e painel HTTP
-cloud/   script de preparação da instância EC2
-docs/    versão web (GitHub Pages)
-tests/   pytest e node --test
+local/   Python + multiprocessing: pipeline, sequencial, paralelo, verificação e benchmark
+web/     versão no navegador com Web Workers (publicada no GitHub Pages)
+aws/     nuvem: preparação da instância EC2 (user-data.sh) e painel HTTP (server.py)
+tests/   local/ e aws/ (pytest), web/ (node --test)
 ```
 
 ## Instalação
@@ -74,12 +77,12 @@ pip install -r requirements.txt
 ## Uso
 
 ```bash
-python src/generate_dataset.py --count 2000 --width 1920 --height 1080
-python src/sequential.py
-python src/parallel.py --workers 4
-python src/verify.py
-python src/benchmark.py --workers 2 4 8 --repeat 3
-python src/server.py                     # painel em http://localhost:8080/
+python local/generate_dataset.py --count 2000 --width 1920 --height 1080
+python local/sequential.py
+python local/parallel.py --workers 4
+python local/verify.py
+python local/benchmark.py --workers 2 4 8 --repeat 3
+python aws/server.py                     # painel em http://localhost:8080/
 ```
 
 | Pasta | Conteúdo |
@@ -98,13 +101,16 @@ referência (2000 imagens 1920×1080) leva ≈ 3 min no sequencial e ocupa ≈ 1
   `Pool.map` com `chunksize=1` distribui as imagens dinamicamente.
 - **Seção crítica:** o contador de concluídas (`multiprocessing.Value`) e o relatório
   CSV são escritos por todos os processos e protegidos por um `multiprocessing.Lock`
-  que envolve apenas o incremento e a escrita da linha (`_process_one` em `src/parallel.py`).
+  que envolve apenas o incremento e a escrita da linha (`_process_one` em `local/parallel.py`).
 - **Corretude:** `verify.py` exige saídas idênticas byte a byte (SHA-256).
 - **Medição:** `benchmark.py` intercala `--repeat` rodadas e registra a mediana em
   `benchmark.csv` (`processos`, `tempo_s`, `speedup`, `speedup_amdahl_previsto`,
   `verificado`), com `p` estimado para `S = 1 / ((1 - p) + p / N)`.
 
 ## Implantação na AWS (EC2)
+
+Detalhes em [`aws/`](aws/).
+
 
 | Porta | Origem | Uso |
 |---|---|---|
@@ -116,7 +122,7 @@ mudar, a regra 22 é atualizada.
 
 - **Criação (console, AWS Academy):** `us-east-1`, Ubuntu Server 24.04 LTS,
   `c5.large`, par `vockey`, 30 GiB gp3, grupo de segurança acima e
-  `cloud/user-data.sh` em *User data*. Alternativa: outra família sem créditos de
+  `aws/user-data.sh` em *User data*. Alternativa: outra família sem créditos de
   CPU (ex.: `m5.large`); evitar t2/t3, que distorcem a medição.
 - **Primeiro boot:** o script instala o projeto, registra o painel como serviço
   `systemd` (porta 80, usuário sem privilégios) e roda o benchmark de referência
@@ -132,12 +138,13 @@ versão local, numa instância EC2, com um painel de resultados na porta 80:
 | Aspecto | Python local | GitHub Pages | AWS (EC2) |
 |---|---|---|---|
 | Onde roda | Seu computador | Navegador | Instância EC2 `c5.large` (Ubuntu 24.04) |
-| Como começa | Comandos no terminal | Abrir o link | `cloud/user-data.sh` prepara tudo no 1º boot |
-| Resultado | `results/` e terminal | Na própria página | Painel `src/server.py` na porta 80 + `results/` |
+| Pasta | `local/` | `web/` | `aws/` (+ código de `local/`) |
+| Como começa | Comandos no terminal | Abrir o link | `aws/user-data.sh` prepara tudo no 1º boot |
+| Resultado | `results/` e terminal | Na própria página | Painel `aws/server.py` na porta 80 + `results/` |
 | Linguagem | Python | JavaScript | Python |
 | Executor | CPython | Navegador | CPython |
 | Paralelismo | `multiprocessing` | Web Workers | `multiprocessing` |
-| Pool | Sim (`multiprocessing.Pool`) | Não: fila própria em `runner.js` | Sim |
+| Pool | Sim (`multiprocessing.Pool`) | Não: fila própria em `web/assets/runner.js` | Sim |
 | `chunksize=1` | Sim | Não literalmente: cada worker recebe uma faixa por vez | Sim |
 | Tarefa | 1 imagem | 1 faixa da imagem | 1 imagem |
 | GIL | Relevante | Não se aplica | Relevante |
@@ -168,16 +175,16 @@ criados e em como o resultado é juntado:
 
 ## Página web
 
-`docs/` roda o mesmo pipeline no navegador (thread principal × 2, 4 e 8 Web Workers,
+`web/` roda o mesmo pipeline no navegador (thread principal × 2, 4 e 8 Web Workers,
 em faixas horizontais), sem enviar nem salvar imagens. Os tempos não são comparáveis
-aos do Python. Local: `npx http-server docs`.
+aos do Python. Local: `npx http-server web`. Detalhes em [`web/`](web/).
 
 ## Testes
 
 ```bash
 pip install -r requirements-dev.txt
-pytest -q                       # Amdahl, verify.py, sequencial == paralelo, painel HTTP
-node --test tests/*.test.mjs    # faixas == imagem inteira, versões de cache (?v=)
+pytest -q                          # Amdahl, verify.py, sequencial == paralelo, painel HTTP
+node --test tests/web/*.test.mjs   # faixas == imagem inteira, versões de cache (?v=)
 ```
 
 ## Licença
