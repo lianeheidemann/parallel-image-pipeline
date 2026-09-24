@@ -1,15 +1,19 @@
 <h1 align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="assets/logo/logo-dark.png">
-    <img src="assets/logo/logo.png" alt="Processamento Paralelo de Imagens" width="520">
+    <img src="assets/logo/logo.png" alt="Processamento Paralelo de Imagens" width="400">
   </picture>
 </h1>
 
+<div align="center">
+  
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
 [![OpenCV](https://img.shields.io/badge/OpenCV-4.9%2B-green)](https://opencv.org/)
 [![NumPy](https://img.shields.io/badge/NumPy-1.26%2B-013243)](https://numpy.org/)
 [![CI](https://github.com/lianeheidemann/parallel-image-pipeline/actions/workflows/ci.yml/badge.svg)](https://github.com/lianeheidemann/parallel-image-pipeline/actions/workflows/ci.yml)
 [![Deploy GitHub Pages](https://github.com/lianeheidemann/parallel-image-pipeline/actions/workflows/pages.yml/badge.svg)](https://github.com/lianeheidemann/parallel-image-pipeline/actions/workflows/pages.yml)
+
+</div>
 
 Usa multiprocessamento (`multiprocessing`) para **reduzir o tempo** de
 processamento de um lote de imagens. O processamento é propositalmente simples —
