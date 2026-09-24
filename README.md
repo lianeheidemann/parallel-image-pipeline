@@ -1,7 +1,7 @@
 <h1 align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="assets/logo/logo-dark.png">
-    <img src="assets/logo/logo.png" alt="Processamento Paralelo de Imagens" width="400">
+    <img src="assets/logo/logo.png" alt="Processamento Paralelo de Imagens" width="300">
   </picture>
 </h1>
 
