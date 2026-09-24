@@ -6,11 +6,13 @@
 [![CI](https://github.com/lianeheidemann/parallel-image-pipeline/actions/workflows/ci.yml/badge.svg)](https://github.com/lianeheidemann/parallel-image-pipeline/actions/workflows/ci.yml)
 [![Deploy GitHub Pages](https://github.com/lianeheidemann/parallel-image-pipeline/actions/workflows/pages.yml/badge.svg)](https://github.com/lianeheidemann/parallel-image-pipeline/actions/workflows/pages.yml)
 
-Comparação entre processamento **sequencial** e **paralelo** (`multiprocessing`)
-de um mesmo pipeline de imagem — escala de cinza → blur gaussiano → detecção de
-bordas (Sobel) — com verificação de corretude bit a bit e medição de *speedup*
-frente à Lei de Amdahl. Inclui a implantação em uma instância AWS EC2 e uma
-versão em JavaScript que roda no navegador.
+Usa multiprocessamento (`multiprocessing`) para **reduzir o tempo** de
+processamento de um lote de imagens. O processamento é propositalmente simples —
+conversão para escala de cinza, seguida de blur gaussiano e detecção de bordas
+(Sobel) — para servir de carga padronizada: a mesma operação roda na versão
+sequencial e na paralela, e a diferença de tempo mede o ganho (*speedup*),
+comparado ao teto da Lei de Amdahl. As saídas são verificadas bit a bit. Inclui a
+implantação em uma instância AWS EC2 e uma versão web.
 
 🌐 **[Página do projeto](https://lianeheidemann.github.io/parallel-image-pipeline/)**
 
