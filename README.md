@@ -1,4 +1,9 @@
-# Processamento Paralelo de Imagens
+<h1 align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/logo/logo-dark.png">
+    <img src="assets/logo/logo.png" alt="Processamento Paralelo de Imagens" width="520">
+  </picture>
+</h1>
 
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
 [![OpenCV](https://img.shields.io/badge/OpenCV-4.9%2B-green)](https://opencv.org/)
