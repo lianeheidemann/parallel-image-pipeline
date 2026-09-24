@@ -152,7 +152,7 @@ versão local, numa instância EC2, com um painel de resultados na porta 80:
 | 1 imagem + 4 workers | Só 1 processo trabalha | A imagem é dividida em 4 faixas | Só 1 processo trabalha |
 | Cinza + blur + Sobel | OpenCV | Implementados em JavaScript | OpenCV |
 
-### Web Workers x multiprocessing
+### Web Workers x multiprocessing x AWS
 
 Nos dois casos o paralelismo é real: cada fluxo roda em um núcleo, com memória
 própria, e a comunicação é por mensagens. A diferença está em como os fluxos são
@@ -172,6 +172,15 @@ criados e em como o resultado é juntado:
   então não há lock.
 - **Quem distribui:** no Python, o `Pool` (`chunksize=1`). Na página, a fila de
   `runner.js`, que entrega a próxima faixa ao worker que terminou.
+
+**E a AWS?** Não é uma terceira técnica: a EC2 executa o mesmo `multiprocessing` de
+`local/`. Muda o ambiente, não o paralelismo. O que ela acrescenta é uma máquina
+padronizada e registrada no painel (tipo e zona), sem outros programas disputando a
+CPU, com o resultado acessível pela porta 80 e as regras de rede exigidas pela lauda
+(grupo de segurança). Na leitura do resultado, a `c5.large` tem 2 vCPU que são
+**1 núcleo físico com 2 threads** (hyperthreading): com 2 processos o speedup fica
+bem abaixo de 2×, por efeito do hardware e não do código. Uma `c5.xlarge` (2 núcleos
+físicos) mostraria mais ganho, se o Learner Lab liberar.
 
 ## Página web
 
