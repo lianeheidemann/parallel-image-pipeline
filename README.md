@@ -124,22 +124,26 @@ mudar, a regra 22 é atualizada.
 - **Acesso:** `http://IP-PÚBLICO/` (painel) e `ssh -i labsuser.pem ubuntu@IP-PÚBLICO`.
   Com 2 vCPU, o benchmark mede 1 e 2 processos.
 
-## Python local vs GitHub Pages
+## Python local, GitHub Pages e AWS
 
-As duas versões executam o mesmo pipeline, mas dividem o trabalho de formas diferentes:
+As três formas executam o mesmo pipeline. A AWS roda o mesmo código Python da
+versão local, numa instância EC2, com um painel de resultados na porta 80:
 
-| Aspecto | Python | GitHub Pages |
-|---|---|---|
-| Linguagem | Python | JavaScript |
-| Executor | CPython | Navegador |
-| Paralelismo | `multiprocessing` | Web Workers |
-| Pool | Sim (`multiprocessing.Pool`) | Não: fila própria em `runner.js` |
-| `chunksize=1` | Sim | Não literalmente: cada worker recebe uma faixa por vez |
-| Tarefa | 1 imagem | 1 faixa da imagem |
-| GIL | Relevante | Não se aplica |
-| Vários núcleos | Processos podem aproveitar | Workers podem ser executados em paralelo |
-| 1 imagem + 4 workers | Só 1 processo trabalha (a imagem é a unidade) | A imagem é dividida em 4 faixas |
-| Cinza + blur + Sobel | OpenCV | Implementados em JavaScript |
+| Aspecto | Python local | GitHub Pages | AWS (EC2) |
+|---|---|---|---|
+| Onde roda | Seu computador | Navegador | Instância EC2 `c5.large` (Ubuntu 24.04) |
+| Como começa | Comandos no terminal | Abrir o link | `cloud/user-data.sh` prepara tudo no 1º boot |
+| Resultado | `results/` e terminal | Na própria página | Painel `src/server.py` na porta 80 + `results/` |
+| Linguagem | Python | JavaScript | Python |
+| Executor | CPython | Navegador | CPython |
+| Paralelismo | `multiprocessing` | Web Workers | `multiprocessing` |
+| Pool | Sim (`multiprocessing.Pool`) | Não: fila própria em `runner.js` | Sim |
+| `chunksize=1` | Sim | Não literalmente: cada worker recebe uma faixa por vez | Sim |
+| Tarefa | 1 imagem | 1 faixa da imagem | 1 imagem |
+| GIL | Relevante | Não se aplica | Relevante |
+| Vários núcleos | Processos podem aproveitar | Workers podem ser executados em paralelo | 2 vCPU: mede 1 e 2 processos |
+| 1 imagem + 4 workers | Só 1 processo trabalha | A imagem é dividida em 4 faixas | Só 1 processo trabalha |
+| Cinza + blur + Sobel | OpenCV | Implementados em JavaScript | OpenCV |
 
 ### Web Workers x multiprocessing
 
