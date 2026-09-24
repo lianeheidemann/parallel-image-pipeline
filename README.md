@@ -141,6 +141,27 @@ As duas versões executam o mesmo pipeline, mas dividem o trabalho de formas dif
 | 1 imagem + 4 workers | Só 1 processo trabalha (a imagem é a unidade) | A imagem é dividida em 4 faixas |
 | Cinza + blur + Sobel | OpenCV | Implementados em JavaScript |
 
+### Web Workers x multiprocessing
+
+Nos dois casos o paralelismo é real: cada fluxo roda em um núcleo, com memória
+própria, e a comunicação é por mensagens. A diferença está em como os fluxos são
+criados e em como o resultado é juntado:
+
+- **O que é cada fluxo:** `multiprocessing` cria **processos** do sistema
+  operacional, cada um com seu próprio interpretador Python e seu próprio GIL. Um
+  Web Worker é uma **thread** do motor JavaScript do navegador, isolada da página,
+  sem GIL. Criar um worker é mais leve que criar um processo.
+- **Como o trabalho chega:** o `Pool` serializa (pickle) o caminho de cada imagem e
+  o envia por um pipe; o processo lê a imagem do disco. Na página, `postMessage`
+  **transfere** o `ArrayBuffer` da faixa para o worker, sem copiar os bytes.
+- **Estado compartilhado:** no Python, o contador (`mp.Value`) e o CSV são escritos
+  por todos os processos, por isso ficam numa seção crítica com
+  `multiprocessing.Lock`. Na página não há estado compartilhado: cada worker devolve
+  a sua faixa e só a thread principal junta os resultados, uma mensagem por vez,
+  então não há lock.
+- **Quem distribui:** no Python, o `Pool` (`chunksize=1`). Na página, a fila de
+  `runner.js`, que entrega a próxima faixa ao worker que terminou.
+
 ## Página web
 
 `docs/` roda o mesmo pipeline no navegador (thread principal × 2, 4 e 8 Web Workers,
