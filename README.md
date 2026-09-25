@@ -235,7 +235,7 @@ A demonstração web processa as imagens localmente no navegador: nenhum arquivo
 
 Acesse:
 
-**https://lianeheidemann.github.io/parallel-image-pipeline/**
+🔗 **https://lianeheidemann.github.io/parallel-image-pipeline/**
 
 Para executar localmente:
 
