@@ -17,7 +17,7 @@
 [![CI](https://github.com/lianeheidemann/parallel-image-pipeline/actions/workflows/ci.yml/badge.svg)](https://github.com/lianeheidemann/parallel-image-pipeline/actions/workflows/ci.yml)
 [![GitHub Pages](https://github.com/lianeheidemann/parallel-image-pipeline/actions/workflows/pages.yml/badge.svg)](https://github.com/lianeheidemann/parallel-image-pipeline/actions/workflows/pages.yml)
 
-[**Experimentar no navegador**](https://lianeheidemann.github.io/parallel-image-pipeline/)
+[**🌐 Experimentar no navegador**](https://lianeheidemann.github.io/parallel-image-pipeline/)
 
 </div>
 
