@@ -69,9 +69,9 @@ A versão sequencial e a paralela em Python compartilham exatamente a mesma fun�
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/readme-v3/environments-dark.svg?v=3">
-    <source media="(prefers-color-scheme: light)" srcset="assets/readme-v3/environments-light.svg?v=3">
-    <img src="assets/readme-v3/environments-light.svg?v=3" alt="Comparação entre Python local, AWS EC2 e GitHub Pages" width="100%">
+    <source media="(prefers-color-scheme: dark)" srcset="assets/readme-v3/environments-dark.svg?v=4">
+    <source media="(prefers-color-scheme: light)" srcset="assets/readme-v3/environments-light.svg?v=4">
+    <img src="assets/readme-v3/environments-light.svg?v=4" alt="Comparação entre Python local, AWS EC2 e GitHub Pages" width="100%">
   </picture>
 </p>
 
