@@ -1,1 +1,62 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="535" viewBox="0 0 1280 535" role="img" aria-labelledby="title desc"><title id="title">Matriz comparativa dos ambientes</title><desc id="desc">Python local, AWS EC2 e GitHub Pages comparados por ambiente, linguagem, mecanismo, tarefa e saída.</desc><defs><style>.panel{fill:#0d1117;stroke:#30363d;stroke-width:1.5}.h{font:600 24px Inter,Segoe UI,Arial,sans-serif;fill:#f0f3f6}.sub{font:400 15px Inter,Segoe UI,Arial,sans-serif;fill:#9da7b3}.head{font:600 16px Inter,Segoe UI,Arial,sans-serif;fill:#f0f3f6}.key{font:600 13px Inter,Segoe UI,Arial,sans-serif;fill:#9da7b3;dominant-baseline:middle}.val{font:500 15px Inter,Segoe UI,Arial,sans-serif;fill:#f0f3f6;dominant-baseline:middle}.rule{stroke:#30363d;stroke-width:1}</style></defs><rect class="panel" x="20" y="20" width="1240" height="495" rx="10"/><text class="h" x="45" y="65">Ambientes de execução</text><text class="sub" x="45" y="92">Comparação funcional das três formas de executar o pipeline</text><line class="rule" x1="45" y1="125" x2="1235" y2="125"/><text class="head" x="340" y="151">PYTHON LOCAL</text><text class="head" x="650" y="151">AWS EC2</text><text class="head" x="960" y="151">GITHUB PAGES</text><rect x="45" y="167" width="1190" height="58" fill="#1c2530"/><text class="key" x="70" y="198">AMBIENTE</text><text class="val" x="340" y="198">Computador local</text><text class="val" x="650" y="198">Instância EC2</text><text class="val" x="960" y="198">Navegador</text><rect x="45" y="225" width="1190" height="58" fill="#0d1117"/><text class="key" x="70" y="256">LINGUAGEM</text><text class="val" x="340" y="256">Python</text><text class="val" x="650" y="256">Python</text><text class="val" x="960" y="256">JavaScript</text><rect x="45" y="283" width="1190" height="58" fill="#1c2530"/><text class="key" x="70" y="314">MECANISMO</text><text class="val" x="340" y="314">multiprocessing.Pool</text><text class="val" x="650" y="314">multiprocessing.Pool</text><text class="val" x="960" y="314">Web Workers</text><rect x="45" y="341" width="1190" height="58" fill="#0d1117"/><text class="key" x="70" y="372">TAREFA</text><text class="val" x="340" y="372">Uma imagem</text><text class="val" x="650" y="372">Uma imagem</text><text class="val" x="960" y="372">Uma faixa</text><rect x="45" y="399" width="1190" height="58" fill="#1c2530"/><text class="key" x="70" y="430">SAÍDA</text><text class="val" x="340" y="430">PNG + CSV</text><text class="val" x="650" y="430">PNG + CSV + HTTP</text><text class="val" x="960" y="430">Interface web</text><line x1="45" y1="481" x2="1235" y2="481" stroke="#58a6ff" stroke-width="2"/><text class="sub" x="45" y="505">AWS reutiliza a implementação Python; a versão web possui implementação própria em JavaScript.</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="770" viewBox="0 0 1280 770" role="img" aria-labelledby="title desc">
+<title id="title">Comparação dos ambientes de execução</title>
+<desc id="desc">Comparação entre Python local, AWS EC2 e GitHub Pages por linguagem, executor, paralelismo, unidade de trabalho, distribuição, resultado, GIL e implementação dos filtros.</desc>
+<defs><style>
+.panel{fill:#0d1117;stroke:#30363d;stroke-width:1.5}
+.h{font:600 26px Inter,Segoe UI,Arial,sans-serif;fill:#f0f3f6}
+.sub{font:400 15px Inter,Segoe UI,Arial,sans-serif;fill:#9da7b3}
+.head{font:600 16px Inter,Segoe UI,Arial,sans-serif;fill:#f0f3f6}
+.key{font:600 13px Inter,Segoe UI,Arial,sans-serif;fill:#9da7b3;dominant-baseline:middle}
+.val{font:500 15px Inter,Segoe UI,Arial,sans-serif;fill:#f0f3f6;dominant-baseline:middle}
+.small{font:500 14px Inter,Segoe UI,Arial,sans-serif;fill:#f0f3f6}
+.rule{stroke:#30363d;stroke-width:1}
+</style></defs>
+<rect class="panel" x="20" y="20" width="1240" height="730" rx="10"/>
+<text class="h" x="45" y="65">Ambientes de execução</text>
+<text class="sub" x="45" y="92">Mesma finalidade, mecanismos diferentes conforme o ambiente</text>
+<line class="rule" x1="45" y1="125" x2="1235" y2="125"/>
+<text class="head" x="330" y="154">PYTHON LOCAL</text>
+<text class="head" x="650" y="154">AWS EC2</text>
+<text class="head" x="960" y="154">GITHUB PAGES</text>
+
+<rect x="45" y="172" width="1190" height="60" fill="#1c2530"/>
+<text class="key" x="70" y="202">LINGUAGEM</text>
+<text class="val" x="330" y="202">Python</text><text class="val" x="650" y="202">Python</text><text class="val" x="960" y="202">JavaScript</text>
+
+<rect x="45" y="232" width="1190" height="60" fill="#0d1117"/>
+<text class="key" x="70" y="262">EXECUTOR</text>
+<text class="val" x="330" y="262">CPython</text><text class="val" x="650" y="262">CPython</text><text class="val" x="960" y="262">Navegador</text>
+
+<rect x="45" y="292" width="1190" height="60" fill="#1c2530"/>
+<text class="key" x="70" y="322">PARALELISMO</text>
+<text class="val" x="330" y="322">multiprocessing.Pool</text><text class="val" x="650" y="322">multiprocessing.Pool</text><text class="val" x="960" y="322">Web Workers</text>
+
+<rect x="45" y="352" width="1190" height="60" fill="#0d1117"/>
+<text class="key" x="70" y="382">UNIDADE DE TRABALHO</text>
+<text class="val" x="330" y="382">Uma imagem</text><text class="val" x="650" y="382">Uma imagem</text><text class="val" x="960" y="382">Uma faixa horizontal</text>
+
+<rect x="45" y="412" width="1190" height="70" fill="#1c2530"/>
+<text class="key" x="70" y="447">DISTRIBUIÇÃO</text>
+<text class="small" x="330" y="442">Pool.map</text><text class="small" x="330" y="462">chunksize=1</text>
+<text class="small" x="650" y="442">Igual à versão local</text>
+<text class="small" x="960" y="442">Fila em runner.js</text>
+
+<rect x="45" y="482" width="1190" height="70" fill="#0d1117"/>
+<text class="key" x="70" y="517">RESULTADO</text>
+<text class="small" x="330" y="512">PNGs e CSVs</text>
+<text class="small" x="650" y="502">PNGs, CSVs e</text><text class="small" x="650" y="522">painel HTTP</text>
+<text class="small" x="960" y="502">Exibição na</text><text class="small" x="960" y="522">própria página</text>
+
+<rect x="45" y="552" width="1190" height="70" fill="#1c2530"/>
+<text class="key" x="70" y="587">GIL</text>
+<text class="small" x="330" y="577">Cada processo possui</text><text class="small" x="330" y="597">seu próprio GIL</text>
+<text class="small" x="650" y="577">Cada processo possui</text><text class="small" x="650" y="597">seu próprio GIL</text>
+<text class="small" x="960" y="587">Não se aplica</text>
+
+<rect x="45" y="622" width="1190" height="60" fill="#0d1117"/>
+<text class="key" x="70" y="652">FILTROS</text>
+<text class="val" x="330" y="652">OpenCV</text><text class="val" x="650" y="652">OpenCV</text><text class="val" x="960" y="652">JavaScript</text>
+
+<line x1="45" y1="707" x2="1235" y2="707" stroke="#58a6ff" stroke-width="2"/>
+<text class="sub" x="45" y="732">AWS executa a mesma implementação Python local; a versão web usa implementação própria em JavaScript.</text>
+</svg>
