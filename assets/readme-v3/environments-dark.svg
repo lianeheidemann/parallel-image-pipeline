@@ -12,7 +12,7 @@
 .rule{stroke:#30363d;stroke-width:1}
 </style></defs>
 <rect class="panel" x="20" y="20" width="1240" height="730" rx="10"/>
-<text class="h" x="45" y="65">Ambientes de execução</text>
+<text class="h" x="45" y="65">Python local, AWS EC2 e GitHub Pages</text>
 <text class="sub" x="45" y="92">Mesma finalidade, mecanismos diferentes conforme o ambiente</text>
 <line class="rule" x1="45" y1="125" x2="1235" y2="125"/>
 <text class="head" x="330" y="154">PYTHON LOCAL</text>
