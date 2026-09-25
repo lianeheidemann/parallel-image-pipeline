@@ -69,22 +69,11 @@ A versão sequencial e a paralela em Python compartilham exatamente a mesma fun�
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/readme-v3/environments-dark.svg?v=2">
-    <source media="(prefers-color-scheme: light)" srcset="assets/readme-v3/environments-light.svg?v=2">
-    <img src="assets/readme-v3/environments-light.svg?v=2" alt="Comparação entre Python local, AWS EC2 e GitHub Pages" width="100%">
+    <source media="(prefers-color-scheme: dark)" srcset="assets/readme-v3/environments-dark.svg?v=3">
+    <source media="(prefers-color-scheme: light)" srcset="assets/readme-v3/environments-light.svg?v=3">
+    <img src="assets/readme-v3/environments-light.svg?v=3" alt="Comparação entre Python local, AWS EC2 e GitHub Pages" width="100%">
   </picture>
 </p>
-
-| Característica | Python local | AWS EC2 | GitHub Pages |
-|---|---|---|---|
-| Linguagem | Python | Python | JavaScript |
-| Executor | CPython | CPython | Navegador |
-| Paralelismo | `multiprocessing.Pool` | `multiprocessing.Pool` | Web Workers |
-| Unidade de trabalho | Uma imagem | Uma imagem | Uma faixa horizontal |
-| Distribuição | `Pool.map`, `chunksize=1` | Igual à versão local | Fila em `runner.js` |
-| Resultado | PNGs e CSVs | PNGs, CSVs e painel HTTP | Exibição na própria página |
-| GIL | Cada processo possui seu próprio GIL | Cada processo possui seu próprio GIL | Não se aplica |
-| Implementação dos filtros | OpenCV | OpenCV | JavaScript |
 
 > Os tempos obtidos no navegador não devem ser comparados diretamente aos tempos do Python: além do ambiente de execução, também mudam a implementação dos filtros e a granularidade das tarefas.
 
