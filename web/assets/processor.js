@@ -1,15 +1,15 @@
-// Mirrors local/image_processor.py: BGR->gray, GaussianBlur(5,5), Sobel magnitude.
-// Browser pixel math and OpenCV can differ by a rounding level at some pixels.
-export const HALO = 3; // rows of context a strip needs: 2 for the blur + 1 for Sobel
+// Replica local/image_processor.py: BGR -> cinza, GaussianBlur(5,5) e magnitude Sobel.
+// A matematica do navegador e do OpenCV pode diferir em um arredondamento.
+export const HALO = 3; // Linhas de contexto: 2 para o blur e 1 para o Sobel.
 
 export function processPixels(rgba, width, height) {
   return processRows(rgba, width, height, 0, 0, height);
 }
 
-// Processes output rows [outStart, outEnd) of an image `height` rows tall.
-// `rgba` holds only rows [sliceStart, sliceStart + rows) of that image and must
-// cover [outStart - HALO, outEnd + HALO) clamped to the image, so strips match
-// the whole-image result exactly.
+// Processa as linhas de saida [outStart, outEnd) de uma imagem com `height` linhas.
+// `rgba` contem as linhas [sliceStart, sliceStart + rows) e deve cobrir
+// [outStart - HALO, outEnd + HALO), limitado ao tamanho da imagem, para que
+// as faixas produzam exatamente o mesmo resultado da imagem inteira.
 export function processRows(rgba, width, height, sliceStart, outStart, outEnd) {
   const rows = rgba.length / (4 * width);
   const count = rows * width;
@@ -18,7 +18,7 @@ export function processRows(rgba, width, height, sliceStart, outStart, outEnd) {
   const blurred = new Uint8Array(count);
   const edges = new Uint8ClampedArray((outEnd - outStart) * width);
   const kernel = [1, 4, 6, 4, 1];
-  // OpenCV's BORDER_REFLECT_101, also valid for images only 1 or 2 pixels wide/tall.
+  // Equivalente ao BORDER_REFLECT_101 do OpenCV, inclusive para imagens de 1 ou 2 pixels.
   const reflect = (n, limit) => {
     if (limit === 1) return 0;
     const period = 2 * (limit - 1);

@@ -1,7 +1,7 @@
-// Timing of the sequential run (main thread) and the parallel runs (Web Workers).
-// No DOM access: progress is reported as data through the onProgress callback.
+// Mede a execucao sequencial (thread principal) e as execucoes paralelas (Web Workers).
+// Sem acesso ao DOM: o progresso e enviado como dados pelo callback onProgress.
 import { processPixels, HALO } from "./processor.js?v=20260929a";
-export const ROUNDS = 3; // each configuration is timed this many times; the median is shown
+export const ROUNDS = 3; // Cada configuracao roda 3 vezes; a mediana e exibida.
 export const WORKER_COUNTS = [2,4,8];
 const nextFrame = () => new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 0)));
 const median = values => [...values].sort((a,b)=>a-b)[Math.floor(values.length/2)];
@@ -17,7 +17,7 @@ async function runSequential(images, onStep) {
   }
   return {outputs,seconds:elapsed/1000};
 }
-// Each image is cut into horizontal strips so every worker has work even with few images.
+// Cada imagem e dividida em faixas horizontais para distribuir trabalho aos workers.
 export function stripTasks(images, requested) {
   const tasks=[];
   images.forEach((img,image) => {
@@ -29,8 +29,8 @@ export function stripTasks(images, requested) {
   });
   return tasks;
 }
-// Input rows a strip needs: its own rows plus HALO rows of context on each side.
-// slice() copies only those rows, preserving the sequential input.
+// Linhas necessarias: as proprias da faixa mais HALO linhas de contexto em cada lado.
+// slice() copia somente essas linhas e preserva a entrada usada no sequencial.
 export function stripSlice(img, {outStart,outEnd}) {
   const sliceStart=Math.max(0,outStart-HALO), sliceEnd=Math.min(img.height,outEnd+HALO);
   return {sliceStart, rgba:img.rgba.slice(sliceStart*img.width*4,sliceEnd*img.width*4)};
@@ -70,20 +70,20 @@ function runParallel(images, requested, onStep) {
     } catch (error) { finish(error); }
   });
 }
-// Number of output pixels that differ between two runs (all images).
+// Conta os pixels de saida diferentes entre duas execucoes, em todas as imagens.
 function differences(a,b) {
   let count=0;
   a.forEach((pixels,i) => { for (let j=0; j<pixels.length; j++) if (pixels[j]!==b[i][j]) count++; });
   return count;
 }
-// Returns the sequential result and, per worker count, the median time and the
-// number of pixels that differed from the sequential output across all rounds.
-// onProgress receives {round, rounds, stage, stages, workers, done, total}: stages
-// lists the worker counts in run order (1 = sequential) and done/total count
-// images (sequential) or strips (parallel) of the current stage.
+// Retorna o resultado sequencial e, para cada quantidade de workers, o tempo
+// mediano e a quantidade de pixels diferentes ao longo das rodadas.
+// onProgress recebe {round, rounds, stage, stages, workers, done, total}; stages
+// lista os workers na ordem de execucao (1 = sequencial), e done/total conta
+// imagens no sequencial ou faixas no paralelo.
 const STAGES = [1, ...WORKER_COUNTS];
 export async function benchmark(images, onProgress) {
-  // Rounds interleave the configurations so a slowdown (heat, battery) hits all of them alike.
+  // As configuracoes sao intercaladas para que aquecimento ou bateria afete todas igualmente.
   const times={1:[]}, mismatch={};
   for (const count of WORKER_COUNTS) { times[count]=[]; mismatch[count]=0; }
   let reference=null;

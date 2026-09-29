@@ -2,7 +2,7 @@
 import { buildRows, toCsv } from "./report.js?v=20260929a";
 
 export function wireExport(sequential, runs) {
-  // onclick (e nao addEventListener) para cada nova execucao substituir a anterior.
+  // Reatribuir onclick evita acumular listeners quando uma nova execucao termina.
   document.getElementById("export-csv").onclick = () => {
     const blob = new Blob([toCsv(buildRows(sequential, runs))], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);

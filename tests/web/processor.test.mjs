@@ -1,6 +1,5 @@
-// Garante a propriedade central da pagina web: processar a imagem em faixas
-// (como os Web Workers fazem) da exatamente o mesmo resultado que processar
-// a imagem inteira de uma vez.
+// Garante a propriedade central: processar uma imagem em faixas (como os Web
+// Workers fazem) produz exatamente o mesmo resultado da imagem inteira.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { processPixels, processRows } from "../../web/assets/processor.js";
@@ -16,7 +15,7 @@ function randomImage(width, height, seed) {
   return rgba;
 }
 
-// Mesmo corte que runParallel (web/assets/runner.js) envia aos Web Workers.
+// Usa o mesmo corte que runParallel (web/assets/runner.js) envia aos workers.
 function processInStrips(img, parts) {
   const out = new Uint8ClampedArray(img.width * img.height);
   for (const task of stripTasks([img], parts)) {

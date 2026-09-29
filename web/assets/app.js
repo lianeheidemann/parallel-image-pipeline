@@ -1,4 +1,4 @@
-// Page wiring: image selection, preparation and the "Processar imagens" button.
+// Liga a selecao de imagens, a preparacao e o botao "Processar imagens".
 import { benchmark } from "./runner.js?v=20260929a";
 import { $, display, renderPreparing, renderProgress, stageName } from "./render.js?v=20260929a";
 const state = {sources: [], busy: false};
@@ -18,7 +18,7 @@ function pickFiles(files) {
   if (list.some(file => !["image/jpeg","image/png","image/webp"].includes(file.type))) {
     status("Use apenas imagens JPG, PNG ou WebP.", true); return;
   }
-  // The original file is shown as-is; no re-encoded copy of the image is kept in memory.
+  // Mostra o arquivo original; nenhuma copia recodificada fica em memoria.
   selectSources(list.map(file => ({file,preview:URL.createObjectURL(file)})));
 }
 $("images").addEventListener("change", event => pickFiles(event.target.files));
@@ -26,8 +26,8 @@ const drop = $("drop-zone");
 for (const eventName of ["dragenter","dragover"]) drop.addEventListener(eventName, event => { event.preventDefault(); if (!state.busy) drop.classList.add("dragging"); });
 for (const eventName of ["dragleave","drop"]) drop.addEventListener(eventName, event => { event.preventDefault(); drop.classList.remove("dragging"); });
 drop.addEventListener("drop", event => pickFiles(event.dataTransfer.files));
-// There is no size limit: if the browser itself cannot decode or hold the image
-// (canvas area or memory limits vary per device), a readable error is shown.
+// Nao ha limite fixo de tamanho. Se o navegador nao conseguir decodificar ou
+// manter a imagem (por limite de canvas ou memoria), uma mensagem legivel aparece.
 async function prepare(source, index) {
   let bitmap, size="";
   try {
@@ -52,8 +52,8 @@ $("run").addEventListener("click",async () => {
     status("Preparando imagens…");
     renderPreparing(0,state.sources.length);
     for (let i=0; i<state.sources.length; i++) { images.push(await prepare(state.sources[i],i)); renderPreparing(i+1,state.sources.length); }
-    // The detailed progress goes to the results panel; the status line (read aloud
-    // by screen readers) only changes when a new round or stage starts.
+    // O progresso detalhado aparece no painel; a linha de status, lida por
+    // leitores de tela, muda somente quando comeca uma rodada ou etapa.
     let current="";
     const {sequential,runs}=await benchmark(images,progress => {
       renderProgress(progress);

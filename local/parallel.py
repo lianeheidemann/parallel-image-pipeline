@@ -62,18 +62,23 @@ def _process_one(image_path: Path) -> None:
     process_image(image_path, _output_dir / output_filename(image_path))
     elapsed = time.perf_counter() - img_start
 
-    # SECAO CRITICA (Ficha C). Primitiva: lock (multiprocessing.Lock).
-    # - "_counter.value += 1" sao tres passos (ler, somar, gravar): sem o lock,
-    #   dois processos leem o mesmo valor e um incremento se perde.
-    # - A escrita no CSV, sem o lock, pode intercalar linhas de processos diferentes.
-    # E o menor trecho indivisivel: o processamento da imagem fica fora. Com o lock
-    # em volta do trabalho todo, o programa ficaria correto, mas serializado (speedup ~1).
-    # Prova de estabilidade: contador = total de imagens e CSV com uma linha por imagem
-    # em toda execucao (benchmark.py --repeat, tests/local/test_pipeline.py).
+    # ================================================================
+    # LOCK: inicio da secao critica (Ficha C)
+    # ================================================================
+    # O multiprocessing.Lock() garante que apenas um processo por vez:
+    # 1. incremente o contador compartilhado; e
+    # 2. acrescente uma linha ao CSV.
+    #
+    # O processamento da imagem fica fora do lock e continua em paralelo.
+    # Se o lock envolvesse process_image(), o programa ficaria serializado.
+    #
+    # Sem o lock, dois processos poderiam ler o mesmo contador antes de grava-lo
+    # e perder um incremento; as escritas no CSV tambem poderiam se intercalar.
     with _lock:
         _counter.value += 1
         with open(_report_path, "a", newline="", encoding="utf-8") as f:
             csv.writer(f).writerow([image_path.name, f"{elapsed:.4f}", process_label])
+    # LOCK: fim da secao critica. A proxima imagem pode ser registrada por outro processo.
 
 
 def run(dataset_dir: Path, output_dir: Path, report_path: Path, workers: int) -> float:
@@ -81,12 +86,10 @@ def run(dataset_dir: Path, output_dir: Path, report_path: Path, workers: int) ->
     prepare_output_dir(output_dir)
     write_report(report_path)
 
-    # Processos nao compartilham memoria: o estado comum e criado aqui, em memoria
-    # compartilhada, e entregue a cada processo pelo initializer. (Um Manager
-    # tambem funcionaria, mas cada acesso viraria uma mensagem a outro processo,
-    # aumentando a espera na secao critica.)
+    # Estado compartilhado: o mesmo Lock e contador sao entregues a cada processo
+    # pelo initializer. O Lock coordena somente o pequeno registro de resultados.
     lock = mp.Lock()
-    # lock=False: o Value nao precisa de trava propria; o _lock ja protege o incremento.
+    # O contador nao cria uma segunda trava: o _lock ja protege o incremento.
     counter = mp.Value("i", 0, lock=False)
 
     # O tempo inclui criar e encerrar o Pool e distribuir as tarefas: e parte do
@@ -95,6 +98,7 @@ def run(dataset_dir: Path, output_dir: Path, report_path: Path, workers: int) ->
     with mp.Pool(
         processes=workers,
         initializer=_init_worker,
+        # O mesmo lock chega a todos os workers por meio de _init_worker().
         initargs=(lock, counter, output_dir, report_path),
     ) as pool:
         pool.map(_process_one, images, chunksize=1)

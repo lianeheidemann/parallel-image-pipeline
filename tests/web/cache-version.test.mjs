@@ -1,6 +1,5 @@
-// A pagina usa "?v=..." para o navegador nao reaproveitar arquivos antigos do cache.
-// Se um import ficar sem versao ou com versao diferente, um modulo antigo pode ser
-// misturado com os novos depois de um deploy.
+// A pagina usa "?v=..." para invalidar o cache do navegador depois de um deploy.
+// Este teste impede que imports sem versao ou com versao diferente misturem modulos.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";

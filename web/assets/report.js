@@ -1,6 +1,6 @@
-// Linhas do CSV no mesmo formato de results/benchmark.csv (local/benchmark.py),
-// para que local/compare_environments.py junte web, local e aws numa tabela so.
-// Sem DOM: testado direto no Node (tests/web/report.test.mjs).
+// Linhas do CSV seguem results/benchmark.csv (local/benchmark.py), permitindo
+// que local/compare_environments.py junte web, local e aws na mesma tabela.
+// Sem DOM: o modulo e testado diretamente no Node (tests/web/report.test.mjs).
 
 export const CSV_HEADER = ["processos", "tempo_s", "speedup", "speedup_amdahl_previsto", "verificado"];
 
@@ -20,7 +20,7 @@ export function estimateParallelFraction(seqTime, parTime, workers) {
 }
 
 // sequential: {seconds}; runs: [{workers, seconds, mismatch}] na ordem de WORKER_COUNTS.
-// Como no Python, p vem do primeiro run e preve o speedup dos demais.
+// Como no Python, p vem da primeira execucao e preve o speedup das demais.
 export function buildRows(sequential, runs) {
   const seq = sequential.seconds;
   const rows = [{ processos: 1, tempo_s: round(seq, 4), speedup: 1, speedup_amdahl_previsto: 1, verificado: "" }];

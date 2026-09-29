@@ -24,13 +24,13 @@ from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-# A instancia roda o mesmo codigo da versao local: common.py e benchmark.py vem de local/.
+# A instancia roda o mesmo codigo local: common.py e benchmark.py vem de local/.
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "local"))
 from common import DATASET_DIR, RESULTS_DIR, list_images  # noqa: E402
 
 BENCHMARK_CSV = "benchmark.csv"
 SETUP_LOG = "setup.log"
-# Criado por aws/user-data.sh enquanto gera o dataset e roda o benchmark.
+# Criado por aws/user-data.sh durante a geracao do dataset e do benchmark.
 RUNNING_MARKER = "setup.running"
 LOG_LINES = 15
 
@@ -39,7 +39,7 @@ LOG_LINES = 15
 def instance_metadata() -> dict[str, str]:
     """Tipo de instancia e zona pela metadata da EC2 (IMDSv2); vazio fora da AWS."""
     base = "http://169.254.169.254/latest"
-    # Endereco local da EC2: nunca passar por proxy configurado no ambiente.
+    # Endereco local da EC2: nao deve passar por proxy do ambiente.
     opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
     try:
         token_request = urllib.request.Request(
@@ -63,7 +63,7 @@ def read_benchmark(results_dir: Path) -> list[dict[str, str]]:
 
 
 def parallel_fraction(rows: list[dict[str, str]]) -> float | None:
-    # Mesma estimativa do benchmark.py: p a partir da primeira contagem de processos.
+    # Mesma estimativa de benchmark.py: p vem da primeira contagem de processos.
     from benchmark import estimate_parallel_fraction
 
     try:

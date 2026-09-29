@@ -23,8 +23,8 @@ from common import DATASET_DIR, PARALLEL_OUTPUT, RESULTS_DIR, SEQUENTIAL_OUTPUT,
 
 
 def amdahl_speedup(parallel_fraction: float, workers: int) -> float:
-    # Lei de Amdahl: S = 1 / ((1 - p) + p / n). A parte serial (1 - p) fixa o teto:
-    # com p = 0,90, nem infinitos processos passam de 10x.
+    # Lei de Amdahl: S = 1 / ((1 - p) + p / n). A parte serial (1 - p)
+    # fixa o teto; com p = 0,90, nem infinitos processos passam de 10x.
     serial_fraction = 1 - parallel_fraction
     return 1 / (serial_fraction + parallel_fraction / workers)
 
@@ -38,7 +38,7 @@ def estimate_parallel_fraction(seq_time: float, par_time: float, workers: int) -
     if workers <= 1 or seq_time <= 0 or par_time <= 0:
         return 0.0
     observed_speedup = seq_time / par_time
-    # observed_speedup = 1 / ((1-p) + p/workers)  =>  p = (1 - 1/observed_speedup) / (1 - 1/workers)
+    # Isolando p: p = (1 - 1/speedup) / (1 - 1/workers).
     denom = 1 - 1 / workers
     if denom == 0:
         return 0.0
@@ -84,9 +84,9 @@ def run_benchmark(
             "verificado": ("sim" if verified[workers] else "nao") if verify_outputs else "",
         })
 
-    # p vem da primeira contagem de processos; nas demais, previsto x medido. Se o
-    # medido ficar abaixo, a analise do relatorio aponta uma de tres causas:
-    # comunicacao entre processos, divisao desigual do trabalho ou espera na secao critica.
+    # p vem da primeira contagem de processos; nas demais, comparamos previsto e medido.
+    # Um resultado menor pode indicar comunicacao entre processos, divisao desigual
+    # do trabalho ou espera na secao critica.
     parallel_fraction = estimate_parallel_fraction(seq_time, medians[worker_counts[0]], worker_counts[0])
     print(f"\nFracao paralelizavel estimada (Amdahl): {parallel_fraction:.3f}")
     for row in rows[1:]:
@@ -120,7 +120,7 @@ def main() -> None:
     args = parser.parse_args()
 
     max_workers = mp.cpu_count()
-    requested = list(dict.fromkeys(args.workers))  # remove repetidos, mantendo a ordem
+    requested = list(dict.fromkeys(args.workers))  # Remove repetidos, mantendo a ordem.
     skipped = [w for w in requested if w > max_workers]
     if skipped:
         print(f"Aviso: ignorando {skipped} processos (a maquina tem {max_workers} nucleos logicos).")

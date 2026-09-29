@@ -26,7 +26,7 @@ def verify(dir_a: Path, dir_b: Path) -> bool:
         print(f"Nenhum .png encontrado em {dir_a} nem em {dir_b}.")
         return False
 
-    # Nomes diferentes: uma das versoes deixou de processar (ou processou a mais) alguma imagem.
+    # Nomes diferentes indicam imagem ausente, excedente ou processamento incompleto.
     if files_a.keys() != files_b.keys():
         only_a = files_a.keys() - files_b.keys()
         only_b = files_b.keys() - files_a.keys()
@@ -61,7 +61,7 @@ def main() -> None:
     args = parser.parse_args()
 
     ok = verify(args.sequential, args.parallel)
-    # Codigo de saida 1 quando diverge: o CI e os scripts tratam como falha.
+    # Divergencia retorna codigo 1 para que o CI e os scripts reconhecam a falha.
     raise SystemExit(0 if ok else 1)
 
 

@@ -1,4 +1,4 @@
-// Draws the results panel: metrics, chart, image comparison, run details and explanations.
+// Desenha o painel de resultados: metricas, grafico, comparacao e explicacoes.
 import { explainTimes, NOISE } from "./explain.js?v=20260929a";
 import { ROUNDS, WORKER_COUNTS } from "./runner.js?v=20260929a";
 import { integer, list, num, percent, seconds, times } from "./format.js?v=20260929a";
@@ -39,7 +39,7 @@ function showPreview(images,outputs,index) {
   context.putImageData(frame,0,0);
   for (const [i,thumb] of Array.from($("thumbs").children).entries()) thumb.setAttribute("aria-pressed",String(i===index));
 }
-// Thumbnails of every processed image; clicking one swaps the comparison above.
+// Miniaturas das imagens processadas; clicar em uma troca a comparacao acima.
 function renderGallery(images,outputs) {
   $("thumbs").replaceChildren(...images.map((img,index) => {
     const button=document.createElement("button"); button.type="button"; button.className="thumb";
@@ -52,7 +52,7 @@ function renderGallery(images,outputs) {
   $("gallery").hidden=images.length<2;
   showPreview(images,outputs,0);
 }
-// runs: [{workers,seconds,mismatch}] for each of WORKER_COUNTS; seconds are medians.
+// runs: [{workers,seconds,mismatch}] para cada WORKER_COUNTS; seconds sao medianas.
 export function display(images,sequential,runs,workers) {
   const parallel=runs.find(run=>run.workers===workers);
   $("sequential-time").textContent=seconds(sequential.seconds);
@@ -87,13 +87,13 @@ export function display(images,sequential,runs,workers) {
   wireExport(sequential,runs);
   $("empty").hidden=true; $("results").hidden=false;
 }
-// Progress block shown in the results panel while the benchmark runs.
+// Bloco de progresso mostrado no painel enquanto o benchmark executa.
 export const stageName = workers => workers===1 ? "Sequencial" : `${workers} processos`;
 const count = (done,total,one,many) => `${integer(done)} de ${integer(total)} ${total===1 ? one : many}`;
 function setBars(stepFraction,totalFraction) {
   $("progress-step-bar").value=stepFraction;
   $("progress-total-bar").value=totalFraction;
-  // Rounded down so "100%" only appears once the last strip is done.
+  // Arredonda para baixo para exibir "100%" somente quando a ultima faixa termina.
   $("progress-total").textContent=percent(Math.floor(totalFraction*100)/100);
 }
 export function renderPreparing(done,total) {
@@ -102,7 +102,7 @@ export function renderPreparing(done,total) {
   $("progress-count").textContent=count(done,total,"imagem","imagens");
   setBars(total ? done/total : 0,0);
 }
-// p: {round, rounds, stage, stages, workers, done, total} from runner.benchmark.
+// p: {round, rounds, stage, stages, workers, done, total} vindo de runner.benchmark.
 export function renderProgress({round,rounds,stage,stages,workers,done,total}) {
   $("progress-round").hidden=false;
   $("progress-round").textContent=`Rodada ${round+1} de ${rounds}`;
