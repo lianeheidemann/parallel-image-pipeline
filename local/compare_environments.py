@@ -27,7 +27,7 @@ from common import RESULTS_DIR, read_csv_rows
 # "actions" e o mesmo codigo Python de local/ numa maquina do GitHub Actions
 # (.github/workflows/benchmark.yml): um ambiente remoto enquanto a AWS nao existe.
 ENVIRONMENTS = ["local", "aws", "actions", "web"]
-LABELS = {"local": "local (PC)", "aws": "aws (EC2)", "actions": "actions (GitHub)", "web": "web (navegador)"}
+LABELS = {"local": "local (PC)", "aws": "aws (EC2)", "actions": "actions (GitHub)", "web": "web (JS, GitHub Pages)"}
 COLORS = {"local": "#3776AB", "aws": "#FF9900", "actions": "#8250DF", "web": "#2EA44F"}
 FIELDS = ["ambiente", "processos", "tempo_s", "speedup", "speedup_amdahl_previsto", "verificado", "imagens", "resolucao"]
 CHARTS_DIR = "graficos"

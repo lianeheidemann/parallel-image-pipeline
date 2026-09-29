@@ -1,0 +1,5 @@
+maquina: 12th Gen Intel(R) Core(TM) i7-12700H
+nucleos: 14 fisicos, 20 logicos (6 P-cores com HT + 8 E-cores)
+energia: carregador ligado, modo Equilibrado
+web: Chromium headless abrindo https://lianeheidemann.github.io/parallel-image-pipeline/
+data: 29/09/2026 12:01

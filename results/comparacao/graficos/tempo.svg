@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="352" viewBox="0 0 720 352" role="img" aria-label="Tempo de processamento (mesmo dataset, mesma escala)">
+<rect width="720" height="352" rx="8" fill="#ffffff" stroke="#d0d7de"/>
+<text x="20" y="28" style="font-family:Segoe UI,Arial,sans-serif;font-size:16px;font-weight:600" fill="#1f2328">Tempo de processamento (mesmo dataset, mesma escala)</text>
+<text x="20" y="56" style="font-family:Segoe UI,Arial,sans-serif;font-size:14px;font-weight:600" fill="#3776AB">local (PC)</text>
+<text x="132" y="81.4" text-anchor="end" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px" fill="#59636e">1 (sequencial)</text>
+<rect x="140" y="66" width="92.0" height="22" rx="3" fill="#3776AB" fill-opacity="0.55"/>
+<text x="238.0" y="81.4" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px" fill="#1f2328">11,25 s</text>
+<text x="132" y="111.4" text-anchor="end" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px" fill="#59636e">2 processos</text>
+<rect x="140" y="96" width="63.3" height="22" rx="3" fill="#3776AB" fill-opacity="1"/>
+<text x="209.3" y="111.4" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px" fill="#1f2328">7,74 s</text>
+<text x="132" y="141.4" text-anchor="end" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px" fill="#59636e">4 processos</text>
+<rect x="140" y="126" width="36.3" height="22" rx="3" fill="#3776AB" fill-opacity="1"/>
+<text x="182.3" y="141.4" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px" fill="#1f2328">4,44 s</text>
+<text x="132" y="171.4" text-anchor="end" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px" fill="#59636e">8 processos</text>
+<rect x="140" y="156" width="20.0" height="22" rx="3" fill="#3776AB" fill-opacity="1"/>
+<text x="166.0" y="171.4" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px" fill="#1f2328">2,44 s</text>
+<text x="20" y="206" style="font-family:Segoe UI,Arial,sans-serif;font-size:14px;font-weight:600" fill="#2EA44F">web (JS, GitHub Pages)</text>
+<text x="132" y="231.4" text-anchor="end" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px" fill="#59636e">1 (sequencial)</text>
+<rect x="140" y="216" width="470.0" height="22" rx="3" fill="#2EA44F" fill-opacity="0.55"/>
+<text x="616.0" y="231.4" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px" fill="#1f2328">57,47 s</text>
+<text x="132" y="261.4" text-anchor="end" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px" fill="#59636e">2 processos</text>
+<rect x="140" y="246" width="216.8" height="22" rx="3" fill="#2EA44F" fill-opacity="1"/>
+<text x="362.8" y="261.4" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px" fill="#1f2328">26,51 s</text>
+<text x="132" y="291.4" text-anchor="end" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px" fill="#59636e">4 processos</text>
+<rect x="140" y="276" width="110.5" height="22" rx="3" fill="#2EA44F" fill-opacity="1"/>
+<text x="256.5" y="291.4" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px" fill="#1f2328">13,52 s</text>
+<text x="132" y="321.4" text-anchor="end" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px" fill="#59636e">8 processos</text>
+<rect x="140" y="306" width="86.0" height="22" rx="3" fill="#2EA44F" fill-opacity="1"/>
+<text x="232.0" y="321.4" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px" fill="#1f2328">10,52 s</text>
+</svg>

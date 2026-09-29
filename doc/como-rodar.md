@@ -129,17 +129,17 @@ python local/generate_dataset.py --count 100 --width 1920 --height 1080 --output
 # 2. Python no PC  -> results/comparacao/benchmark.csv
 python local/benchmark.py --dataset dataset-comparacao --results results/comparacao --workers 2 4 8 --repeat 3
 
-# 3. web no PC (navegador headless) -> results/comparacao/benchmark-web.csv
+# 3. JS da página do GitHub Pages, no navegador do PC -> results/comparacao/benchmark-web.csv
 npm install
 npx playwright install chromium
-node tools/web-benchmark.mjs --dataset dataset-comparacao --out results/comparacao/benchmark-web.csv
+node tools/web-benchmark.mjs --dataset dataset-comparacao --out results/comparacao/benchmark-web.csv \n  --url https://lianeheidemann.github.io/parallel-image-pipeline/
 
 # 4. relatório e gráficos
 python local/compare_environments.py
 ```
 
 Não rode os passos 2 e 3 ao mesmo tempo: os dois disputam a CPU e um distorce o
-tempo do outro. Em vez do passo 3, dá para abrir a página, selecionar as imagens de
+tempo do outro. Sem `--url`, o passo 3 usa a pasta `web/` deste checkout em vez da página publicada. Em vez do passo 3, dá para abrir a página do GitHub Pages, selecionar as imagens de
 `dataset-comparacao/`, clicar em **Baixar CSV** e salvar como
 `results/comparacao/benchmark-web.csv`.
 
@@ -150,7 +150,7 @@ Outros ambientes entram pelo nome do arquivo, na mesma pasta:
 | local (PC) | passo 2 acima | `benchmark.csv` |
 | aws (EC2) | `curl http://IP-PUBLICO/benchmark.csv -o results/comparacao/benchmark-aws.csv` | `benchmark-aws.csv` |
 | actions (GitHub) | artefato do workflow da seção 5 | `benchmark-actions.csv` |
-| web (navegador) | passo 3 acima ou botão **Baixar CSV** | `benchmark-web.csv` |
+| web (JS, GitHub Pages) | passo 3 acima ou botão **Baixar CSV** | `benchmark-web.csv` |
 
 Saída, em `results/comparacao/`:
 - `comparacao.md`: datasets, tabela, resumo e os gráficos;

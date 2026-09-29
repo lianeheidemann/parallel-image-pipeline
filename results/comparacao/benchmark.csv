@@ -1,0 +1,5 @@
+processos,tempo_s,speedup,speedup_amdahl_previsto,verificado,imagens,resolucao
+1,11.2465,1.0,1.0,,100,1920x1080
+2,7.7442,1.452,1.452,sim,100,1920x1080
+4,4.4373,2.535,1.877,sim,100,1920x1080
+8,2.4424,4.605,2.198,sim,100,1920x1080

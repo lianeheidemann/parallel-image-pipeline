@@ -1,9 +1,12 @@
-// Roda a pagina web/ num Chromium headless (Playwright) com imagens do dataset/ e
+// Roda a pagina web num Chromium headless (Playwright) com imagens de um dataset e
 // salva o CSV do botao "Baixar CSV": o mesmo que uma pessoa faria no navegador,
 // mas repetivel no PC e no GitHub Actions.
 //
+// Sem --url, serve a pasta web/ deste checkout; com --url, abre a pagina publicada
+// (ex.: GitHub Pages). O processamento roda sempre nesta maquina, no navegador.
+//
 //   npm install && npx playwright install chromium
-//   node tools/web-benchmark.mjs --count 200 --out results/benchmark-web.csv
+//   node tools/web-benchmark.mjs --dataset dataset-comparacao --url https://lianeheidemann.github.io/parallel-image-pipeline/
 import { createServer } from "node:http";
 import { readdir, readFile } from "node:fs/promises";
 import { extname, join, resolve, sep } from "node:path";
@@ -17,6 +20,7 @@ const { values: args } = parseArgs({
     count: { type: "string", default: "0" },
     out: { type: "string", default: join(root, "results", "benchmark-web.csv") },
     timeout: { type: "string", default: "60" },
+    url: { type: "string" },
   },
 });
 
@@ -42,14 +46,16 @@ const names = (await readdir(args.dataset)).filter(name => name.toLowerCase().en
 const files = (count > 0 ? names.slice(0, count) : names).map(name => join(args.dataset, name));
 if (!files.length) throw new Error(`Nenhuma imagem .jpg em ${args.dataset}`);
 
-const server = await serve();
+const server = args.url ? null : await serve();
+const url = args.url ?? `http://127.0.0.1:${server.address().port}/`;
 const browser = await chromium.launch();
 try {
   const page = await browser.newPage({ acceptDownloads: true });
   page.on("pageerror", error => console.error("Erro na pagina:", error.message));
-  await page.goto(`http://127.0.0.1:${server.address().port}/`);
+  await page.goto(url);
   const cores = await page.evaluate(() => navigator.hardwareConcurrency);
-  console.log(`${files.length} imagens, navegador com ${cores} nucleos logicos. Processando...`);
+  console.log(`${url}
+${files.length} imagens, navegador com ${cores} nucleos logicos. Processando...`);
 
   await page.setInputFiles("#images", files);
   const started = Date.now();
@@ -70,5 +76,5 @@ try {
   console.log(await readFile(args.out, "utf8"));
 } finally {
   await browser.close();
-  server.close();
+  server?.close();
 }
