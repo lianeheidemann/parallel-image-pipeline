@@ -1,0 +1,13 @@
+{
+  "name": "parallel-image-pipeline-tools",
+  "private": true,
+  "description": "Ferramentas de desenvolvimento: benchmark da versao web em navegador headless (tools/web-benchmark.mjs).",
+  "type": "module",
+  "scripts": {
+    "test:web": "node --test tests/web/*.test.mjs",
+    "benchmark:web": "node tools/web-benchmark.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
+  }
+}

@@ -2,9 +2,9 @@
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="../assets/readme-v3/three-codes-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="../assets/readme-v3/three-codes-light.svg">
-    <img src="../assets/readme-v3/three-codes-light.svg" alt="Três versões do mesmo pipeline: local/ no PC, aws/ na nuvem, web/ no navegador" width="100%">
+    <source media="(prefers-color-scheme: dark)" srcset="../assets/diagramas/three-codes-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="../assets/diagramas/three-codes-light.svg">
+    <img src="../assets/diagramas/three-codes-light.svg" alt="Três versões do mesmo pipeline: local/ no PC, aws/ na nuvem, web/ no navegador" width="100%">
   </picture>
 </p>
 
@@ -103,6 +103,64 @@ npx http-server web
 
 e abrir o endereço que o comando imprimir (por padrão `http://localhost:8080`).
 
+Depois de processar, o botão **Baixar CSV** salva os tempos no mesmo formato de
+`results/benchmark.csv` (arquivo `benchmark-web.csv`).
+
+## 4. Comparar os 3 ambientes (tabela + gráficos)
+
+Junte o CSV de cada ambiente em `results/` com estes nomes:
+
+| Ambiente | Como obter | Arquivo em `results/` |
+|---|---|---|
+| local | `python local/benchmark.py --workers 2 4 8 --repeat 3` | `benchmark.csv` (já sai com esse nome) |
+| aws | `curl http://IP-PUBLICO/benchmark.csv -o results/benchmark-aws.csv` (ou abrir o link e *Salvar como*) | `benchmark-aws.csv` |
+| actions | artefato do workflow da seção 5 | `benchmark-actions.csv` |
+| web | botão **Baixar CSV** na página, depois mover o arquivo baixado | `benchmark-web.csv` |
+
+Depois:
+
+```bash
+python local/compare_environments.py
+```
+
+Gera em `results/`: `comparacao.md` (tabela, resumo e gráficos),
+`comparacao-tempo.svg`, `comparacao-speedup.svg` e `comparison.csv`. Ambiente sem
+arquivo é pulado com um aviso — dá para gerar só com local e web enquanto a AWS
+não estiver configurada. Para usar outros caminhos: `--local`, `--aws`, `--web`, `--out`.
+
+> Para a web, selecione imagens do próprio `dataset/` (ou uma parte dele: o
+> navegador guarda tudo na memória). Mesmo assim, compare o **speedup** entre
+> ambientes, não os segundos — hardware, implementação e granularidade mudam.
+
+### Web sem clicar: navegador headless
+
+O mesmo que clicar na página, mas automático (Chromium via Playwright):
+
+```bash
+npm install
+npx playwright install chromium
+node tools/web-benchmark.mjs --count 200    # primeiras 200 imagens de dataset/
+```
+
+Salva `results/benchmark-web.csv`. Não rode junto com o `local/benchmark.py`: os
+dois disputam a CPU e um distorce o tempo do outro.
+
+## 5. Rodar no GitHub (Python e web na mesma máquina)
+
+O workflow [`benchmark.yml`](../.github/workflows/benchmark.yml) mede as duas
+versões numa máquina do GitHub Actions (4 núcleos), com o mesmo dataset — serve de
+ambiente remoto enquanto a AWS não está configurada.
+
+1. No GitHub: aba **Actions** → **Benchmark (Python e web no GitHub)** → **Run
+   workflow** (ou `gh workflow run benchmark.yml -f count=200`).
+2. No fim, o resumo da execução mostra a tabela; o artefato **benchmark-github**
+   traz `comparacao.md`, os gráficos e os CSVs.
+3. Para juntar com o seu PC: copie `benchmark-actions.csv` (e, se quiser,
+   `benchmark-web.csv`) para `results/` e rode `python local/compare_environments.py`.
+
+A máquina do GitHub é compartilhada: os tempos oscilam mais que no PC. Use o
+*speedup* dela, não os segundos absolutos.
+
 ## Ordem sugerida para a apresentação
 
 1. `local/benchmark.py` rodando ao vivo — mostra sequencial vs. paralelo na mesma
@@ -122,3 +180,4 @@ e abrir o endereço que o comando imprimir (por padrão `http://localhost:8080`)
 | `verify.py` acusa divergência | saída de uma execução anterior com outro dataset | apague `output/sequential` e `output/parallel` e rode de novo |
 | `local/benchmark.py` muito lento | `--count` alto de mais para teste rápido | rode primeiro com `--count 50` |
 | painel da AWS não mostra dados | `setup.log` ainda rodando o benchmark | espere terminar (`tail -f`) ou olhe o marcador `results/setup.running` |
+| `compare_environments.py` diz "pulando" | o CSV daquele ambiente não está em `results/` com o nome esperado | confira a tabela da seção 4 ou passe o caminho com `--aws`/`--web` |

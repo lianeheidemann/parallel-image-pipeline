@@ -38,6 +38,11 @@ def write_report(report_path: Path, rows: Iterable[tuple[str, str, str]] = ()) -
         writer.writerows(rows)
 
 
+def read_csv_rows(path: Path) -> list[dict[str, str]]:
+    with open(path, newline="", encoding="utf-8") as f:
+        return list(csv.DictReader(f))
+
+
 def positive_int(value: str) -> int:
     number = int(value)
     if number < 1:

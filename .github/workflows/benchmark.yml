@@ -1,0 +1,84 @@
+name: Benchmark (Python e web no GitHub)
+
+# Roda manualmente (aba Actions > "Run workflow"). Mede, na mesma maquina do GitHub e
+# com o mesmo dataset, a versao Python (local/benchmark.py) e a versao web (Web Workers
+# num Chromium headless), e publica a comparacao com graficos como artefato.
+on:
+  workflow_dispatch:
+    inputs:
+      count:
+        description: "Numero de imagens do dataset"
+        default: "200"
+      width:
+        description: "Largura das imagens"
+        default: "1024"
+      height:
+        description: "Altura das imagens"
+        default: "768"
+      repeat:
+        description: "Rodadas por configuracao (mediana)"
+        default: "3"
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Machine info
+        run: |
+          mkdir -p results
+          { echo "runner: ${{ runner.os }} ${{ runner.arch }}"; nproc | sed 's/^/nucleos: /'; lscpu | grep "Model name"; free -h | grep Mem; } | tee results/maquina.txt
+
+      - name: Generate dataset
+        run: python local/generate_dataset.py --count ${{ inputs.count }} --width ${{ inputs.width }} --height ${{ inputs.height }}
+
+      # Contagens acima dos nucleos da maquina sao ignoradas pelo proprio benchmark.
+      - name: Python benchmark
+        run: |
+          python local/benchmark.py --workers 2 4 8 --repeat ${{ inputs.repeat }}
+          cp results/benchmark.csv results/benchmark-actions.csv
+
+      - name: Web benchmark (Chromium headless)
+        run: node tools/web-benchmark.mjs --count ${{ inputs.count }} --out results/benchmark-web.csv
+
+      # --local none: aqui nao ha o PC da equipe; o CSV Python desta maquina entra como "actions".
+      - name: Compare
+        run: |
+          python local/compare_environments.py --local none
+          grep -v '^!\[' results/comparacao.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-github
+          path: |
+            results/benchmark-actions.csv
+            results/benchmark-web.csv
+            results/comparison.csv
+            results/comparacao.md
+            results/comparacao-*.svg
+            results/maquina.txt

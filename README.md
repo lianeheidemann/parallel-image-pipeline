@@ -36,9 +36,9 @@ O estudo combina três perspectivas:
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/readme-v3/pipeline-dark.svg?v=4">
-    <source media="(prefers-color-scheme: light)" srcset="assets/readme-v3/pipeline-light.svg?v=4">
-    <img src="assets/readme-v3/pipeline-light.svg?v=4" alt="Pipeline: imagem BGR, escala de cinza, blur gaussiano, Sobel X e Y, magnitude e saída PNG" width="100%">
+    <source media="(prefers-color-scheme: dark)" srcset="assets/diagramas/pipeline-dark.svg?v=4">
+    <source media="(prefers-color-scheme: light)" srcset="assets/diagramas/pipeline-light.svg?v=4">
+    <img src="assets/diagramas/pipeline-light.svg?v=4" alt="Pipeline: imagem BGR, escala de cinza, blur gaussiano, Sobel X e Y, magnitude e saída PNG" width="100%">
   </picture>
 </p>
 
@@ -58,9 +58,9 @@ O blur reduz pequenas variações e ruído antes do cálculo do gradiente. O Sob
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/readme-v3/architecture-dark.svg?v=1">
-    <source media="(prefers-color-scheme: light)" srcset="assets/readme-v3/architecture-light.svg?v=1">
-    <img src="assets/readme-v3/architecture-light.svg?v=1" alt="Arquitetura das versões local, AWS e web do pipeline" width="100%">
+    <source media="(prefers-color-scheme: dark)" srcset="assets/diagramas/architecture-dark.svg?v=1">
+    <source media="(prefers-color-scheme: light)" srcset="assets/diagramas/architecture-light.svg?v=1">
+    <img src="assets/diagramas/architecture-light.svg?v=1" alt="Arquitetura das versões local, AWS e web do pipeline" width="100%">
   </picture>
 </p>
 
@@ -70,13 +70,15 @@ A versão sequencial e a paralela em Python compartilham exatamente a mesma fun�
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/readme-v3/environments-dark.svg?v=4">
-    <source media="(prefers-color-scheme: light)" srcset="assets/readme-v3/environments-light.svg?v=4">
-    <img src="assets/readme-v3/environments-light.svg?v=4" alt="Comparação entre Python local, AWS EC2 e GitHub Pages" width="100%">
+    <source media="(prefers-color-scheme: dark)" srcset="assets/diagramas/environments-dark.svg?v=4">
+    <source media="(prefers-color-scheme: light)" srcset="assets/diagramas/environments-light.svg?v=4">
+    <img src="assets/diagramas/environments-light.svg?v=4" alt="Comparação entre Python local, AWS EC2 e GitHub Pages" width="100%">
   </picture>
 </p>
 
 > Os tempos obtidos no navegador não devem ser comparados diretamente aos tempos do Python: além do ambiente de execução, também mudam a implementação dos filtros e a granularidade das tarefas.
+
+Para ver os três ambientes lado a lado, `python local/compare_environments.py` junta os CSVs de cada um (o da web sai pelo botão **Baixar CSV** da página) e gera `results/comparacao.md`, com tabela e gráficos de tempo e *speedup*. Passo a passo em [`doc/como-rodar.md`](doc/como-rodar.md#4-comparar-os-3-ambientes-tabela--gráficos).
 
 ## Estratégia de paralelismo
 
@@ -139,29 +141,38 @@ Se alguma configuração divergir, o benchmark termina com código de erro.
 
 ```text
 parallel-image-pipeline/
-├── .github/workflows/       # CI e publicação do GitHub Pages
-├── assets/                  # Logos e imagens da documentação
+├── .github/workflows/       # CI, GitHub Pages e benchmark manual no GitHub
+├── assets/
+│   ├── diagramas/           # Diagramas do README e de doc/ (claro e escuro)
+│   └── logo/                # Logos
 ├── aws/
 │   ├── server.py            # Painel HTTP somente leitura
 │   └── user-data.sh         # Preparação da instância EC2
 ├── dataset/                 # Imagens JPG de entrada
+├── doc/
+│   └── como-rodar.md        # Passo a passo dos 3 ambientes e da comparação
 ├── local/
 │   ├── image_processor.py   # Cinza → blur → Sobel
 │   ├── sequential.py        # Execução com um processo
 │   ├── parallel.py          # Pool de processos
 │   ├── benchmark.py         # Medição, speedup e Amdahl
 │   ├── verify.py            # Verificação SHA-256
-│   └── generate_dataset.py  # Geração do conjunto sintético
+│   ├── generate_dataset.py  # Geração do conjunto sintético
+│   ├── compare_environments.py  # Comparação local × aws × web (tabela e gráficos)
+│   └── common.py            # Caminhos e utilitários compartilhados
+├── tools/
+│   └── web-benchmark.mjs    # Roda a página web num Chromium headless e salva o CSV
 ├── output/
 │   ├── sequential/          # Mapas de bordas sequenciais
 │   └── parallel/            # Mapas de bordas paralelos
-├── results/                 # Relatórios CSV
-├── tests/                   # Testes Python, AWS e web
-└── web/                     # Interface e Web Workers
+├── results/                 # Relatórios CSV e comparação entre ambientes
+├── tests/                   # Testes Python (local, aws) e web
+└── web/                     # Interface, Web Workers e exportação CSV
 ```
 
 Documentação específica:
 
+- [Como rodar os 3 códigos e comparar](doc/como-rodar.md)
 - [Execução local](local/)
 - [Versão web](web/)
 - [Implantação na AWS](aws/)
@@ -227,6 +238,9 @@ Contagens de processos superiores aos núcleos lógicos disponíveis são ignora
 | `results/sequential_report.csv` | Tempo e registro da execução sequencial |
 | `results/parallel_report_N.csv` | Relatório da execução com `N` processos |
 | `results/benchmark.csv` | Tempo mediano, *speedup*, Amdahl e verificação |
+| `results/comparacao.md` | Comparação local × aws × web, gerada por `local/compare_environments.py` |
+| `results/comparacao-*.svg` | Gráficos de tempo e *speedup* usados no `comparacao.md` |
+| `results/comparison.csv` | Todos os ambientes num CSV só, com a coluna `ambiente` |
 
 O conjunto de referência com 2.000 imagens de 1920 × 1080 pode ocupar aproximadamente 11 GB. Tempo e armazenamento variam conforme o hardware e o formato dos arquivos.
 
@@ -289,7 +303,7 @@ Execute os testes da versão web:
 node --test tests/web/*.test.mjs
 ```
 
-Os testes cobrem a Lei de Amdahl, equivalência sequencial/paralela, verificação das imagens, painel HTTP, processamento por faixas e versionamento do cache web.
+Os testes cobrem a Lei de Amdahl (em Python e no CSV da web), equivalência sequencial/paralela, verificação das imagens, painel HTTP, comparação entre ambientes, processamento por faixas e versionamento do cache web.
 
 ## Limitações do experimento
 

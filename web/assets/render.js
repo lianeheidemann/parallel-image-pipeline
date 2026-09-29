@@ -1,7 +1,8 @@
 // Draws the results panel: metrics, chart, image comparison, run details and explanations.
-import { explainTimes, NOISE } from "./explain.js?v=20260927a";
-import { ROUNDS, WORKER_COUNTS } from "./runner.js?v=20260927a";
-import { integer, list, num, percent, seconds, times } from "./format.js?v=20260927a";
+import { explainTimes, NOISE } from "./explain.js?v=20260929a";
+import { ROUNDS, WORKER_COUNTS } from "./runner.js?v=20260929a";
+import { integer, list, num, percent, seconds, times } from "./format.js?v=20260929a";
+import { wireExport } from "./export.js?v=20260929a";
 export const $ = (id) => document.getElementById(id);
 function renderChart(runs,selected) {
   const chart=$("chart"); chart.replaceChildren();
@@ -83,6 +84,7 @@ export function display(images,sequential,runs,workers) {
   $("explain-list").replaceChildren(...explainTimes(runsAll,workers,navigator.hardwareConcurrency).map(text => {
     const item=document.createElement("li"); item.textContent=text; return item;
   }));
+  wireExport(sequential,runs);
   $("empty").hidden=true; $("results").hidden=false;
 }
 // Progress block shown in the results panel while the benchmark runs.

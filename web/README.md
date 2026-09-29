@@ -11,6 +11,8 @@ pipeline em JavaScript, sem enviar nem salvar imagens: thread principal × 2, 4 
 | `assets/worker.js` | Web Worker: processa uma faixa |
 | `assets/processor.js` | Cinza → blur → Sobel (espelha `local/image_processor.py`) |
 | `assets/render.js`, `explain.js`, `format.js` | Resultados, explicações e formatação |
+| `assets/report.js` | Linhas do CSV no formato de `results/benchmark.csv` (Amdahl igual ao Python) |
+| `assets/export.js` | Botão "Baixar CSV" (`benchmark-web.csv`, lido por `local/compare_environments.py`) |
 
 Servir localmente: `npx http-server web`. Ao mudar um arquivo, suba o `?v=` de todos
 (o teste `tests/web/cache-version.test.mjs` exige o mesmo valor). O deploy é feito por
