@@ -3,24 +3,30 @@ name: Benchmark (Python e web no GitHub)
 # Roda manualmente (aba Actions > "Run workflow"). Mede, na mesma maquina do GitHub e
 # com o mesmo dataset, a versao Python (local/benchmark.py) e a versao web (Web Workers
 # num Chromium headless), e publica a comparacao com graficos como artefato.
+# O padrao (100 imagens de 1920x1080) e o mesmo de doc/como-rodar.md, secao 4: como o
+# gerador usa semente fixa por imagem, sao as mesmas imagens do PC.
 on:
   workflow_dispatch:
     inputs:
       count:
         description: "Numero de imagens do dataset"
-        default: "200"
+        default: "100"
       width:
         description: "Largura das imagens"
-        default: "1024"
+        default: "1920"
       height:
         description: "Altura das imagens"
-        default: "768"
+        default: "1080"
       repeat:
         description: "Rodadas por configuracao (mediana)"
         default: "3"
 
 permissions:
   contents: read
+
+env:
+  DATASET: dataset-comparacao
+  OUT: results/comparacao
 
 jobs:
   benchmark:
@@ -50,35 +56,35 @@ jobs:
 
       - name: Machine info
         run: |
-          mkdir -p results
-          { echo "runner: ${{ runner.os }} ${{ runner.arch }}"; nproc | sed 's/^/nucleos: /'; lscpu | grep "Model name"; free -h | grep Mem; } | tee results/maquina.txt
+          mkdir -p "$OUT"
+          { echo "runner: ${{ runner.os }} ${{ runner.arch }}"; nproc | sed 's/^/nucleos: /'; lscpu | grep "Model name"; free -h | grep Mem; } | tee "$OUT/maquina-actions.txt"
 
       - name: Generate dataset
-        run: python local/generate_dataset.py --count ${{ inputs.count }} --width ${{ inputs.width }} --height ${{ inputs.height }}
+        run: python local/generate_dataset.py --count ${{ inputs.count }} --width ${{ inputs.width }} --height ${{ inputs.height }} --output "$DATASET"
 
       # Contagens acima dos nucleos da maquina sao ignoradas pelo proprio benchmark.
       - name: Python benchmark
         run: |
-          python local/benchmark.py --workers 2 4 8 --repeat ${{ inputs.repeat }}
-          cp results/benchmark.csv results/benchmark-actions.csv
+          python local/benchmark.py --dataset "$DATASET" --results "$OUT" --workers 2 4 8 --repeat ${{ inputs.repeat }}
+          mv "$OUT/benchmark.csv" "$OUT/benchmark-actions.csv"
 
       - name: Web benchmark (Chromium headless)
-        run: node tools/web-benchmark.mjs --count ${{ inputs.count }} --out results/benchmark-web.csv
+        run: node tools/web-benchmark.mjs --dataset "$DATASET" --out "$OUT/benchmark-web.csv"
 
-      # --local none: aqui nao ha o PC da equipe; o CSV Python desta maquina entra como "actions".
+      # Aqui nao ha o PC da equipe: o CSV Python desta maquina entra como "actions".
       - name: Compare
         run: |
-          python local/compare_environments.py --local none
-          grep -v '^!\[' results/comparacao.md >> "$GITHUB_STEP_SUMMARY"
+          python local/compare_environments.py --dir "$OUT"
+          grep -v '^!\[' "$OUT/comparacao.md" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload results
         uses: actions/upload-artifact@v4
         with:
           name: benchmark-github
           path: |
-            results/benchmark-actions.csv
-            results/benchmark-web.csv
-            results/comparison.csv
-            results/comparacao.md
-            results/comparacao-*.svg
-            results/maquina.txt
+            ${{ env.OUT }}/benchmark-actions.csv
+            ${{ env.OUT }}/benchmark-web.csv
+            ${{ env.OUT }}/comparison.csv
+            ${{ env.OUT }}/comparacao.md
+            ${{ env.OUT }}/graficos/
+            ${{ env.OUT }}/maquina-actions.txt

@@ -5,6 +5,8 @@ import csv
 from collections.abc import Iterable
 from pathlib import Path
 
+from PIL import Image
+
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATASET_DIR = PROJECT_ROOT / "dataset"
 SEQUENTIAL_OUTPUT = PROJECT_ROOT / "output" / "sequential"
@@ -36,6 +38,15 @@ def write_report(report_path: Path, rows: Iterable[tuple[str, str, str]] = ()) -
         writer = csv.writer(f)
         writer.writerow(REPORT_HEADER)
         writer.writerows(rows)
+
+
+def dataset_info(images: list[Path]) -> dict[str, str]:
+    # Vai para cada linha do benchmark.csv: so faz sentido comparar tempos de
+    # ambientes que processaram a mesma quantidade de imagens, na mesma resolucao.
+    if not images:
+        return {"imagens": "0", "resolucao": ""}
+    with Image.open(images[0]) as first:  # le so o cabecalho, nao a imagem inteira
+        return {"imagens": str(len(images)), "resolucao": f"{first.width}x{first.height}"}
 
 
 def read_csv_rows(path: Path) -> list[dict[str, str]]:

@@ -36,6 +36,13 @@ output/parallel/*.png
 results/*.csv
 results/*.log
 results/setup.running
+results/*.txt
+
+# Comparacao entre ambientes: o dataset e os relatorios por imagem sao regeraveis;
+# benchmark*.csv, comparacao.md e graficos/ ficam versionados como evidencia.
+dataset-comparacao/
+results/comparacao/sequential_report.csv
+results/comparacao/parallel_report*.csv
 
 !dataset/.gitkeep
 !output/sequential/.gitkeep

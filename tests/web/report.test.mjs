@@ -2,7 +2,7 @@
 // Amdahl de local/benchmark.py, para comparar os ambientes numa tabela so.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { amdahlSpeedup, buildRows, estimateParallelFraction, toCsv } from "../../web/assets/report.js";
+import { amdahlSpeedup, buildRows, datasetInfo, estimateParallelFraction, toCsv } from "../../web/assets/report.js";
 
 const close = (actual, expected) => assert.ok(Math.abs(actual - expected) < 1e-9, `${actual} != ${expected}`);
 
@@ -28,12 +28,23 @@ for (const [seq, par, workers] of [[10, 5, 1], [10, 0, 4], [0, 5, 4]]) {
   });
 }
 
-test("buildRows: sequencial, verificado e Amdahl", () => {
+const IMAGES = [{ width: 1920, height: 1080 }, { width: 1920, height: 1080 }];
+
+test("datasetInfo: quantidade e resolucao das imagens", () => {
+  assert.deepEqual(datasetInfo(IMAGES), { imagens: 2, resolucao: "1920x1080" });
+  assert.deepEqual(datasetInfo([...IMAGES, { width: 640, height: 480 }]), { imagens: 3, resolucao: "variada" });
+  assert.deepEqual(datasetInfo([]), { imagens: 0, resolucao: "" });
+});
+
+test("buildRows: sequencial, verificado, Amdahl e dataset", () => {
   const rows = buildRows({ seconds: 10 }, [
     { workers: 2, seconds: 6, mismatch: 0 },
     { workers: 4, seconds: 4, mismatch: 3 },
-  ]);
-  assert.deepEqual(rows[0], { processos: 1, tempo_s: 10, speedup: 1, speedup_amdahl_previsto: 1, verificado: "" });
+  ], IMAGES);
+  assert.deepEqual(rows[0], {
+    processos: 1, tempo_s: 10, speedup: 1, speedup_amdahl_previsto: 1, verificado: "", imagens: 2, resolucao: "1920x1080",
+  });
+  assert.equal(rows[2].resolucao, "1920x1080");
   assert.equal(rows[1].processos, 2);
   assert.equal(rows[1].speedup, 1.667);
   assert.equal(rows[1].verificado, "sim");
@@ -45,8 +56,9 @@ test("buildRows: sequencial, verificado e Amdahl", () => {
 
 test("toCsv: cabecalho igual ao de results/benchmark.csv", () => {
   const csv = toCsv([
-    { processos: 1, tempo_s: 10, speedup: 1, speedup_amdahl_previsto: 1, verificado: "" },
-    { processos: 2, tempo_s: 6, speedup: 1.667, speedup_amdahl_previsto: 1.667, verificado: "sim" },
+    { processos: 1, tempo_s: 10, speedup: 1, speedup_amdahl_previsto: 1, verificado: "", imagens: 2, resolucao: "1920x1080" },
+    { processos: 2, tempo_s: 6, speedup: 1.667, speedup_amdahl_previsto: 1.667, verificado: "sim", imagens: 2, resolucao: "1920x1080" },
   ]);
-  assert.equal(csv, "processos,tempo_s,speedup,speedup_amdahl_previsto,verificado\n1,10,1,1,\n2,6,1.667,1.667,sim\n");
+  assert.equal(csv, "processos,tempo_s,speedup,speedup_amdahl_previsto,verificado,imagens,resolucao\n"
+    + "1,10,1,1,,2,1920x1080\n2,6,1.667,1.667,sim,2,1920x1080\n");
 });

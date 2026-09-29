@@ -1,15 +1,21 @@
 import csv
 
+from charts import time_chart
 from compare_environments import (
+    COLORS,
     FIELDS,
+    LABELS,
+    dataset_of,
+    group_by_environment,
     load_environment,
     merge_environments,
     run,
+    same_dataset,
     summarize_environment,
     write_csv,
 )
 
-HEADER = "processos,tempo_s,speedup,speedup_amdahl_previsto,verificado\n"
+HEADER = "processos,tempo_s,speedup,speedup_amdahl_previsto,verificado,imagens,resolucao\n"
 
 
 def write_benchmark(path, body):
@@ -18,11 +24,13 @@ def write_benchmark(path, body):
 
 
 def local_csv(tmp_path):
-    return write_benchmark(tmp_path / "local.csv", "1,10.0,1.0,1.0,\n2,5.5,1.818,1.818,sim\n4,3.2,3.125,3.077,sim\n")
+    return write_benchmark(tmp_path / "local.csv", "1,10.0,1.0,1.0,,100,1920x1080\n"
+                                                   "2,5.5,1.818,1.818,sim,100,1920x1080\n"
+                                                   "4,3.2,3.125,3.077,sim,100,1920x1080\n")
 
 
-def web_csv(tmp_path):
-    return write_benchmark(tmp_path / "web.csv", "1,2,1,1,\n2,1.2,1.667,1.667,sim\n")
+def web_csv(tmp_path, dataset="100,1920x1080"):
+    return write_benchmark(tmp_path / "web.csv", f"1,20,1,1,,{dataset}\n2,11,1.818,1.818,sim,{dataset}\n")
 
 
 def test_load_environment_adds_ambiente(tmp_path):
@@ -57,6 +65,29 @@ def test_write_csv_roundtrip(tmp_path):
         assert list(reader) == rows
 
 
+def test_dataset_is_compared_between_environments(tmp_path):
+    same = group_by_environment(merge_environments({"local": local_csv(tmp_path), "web": web_csv(tmp_path)}))
+    assert dataset_of(same["local"]) == "100 imagens 1920x1080"
+    assert same_dataset(same)
+
+    different = group_by_environment(merge_environments({"local": local_csv(tmp_path), "web": web_csv(tmp_path, "200,1024x768")}))
+    assert not same_dataset(different)
+
+
+def test_old_csv_without_dataset_columns_is_not_comparable(tmp_path):
+    old = tmp_path / "old.csv"
+    old.write_text("processos,tempo_s,speedup,speedup_amdahl_previsto,verificado\n1,10,1,1,\n2,5,2,2,sim\n", encoding="utf-8")
+    groups = group_by_environment(merge_environments({"local": old, "web": web_csv(tmp_path)}))
+    assert dataset_of(groups["local"]) == "desconhecido"
+    assert not same_dataset(groups)
+
+
+def test_time_chart_scale_depends_on_dataset(tmp_path):
+    groups = group_by_environment(merge_environments({"local": local_csv(tmp_path), "web": web_csv(tmp_path)}))
+    assert "mesma escala" in time_chart(groups, LABELS, COLORS, shared_scale=True)
+    assert "escala própria" in time_chart(groups, LABELS, COLORS, shared_scale=False)
+
+
 def test_summary_uses_fastest_parallel_run(tmp_path):
     summary = summarize_environment(load_environment(local_csv(tmp_path), "local"))
     assert "sequencial 10,00 s" in summary
@@ -64,28 +95,36 @@ def test_summary_uses_fastest_parallel_run(tmp_path):
 
 
 def test_summary_is_none_without_parallel_rows(tmp_path):
-    only_sequential = write_benchmark(tmp_path / "seq.csv", "1,10.0,1.0,1.0,\n")
+    only_sequential = write_benchmark(tmp_path / "seq.csv", "1,10.0,1.0,1.0,,100,1920x1080\n")
     assert summarize_environment(load_environment(only_sequential, "local")) is None
 
 
-def test_run_writes_report_and_charts(tmp_path):
+def test_run_writes_report_and_charts_folder(tmp_path):
     out = tmp_path / "results"
-    run({"local": local_csv(tmp_path), "aws": None, "web": web_csv(tmp_path)}, out, dataset_dir=None)
+    run({"local": local_csv(tmp_path), "aws": None, "web": web_csv(tmp_path)}, out)
 
     report = (out / "comparacao.md").read_text(encoding="utf-8")
-    assert "local (PC)" in report and "web (navegador)" in report
     assert "Sem dados ainda: aws (EC2), actions (GitHub)." in report
+    assert "- **local (PC)**: 100 imagens 1920x1080" in report
+    assert "Todos os ambientes processaram o mesmo dataset" in report
     assert "| local (PC) | 4 | 3,2 | 3,125 | 3,077 | sim |" in report
-    assert "não são diretamente comparáveis" in report
-    assert "![Speedup medido, ideal e previsto por Amdahl](comparacao-speedup.svg)" in report
+    assert "![Speedup medido, ideal e previsto por Amdahl](graficos/speedup.svg)" in report
     assert (out / "comparison.csv").exists()
-    assert (out / "comparacao-tempo.svg").read_text(encoding="utf-8").startswith("<svg")
-    assert "aws (EC2)" not in (out / "comparacao-speedup.svg").read_text(encoding="utf-8")
+    assert (out / "graficos" / "tempo.svg").read_text(encoding="utf-8").startswith("<svg")
+    assert "aws (EC2)" not in (out / "graficos" / "speedup.svg").read_text(encoding="utf-8")
+
+
+def test_run_warns_when_datasets_differ(tmp_path):
+    out = tmp_path / "results"
+    run({"local": local_csv(tmp_path), "web": web_csv(tmp_path, "200,1024x768")}, out)
+    report = (out / "comparacao.md").read_text(encoding="utf-8")
+    assert "processaram datasets diferentes" in report
+    assert "escala própria" in (out / "graficos" / "tempo.svg").read_text(encoding="utf-8")
 
 
 def test_run_without_any_data(tmp_path):
     out = tmp_path / "results"
-    rows = run({"local": None, "aws": None, "web": None}, out, dataset_dir=None)
+    rows = run({"local": None, "aws": None, "web": None}, out)
     assert rows == []
     assert "Nenhum resultado encontrado" in (out / "comparacao.md").read_text(encoding="utf-8")
-    assert not (out / "comparacao-tempo.svg").exists()
+    assert not (out / "graficos").exists()

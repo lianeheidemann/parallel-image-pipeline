@@ -1,7 +1,7 @@
 // Monta explicacoes simples para a diferenca entre os tempos medido e ideal.
 // runs: [{workers:1,seconds}, {workers:2,seconds}, ...]; cores pode ser indefinido.
-import { list, num, percent } from "./format.js?v=20260929a";
-import { ROUNDS } from "./runner.js?v=20260929a";
+import { list, num, percent } from "./format.js?v=20260929b";
+import { ROUNDS } from "./runner.js?v=20260929b";
 // Diferencas de ate 5% sao tratadas como ruido de medicao, nao como efeito real.
 export const NOISE = 0.05;
 export function explainTimes(runs, selected, cores) {

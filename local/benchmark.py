@@ -19,7 +19,7 @@ from pathlib import Path
 import parallel
 import sequential
 import verify as verify_module
-from common import DATASET_DIR, PARALLEL_OUTPUT, RESULTS_DIR, SEQUENTIAL_OUTPUT, positive_int
+from common import DATASET_DIR, PARALLEL_OUTPUT, RESULTS_DIR, SEQUENTIAL_OUTPUT, dataset_info, list_images, positive_int
 
 
 def amdahl_speedup(parallel_fraction: float, workers: int) -> float:
@@ -91,9 +91,12 @@ def run_benchmark(
     print(f"\nFracao paralelizavel estimada (Amdahl): {parallel_fraction:.3f}")
     for row in rows[1:]:
         row["speedup_amdahl_previsto"] = round(amdahl_speedup(parallel_fraction, row["processos"]), 3)
+    dataset = dataset_info(list_images(dataset_dir))
+    for row in rows:
+        row.update(dataset)
 
     report_path = results_dir / "benchmark.csv"
-    fieldnames = ["processos", "tempo_s", "speedup", "speedup_amdahl_previsto", "verificado"]
+    fieldnames = ["processos", "tempo_s", "speedup", "speedup_amdahl_previsto", "verificado", "imagens", "resolucao"]
     with open(report_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()

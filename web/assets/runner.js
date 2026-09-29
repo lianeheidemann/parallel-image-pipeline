@@ -1,6 +1,6 @@
 // Mede a execucao sequencial (thread principal) e as execucoes paralelas (Web Workers).
 // Sem acesso ao DOM: o progresso e enviado como dados pelo callback onProgress.
-import { processPixels, HALO } from "./processor.js?v=20260929a";
+import { processPixels, HALO } from "./processor.js?v=20260929b";
 export const ROUNDS = 3; // Cada configuracao roda 3 vezes; a mediana e exibida.
 export const WORKER_COUNTS = [2,4,8];
 const nextFrame = () => new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 0)));
@@ -54,7 +54,7 @@ function runParallel(images, requested, onStep) {
     };
     try {
       for (let i=0; i<requested; i++) {
-        const worker=new Worker(new URL("./worker.js?v=20260929a",import.meta.url),{type:"module"});
+        const worker=new Worker(new URL("./worker.js?v=20260929b",import.meta.url),{type:"module"});
         workers.push(worker);
         worker.onerror=() => finish(new Error("Não foi possível executar os Web Workers neste navegador."));
         worker.onmessage=({data}) => {
