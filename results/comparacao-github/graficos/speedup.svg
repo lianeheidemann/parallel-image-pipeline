@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="400" viewBox="0 0 720 400" role="img" aria-label="Speedup medido × ideal × Amdahl">
+<rect width="720" height="400" rx="8" fill="#ffffff" stroke="#d0d7de"/>
+<text x="20" y="28" style="font-family:Segoe UI,Arial,sans-serif;font-size:16px;font-weight:600" fill="#1f2328">Speedup medido × ideal × Amdahl</text>
+<rect x="20" y="40" width="12" height="12" rx="2" fill="#8250DF"/>
+<text x="38" y="50" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px" fill="#1f2328">actions (GitHub)</text>
+<rect x="160" y="40" width="12" height="12" rx="2" fill="#2EA44F"/>
+<text x="178" y="50" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px" fill="#1f2328">web (navegador)</text>
+<line x1="20" y1="66" x2="42" y2="66" stroke="#8c959f" stroke-width="2" stroke-dasharray="5 4"/>
+<text x="48" y="70" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px" fill="#1f2328">ideal (N×)</text>
+<circle cx="146" cy="66" r="4" fill="#ffffff" stroke="#1f2328" stroke-width="1.5"/>
+<text x="156" y="70" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px" fill="#1f2328">Amdahl previsto</text>
+<line x1="50" y1="350.0" x2="700" y2="350.0" stroke="#eaeef2"/>
+<text x="44" y="354.0" text-anchor="end" style="font-family:Segoe UI,Arial,sans-serif;font-size:11px" fill="#59636e">0×</text>
+<line x1="50" y1="321.2" x2="700" y2="321.2" stroke="#eaeef2"/>
+<text x="44" y="325.2" text-anchor="end" style="font-family:Segoe UI,Arial,sans-serif;font-size:11px" fill="#59636e">1×</text>
+<line x1="50" y1="292.4" x2="700" y2="292.4" stroke="#eaeef2"/>
+<text x="44" y="296.4" text-anchor="end" style="font-family:Segoe UI,Arial,sans-serif;font-size:11px" fill="#59636e">2×</text>
+<line x1="50" y1="263.6" x2="700" y2="263.6" stroke="#eaeef2"/>
+<text x="44" y="267.6" text-anchor="end" style="font-family:Segoe UI,Arial,sans-serif;font-size:11px" fill="#59636e">3×</text>
+<line x1="50" y1="234.8" x2="700" y2="234.8" stroke="#eaeef2"/>
+<text x="44" y="238.8" text-anchor="end" style="font-family:Segoe UI,Arial,sans-serif;font-size:11px" fill="#59636e">4×</text>
+<line x1="50" y1="206.0" x2="700" y2="206.0" stroke="#eaeef2"/>
+<text x="44" y="210.0" text-anchor="end" style="font-family:Segoe UI,Arial,sans-serif;font-size:11px" fill="#59636e">5×</text>
+<line x1="50" y1="177.2" x2="700" y2="177.2" stroke="#eaeef2"/>
+<text x="44" y="181.2" text-anchor="end" style="font-family:Segoe UI,Arial,sans-serif;font-size:11px" fill="#59636e">6×</text>
+<line x1="50" y1="148.4" x2="700" y2="148.4" stroke="#eaeef2"/>
+<text x="44" y="152.4" text-anchor="end" style="font-family:Segoe UI,Arial,sans-serif;font-size:11px" fill="#59636e">7×</text>
+<line x1="50" y1="119.6" x2="700" y2="119.6" stroke="#eaeef2"/>
+<text x="44" y="123.6" text-anchor="end" style="font-family:Segoe UI,Arial,sans-serif;font-size:11px" fill="#59636e">8×</text>
+<line x1="78.5" y1="292.4" x2="238.2" y2="292.4" stroke="#8c959f" stroke-width="2" stroke-dasharray="5 4"/>
+<rect x="82.5" y="298.3" width="73.8" height="51.7" rx="2" fill="#8250DF"/>
+<text x="119.4" y="288.3" text-anchor="middle" style="font-family:Segoe UI,Arial,sans-serif;font-size:11px" fill="#1f2328">1,79×</text>
+<circle cx="119.4" cy="298.3" r="4" fill="#ffffff" stroke="#1f2328" stroke-width="1.5"/>
+<rect x="158.3" y="295.6" width="73.8" height="54.4" rx="2" fill="#2EA44F"/>
+<text x="195.2" y="285.6" text-anchor="middle" style="font-family:Segoe UI,Arial,sans-serif;font-size:11px" fill="#1f2328">1,89×</text>
+<circle cx="195.2" cy="295.6" r="4" fill="#ffffff" stroke="#1f2328" stroke-width="1.5"/>
+<text x="158.3" y="380" text-anchor="middle" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px" fill="#1f2328">2 processos</text>
+<line x1="295.2" y1="234.8" x2="454.8" y2="234.8" stroke="#8c959f" stroke-width="2" stroke-dasharray="5 4"/>
+<rect x="299.2" y="276.4" width="73.8" height="73.6" rx="2" fill="#8250DF"/>
+<text x="336.1" y="266.4" text-anchor="middle" style="font-family:Segoe UI,Arial,sans-serif;font-size:11px" fill="#1f2328">2,56×</text>
+<circle cx="336.1" cy="264.2" r="4" fill="#ffffff" stroke="#1f2328" stroke-width="1.5"/>
+<rect x="375.0" y="298.4" width="73.8" height="51.6" rx="2" fill="#2EA44F"/>
+<text x="411.9" y="288.4" text-anchor="middle" style="font-family:Segoe UI,Arial,sans-serif;font-size:11px" fill="#1f2328">1,79×</text>
+<circle cx="411.9" cy="252.0" r="4" fill="#ffffff" stroke="#1f2328" stroke-width="1.5"/>
+<text x="375.0" y="380" text-anchor="middle" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px" fill="#1f2328">4 processos</text>
+<line x1="511.8" y1="119.6" x2="671.5" y2="119.6" stroke="#8c959f" stroke-width="2" stroke-dasharray="5 4"/>
+<rect x="591.7" y="300.3" width="73.8" height="49.7" rx="2" fill="#2EA44F"/>
+<text x="628.6" y="290.3" text-anchor="middle" style="font-family:Segoe UI,Arial,sans-serif;font-size:11px" fill="#1f2328">1,73×</text>
+<circle cx="628.6" cy="186.6" r="4" fill="#ffffff" stroke="#1f2328" stroke-width="1.5"/>
+<text x="591.7" y="380" text-anchor="middle" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px" fill="#1f2328">8 processos</text>
+</svg>

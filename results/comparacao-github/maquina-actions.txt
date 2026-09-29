@@ -1,0 +1,4 @@
+runner: Linux X64
+nucleos: 4
+Model name:                              AMD EPYC 7763 64-Core Processor
+Mem:            15Gi       1.4Gi        10Gi        44Mi       4.2Gi        14Gi

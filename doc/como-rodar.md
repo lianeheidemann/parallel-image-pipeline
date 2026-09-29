@@ -106,60 +106,81 @@ e abrir o endereço que o comando imprimir (por padrão `http://localhost:8080`)
 Depois de processar, o botão **Baixar CSV** salva os tempos no mesmo formato de
 `results/benchmark.csv` (arquivo `benchmark-web.csv`).
 
-## 4. Comparar os 3 ambientes (tabela + gráficos)
+## 4. Comparar os ambientes (tabela + gráficos)
 
-Junte o CSV de cada ambiente em `results/` com estes nomes:
+Tempos só são comparáveis se todos os ambientes processarem **o mesmo dataset**.
+O padrão da comparação é **100 imagens de 1920×1080**, na pasta
+`dataset-comparacao/`. O gerador usa semente fixa por imagem, então essas imagens
+são idênticas no PC, no GitHub e na AWS. Cada CSV registra quantas imagens e qual
+resolução usou, e o relatório avisa se algum ambiente usou outro dataset.
 
-| Ambiente | Como obter | Arquivo em `results/` |
-|---|---|---|
-| local | `python local/benchmark.py --workers 2 4 8 --repeat 3` | `benchmark.csv` (já sai com esse nome) |
-| aws | `curl http://IP-PUBLICO/benchmark.csv -o results/benchmark-aws.csv` (ou abrir o link e *Salvar como*) | `benchmark-aws.csv` |
-| actions | artefato do workflow da seção 5 | `benchmark-actions.csv` |
-| web | botão **Baixar CSV** na página, depois mover o arquivo baixado | `benchmark-web.csv` |
+> **Antes de medir no notebook:** ligue o carregador e coloque *Configurações →
+> Sistema → Energia → Modo de energia* em **Melhor desempenho**. Na bateria, o
+> Windows reduz a frequência e joga o processo sequencial para os núcleos de
+> eficiência: o sequencial fica lento, o paralelo parece "superlinear" e os números
+> não valem.
 
-Depois:
+Tudo da comparação fica em `results/comparacao/`:
 
 ```bash
+# 1. dataset padrão (uma vez só)
+python local/generate_dataset.py --count 100 --width 1920 --height 1080 --output dataset-comparacao
+
+# 2. Python no PC  -> results/comparacao/benchmark.csv
+python local/benchmark.py --dataset dataset-comparacao --results results/comparacao --workers 2 4 8 --repeat 3
+
+# 3. web no PC (navegador headless) -> results/comparacao/benchmark-web.csv
+npm install
+npx playwright install chromium
+node tools/web-benchmark.mjs --dataset dataset-comparacao --out results/comparacao/benchmark-web.csv
+
+# 4. relatório e gráficos
 python local/compare_environments.py
 ```
 
-Gera em `results/`: `comparacao.md` (tabela, resumo e gráficos),
-`comparacao-tempo.svg`, `comparacao-speedup.svg` e `comparison.csv`. Ambiente sem
-arquivo é pulado com um aviso — dá para gerar só com local e web enquanto a AWS
-não estiver configurada. Para usar outros caminhos: `--local`, `--aws`, `--web`, `--out`.
+Não rode os passos 2 e 3 ao mesmo tempo: os dois disputam a CPU e um distorce o
+tempo do outro. Em vez do passo 3, dá para abrir a página, selecionar as imagens de
+`dataset-comparacao/`, clicar em **Baixar CSV** e salvar como
+`results/comparacao/benchmark-web.csv`.
 
-> Para a web, selecione imagens do próprio `dataset/` (ou uma parte dele: o
-> navegador guarda tudo na memória). Mesmo assim, compare o **speedup** entre
-> ambientes, não os segundos — hardware, implementação e granularidade mudam.
+Outros ambientes entram pelo nome do arquivo, na mesma pasta:
 
-### Web sem clicar: navegador headless
+| Ambiente | Como obter | Arquivo em `results/comparacao/` |
+|---|---|---|
+| local (PC) | passo 2 acima | `benchmark.csv` |
+| aws (EC2) | `curl http://IP-PUBLICO/benchmark.csv -o results/comparacao/benchmark-aws.csv` | `benchmark-aws.csv` |
+| actions (GitHub) | artefato do workflow da seção 5 | `benchmark-actions.csv` |
+| web (navegador) | passo 3 acima ou botão **Baixar CSV** | `benchmark-web.csv` |
 
-O mesmo que clicar na página, mas automático (Chromium via Playwright):
+Saída, em `results/comparacao/`:
+- `comparacao.md`: datasets, tabela, resumo e os gráficos;
+- `graficos/tempo.svg`: tempo por número de processos (escala única quando o dataset é o mesmo);
+- `graficos/speedup.svg`: speedup medido × ideal × previsto por Amdahl;
+- `comparison.csv`: tudo junto, com a coluna `ambiente`.
 
-```bash
-npm install
-npx playwright install chromium
-node tools/web-benchmark.mjs --count 200    # primeiras 200 imagens de dataset/
-```
+Ambiente sem arquivo é pulado com um aviso. Para outra pasta: `--dir`; para
+caminhos avulsos: `--local`, `--aws`, `--actions`, `--web`, `--out`.
 
-Salva `results/benchmark-web.csv`. Não rode junto com o `local/benchmark.py`: os
-dois disputam a CPU e um distorce o tempo do outro.
+> A AWS usa `aws/user-data.sh`, que gera 2000 imagens (o volume da ficha). Para
+> comparar com os outros, rode lá também os passos 1 e 2 via SSH e baixe o
+> `results/comparacao/benchmark.csv` da instância como `benchmark-aws.csv`.
 
 ## 5. Rodar no GitHub (Python e web na mesma máquina)
 
-O workflow [`benchmark.yml`](../.github/workflows/benchmark.yml) mede as duas
-versões numa máquina do GitHub Actions (4 núcleos), com o mesmo dataset — serve de
-ambiente remoto enquanto a AWS não está configurada.
+O workflow [`benchmark.yml`](../.github/workflows/benchmark.yml) gera o mesmo
+dataset padrão numa máquina do GitHub Actions (4 núcleos) e mede o Python e a web
+(Chromium headless) nela. É um ambiente remoto enquanto a AWS não está configurada.
 
 1. No GitHub: aba **Actions** → **Benchmark (Python e web no GitHub)** → **Run
-   workflow** (ou `gh workflow run benchmark.yml -f count=200`).
+   workflow** (ou `gh workflow run benchmark.yml`).
 2. No fim, o resumo da execução mostra a tabela; o artefato **benchmark-github**
-   traz `comparacao.md`, os gráficos e os CSVs.
-3. Para juntar com o seu PC: copie `benchmark-actions.csv` (e, se quiser,
-   `benchmark-web.csv`) para `results/` e rode `python local/compare_environments.py`.
+   traz `comparacao.md`, `graficos/` e os CSVs.
+3. Para ver só o GitHub: salve o artefato em `results/comparacao-github/` e rode
+   `python local/compare_environments.py --dir results/comparacao-github`.
+4. Para juntar com o PC: copie o `benchmark-actions.csv` para `results/comparacao/`
+   e rode `python local/compare_environments.py`.
 
-A máquina do GitHub é compartilhada: os tempos oscilam mais que no PC. Use o
-*speedup* dela, não os segundos absolutos.
+A máquina do GitHub é compartilhada: os tempos oscilam um pouco entre execuções.
 
 ## Ordem sugerida para a apresentação
 
@@ -180,4 +201,6 @@ A máquina do GitHub é compartilhada: os tempos oscilam mais que no PC. Use o
 | `verify.py` acusa divergência | saída de uma execução anterior com outro dataset | apague `output/sequential` e `output/parallel` e rode de novo |
 | `local/benchmark.py` muito lento | `--count` alto de mais para teste rápido | rode primeiro com `--count 50` |
 | painel da AWS não mostra dados | `setup.log` ainda rodando o benchmark | espere terminar (`tail -f`) ou olhe o marcador `results/setup.running` |
-| `compare_environments.py` diz "pulando" | o CSV daquele ambiente não está em `results/` com o nome esperado | confira a tabela da seção 4 ou passe o caminho com `--aws`/`--web` |
+| `compare_environments.py` diz "pulando" | o CSV daquele ambiente não está em `results/comparacao/` com o nome esperado | confira a tabela da seção 4 ou passe o caminho com `--aws`/`--web` |
+| relatório avisa "datasets diferentes" | algum ambiente rodou com outro dataset | rode todos com `dataset-comparacao/` (seção 4) |
+| paralelo "superlinear" ou tempos que mudam muito entre rodadas | notebook na bateria ou em modo de economia | ligue o carregador e use o modo "Melhor desempenho" |

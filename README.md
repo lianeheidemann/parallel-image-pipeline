@@ -78,7 +78,7 @@ A versão sequencial e a paralela em Python compartilham exatamente a mesma fun�
 
 > Os tempos obtidos no navegador não devem ser comparados diretamente aos tempos do Python: além do ambiente de execução, também mudam a implementação dos filtros e a granularidade das tarefas.
 
-Para ver os três ambientes lado a lado, `python local/compare_environments.py` junta os CSVs de cada um (o da web sai pelo botão **Baixar CSV** da página) e gera `results/comparacao.md`, com tabela e gráficos de tempo e *speedup*. Passo a passo em [`doc/como-rodar.md`](doc/como-rodar.md#4-comparar-os-3-ambientes-tabela--gráficos).
+Para ver os três ambientes lado a lado, `python local/compare_environments.py` junta os CSVs de cada um (o da web sai pelo botão **Baixar CSV** da página) e gera `results/comparacao/comparacao.md`, com tabela e gráficos de tempo e *speedup*. Os tempos só são comparáveis com o mesmo dataset em todos os ambientes (padrão: 100 imagens de 1920×1080). Passo a passo em [`doc/como-rodar.md`](doc/como-rodar.md#4-comparar-os-ambientes-tabela--gráficos).
 
 ## Estratégia de paralelismo
 
@@ -158,7 +158,8 @@ parallel-image-pipeline/
 │   ├── benchmark.py         # Medição, speedup e Amdahl
 │   ├── verify.py            # Verificação SHA-256
 │   ├── generate_dataset.py  # Geração do conjunto sintético
-│   ├── compare_environments.py  # Comparação local × aws × web (tabela e gráficos)
+│   ├── compare_environments.py  # Comparação entre ambientes (tabela e relatório)
+│   ├── charts.py            # Gráficos SVG da comparação
 │   └── common.py            # Caminhos e utilitários compartilhados
 ├── tools/
 │   └── web-benchmark.mjs    # Roda a página web num Chromium headless e salva o CSV
@@ -238,9 +239,8 @@ Contagens de processos superiores aos núcleos lógicos disponíveis são ignora
 | `results/sequential_report.csv` | Tempo e registro da execução sequencial |
 | `results/parallel_report_N.csv` | Relatório da execução com `N` processos |
 | `results/benchmark.csv` | Tempo mediano, *speedup*, Amdahl e verificação |
-| `results/comparacao.md` | Comparação local × aws × web, gerada por `local/compare_environments.py` |
-| `results/comparacao-*.svg` | Gráficos de tempo e *speedup* usados no `comparacao.md` |
-| `results/comparison.csv` | Todos os ambientes num CSV só, com a coluna `ambiente` |
+| `results/comparacao/` | Comparação entre ambientes com o mesmo dataset: CSV de cada ambiente, `comparison.csv` e `comparacao.md` |
+| `results/comparacao/graficos/` | Gráficos de tempo e *speedup* (SVG) usados no `comparacao.md` |
 
 O conjunto de referência com 2.000 imagens de 1920 × 1080 pode ocupar aproximadamente 11 GB. Tempo e armazenamento variam conforme o hardware e o formato dos arquivos.
 
