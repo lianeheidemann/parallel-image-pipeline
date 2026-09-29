@@ -35,8 +35,13 @@ output/sequential/*.png
 output/parallel/*.png
 results/*.csv
 results/*.log
+results/setup.running
 
 !dataset/.gitkeep
 !output/sequential/.gitkeep
 !output/parallel/.gitkeep
 !results/.gitkeep
+
+# web/ (npx http-server, node --test)
+web/node_modules/
+node_modules/

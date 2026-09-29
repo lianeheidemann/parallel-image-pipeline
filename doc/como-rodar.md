@@ -1,5 +1,13 @@
 # Como rodar os 3 códigos
 
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="../assets/readme-v3/three-codes-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="../assets/readme-v3/three-codes-light.svg">
+    <img src="../assets/readme-v3/three-codes-light.svg" alt="Três versões do mesmo pipeline: local/ no PC, aws/ na nuvem, web/ no navegador" width="100%">
+  </picture>
+</p>
+
 O projeto tem três versões independentes do mesmo pipeline (cinza → blur → Sobel):
 **[`local/`](../local/)** (Python no seu PC), **[`aws/`](../aws/)** (o mesmo código do
 `local/` rodando numa instância EC2) e **[`web/`](../web/)** (JavaScript no navegador).
