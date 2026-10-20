@@ -106,7 +106,7 @@ Para visualizar o efeito do pipeline, usamos uma fotografia de paisagem nítida,
     <img src="assets/exemple/tratada.png" alt="Depois do processamento: mapa de bordas da paisagem alpina" width="48%" style="border:1px solid currentColor; border-radius:6px;">
   </p>
   <figcaption align="center"><em></em></figcaption>
-</figure><br>
+</figure>
 <p align="center"><em>Imagem 3 — Antes e depois do tratamento: foto original à esquerda e mapa de bordas à direita.</em></em></p>
 
 O dataset usado na comparação entre os três ambientes continua sendo [`dataset/dataset-100/`](dataset/dataset-100/), com **100 imagens JPG de 1920×1080**. A fotografia acima serve apenas para ilustrar o antes e depois do tratamento.
