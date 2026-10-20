@@ -50,7 +50,6 @@ Este repositório implementa um pipeline que transforma imagens JPG em mapas de 
   </tbody>
 </table>
 </div>
-
 <p align="center"><em>Tabela 1 — Tecnologias e versões usadas ou exigidas pelo projeto.</em></p>
 
 As versões das dependências Python são requisitos mínimos declarados em `requirements.txt`, não versões exatas travadas. A versão do JavaScript depende do navegador que abre a página.
@@ -60,7 +59,6 @@ As versões das dependências Python são requisitos mínimos declarados em `req
 ### Etapas do tratamento de imagem
 
 <p align="center"><img src="assets/diagramas/pipeline-light.svg" alt="Etapas de processamento da imagem: entrada, tons de cinza, blur gaussiano, gradientes Sobel, magnitude e mapa de bordas PNG"></p>
-
 <p align="center"><em>Imagem 1 — Etapas do tratamento aplicado a cada imagem.</em></p>
 
 O pipeline lê o JPG, converte para escala de cinza, aplica um blur gaussiano 5×5, calcula os gradientes Sobel horizontal e vertical, combina esses gradientes em uma magnitude de borda e grava um PNG. A implementação Python está em [`code/local/image_processor.py`](code/local/image_processor.py); a versão JavaScript está em [`code/web/assets/pipeline.js`](code/web/assets/pipeline.js).
@@ -78,7 +76,6 @@ O trabalho é dividido **por imagem**: cada processo ou worker recebe um arquivo
 | Python local | [`code/local/`](code/local/) | `multiprocessing.Pool`; uma imagem por processo | Núcleos da CPU do computador |
 | AWS EC2 | [`code/aws/`](code/aws/) e o mesmo código de [`code/local/`](code/local/) | `multiprocessing.Pool`; uma imagem por processo | A `c5.large` tem 2 vCPUs; o benchmark prevê 2, 4 e 8 processos para comparar a capacidade e a sobrecarga |
 | GitHub Pages | [`code/web/`](code/web/) | Web Workers; uma imagem por worker | Navegador e CPU do computador de quem abriu a página |
-
 <p align="center"><em>Tabela 2 — Ambientes, mecanismo de paralelismo e local de execução.</em></p>
 
 GitHub Pages hospeda os arquivos da página; ele não processa as imagens em seus servidores. O navegador processa localmente as imagens selecionadas. Na versão Python, um `Lock` protege somente o contador e o registro no CSV; o tratamento dos pixels fica fora dessa seção crítica e continua paralelo.
@@ -108,8 +105,9 @@ Para visualizar o efeito do pipeline, usamos uma fotografia de paisagem nítida,
     <img src="assets/exemple/original.jpg" alt="Antes do processamento: fotografia original de um lago alpino cercado por montanhas" width="48%" style="border:1px solid currentColor; border-radius:6px;">
     <img src="assets/exemple/tratada.png" alt="Depois do processamento: mapa de bordas da paisagem alpina" width="48%" style="border:1px solid currentColor; border-radius:6px;">
   </p>
-  <figcaption align="center"><em>Imagem 3 — Antes e depois do tratamento: foto original à esquerda e mapa de bordas à direita.</em></figcaption>
-</figure><br><br>
+  <figcaption align="center"><em></em></figcaption>
+</figure><br>
+<p align="center"><em>Imagem 3 — Antes e depois do tratamento: foto original à esquerda e mapa de bordas à direita.</em></em></p>
 
 O dataset usado na comparação entre os três ambientes continua sendo [`dataset/dataset-100/`](dataset/dataset-100/), com **100 imagens JPG de 1920×1080**. A fotografia acima serve apenas para ilustrar o antes e depois do tratamento.
 
