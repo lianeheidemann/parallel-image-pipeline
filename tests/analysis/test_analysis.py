@@ -39,7 +39,7 @@ def test_carregar_keeps_order_and_zeroes_pending_aws(tmp_path):
     local, aws, _ = medicoes
     assert local.dataset == "100 imagens 1920x1080" and not local.pendente
     assert local.melhor_paralelo["processos"] == "4"
-    assert aws.pendente and [(r["processos"], r["tempo_s"]) for r in aws.linhas] == [("1", "0"), ("2", "0")]
+    assert aws.pendente and [(r["processos"], r["tempo_s"]) for r in aws.linhas] == [("1", "0"), ("2", "0"), ("4", "0"), ("8", "0")]
     assert mesmo_dataset(medicoes)  # o cenario zerado nao conta
 
 
