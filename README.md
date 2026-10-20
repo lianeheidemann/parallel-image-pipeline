@@ -58,8 +58,7 @@ As versões das dependências Python são requisitos mínimos declarados em `req
 
 ### Etapas do tratamento de imagem
 
-<p align="center"><img src="assets/diagramas/pipeline-light.svg" alt="Etapas de processamento da imagem: entrada, tons de cinza, blur gaussiano, gradientes Sobel, magnitude e mapa de bordas PNG"></p>
-<p align="center"><em>Imagem 1 — Etapas do tratamento aplicado a cada imagem.</em></p>
+<p align="center"><img src="assets/diagramas/pipeline-light.svg" alt="Etapas de processamento da imagem: entrada, tons de cinza, blur gaussiano, gradientes Sobel, magnitude e mapa de bordas PNG"></p><p align="center"><em>Imagem 1 — Etapas do tratamento aplicado a cada imagem.</em></p>
 
 O pipeline lê o JPG, converte para escala de cinza, aplica um blur gaussiano 5×5, calcula os gradientes Sobel horizontal e vertical, combina esses gradientes em uma magnitude de borda e grava um PNG. A implementação Python está em [`code/local/image_processor.py`](code/local/image_processor.py); a versão JavaScript está em [`code/web/assets/pipeline.js`](code/web/assets/pipeline.js).
 
