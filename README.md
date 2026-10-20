@@ -17,7 +17,6 @@
   <img alt="JavaScript com Web Workers" src="https://img.shields.io/badge/JavaScript-Web%20Workers-F7DF1E?logo=javascript&logoColor=111111">
   <img alt="Node.js 22" src="https://img.shields.io/badge/Node.js-22-339933?logo=nodedotjs&logoColor=white">
   <img alt="AWS EC2" src="https://img.shields.io/badge/AWS-EC2-FF9900?logo=amazonaws&logoColor=white">
-  <img alt="GitHub Pages" src="https://img.shields.io/badge/GitHub-Pages-222222?logo=githubpages&logoColor=white">
 </p>
 
 Este repositório implementa um pipeline que transforma imagens JPG em mapas de bordas PNG e compara sua execução sequencial e paralela, processando uma imagem inteira por tarefa. No código, você encontrará o processador e o benchmark Python local em [`code/local/`](code/local/), os scripts de preparação e o painel para AWS EC2 em [`code/aws/`](code/aws/), a aplicação JavaScript com Web Workers em [`code/web/`](code/web/), e as ferramentas que comparam as medições e geram os gráficos em [`code/analysis/`](code/analysis/). Os conjuntos de imagens estão em [`dataset/`](dataset/) e as instruções e resultados detalhados em [`doc/`](doc/).
