@@ -52,7 +52,7 @@ Este repositório implementa um pipeline que transforma imagens JPG em mapas de 
 </table>
 </div>
 
-<p align="center"><em>Tabela 1 — Tecnologias e versões usadas ou exigidas pelo projeto. Fonte: <a href="requirements.txt">requirements.txt</a>, <a href=".github/workflows/ci.yml">workflow de CI</a>, <a href=".github/workflows/pages.yml">workflow de publicação</a>, <a href="code/analysis/package.json">package.json</a> e <a href="code/aws/user-data.sh">configuração prevista da AWS</a>.</em></p>
+<p align="center"><em>Tabela 1 — Tecnologias e versões usadas ou exigidas pelo projeto.</em></p>
 
 As versões das dependências Python são requisitos mínimos declarados em `requirements.txt`, não versões exatas travadas. A versão do JavaScript depende do navegador que abre a página.
 
@@ -62,7 +62,7 @@ As versões das dependências Python são requisitos mínimos declarados em `req
 
 <p align="center"><img src="assets/diagramas/pipeline-light.svg" alt="Etapas de processamento da imagem: entrada, tons de cinza, blur gaussiano, gradientes Sobel, magnitude e mapa de bordas PNG"></p>
 
-<p align="center"><em>Imagem 1 — Etapas do tratamento aplicado a cada imagem. Fonte: <code>assets/diagramas/pipeline-light.svg</code>.</em></p>
+<p align="center"><em>Imagem 1 — Etapas do tratamento aplicado a cada imagem.</em></p>
 
 O pipeline lê o JPG, converte para escala de cinza, aplica um blur gaussiano 5×5, calcula os gradientes Sobel horizontal e vertical, combina esses gradientes em uma magnitude de borda e grava um PNG. A implementação Python está em [`code/local/image_processor.py`](code/local/image_processor.py); a versão JavaScript está em [`code/web/assets/pipeline.js`](code/web/assets/pipeline.js).
 
@@ -70,7 +70,7 @@ O pipeline lê o JPG, converte para escala de cinza, aplica um blur gaussiano 5�
 
 <p align="center"><img src="assets/diagramas/paralelismo.svg" alt="Comparação do processamento sequencial e paralelo nos três ambientes. Cada tarefa contém uma imagem inteira, distribuída a um processo Python local, a um processo Python na EC2 ou a um Web Worker no navegador."></p>
 
-<p align="center"><em>Imagem 2 — Distribuição das mesmas imagens entre os executores dos três ambientes. Fonte: <code>assets/diagramas/paralelismo.svg</code>.</em></p>
+<p align="center"><em>Imagem 2 — Distribuição das mesmas imagens entre os executores dos três ambientes.</em></p>
 
 O trabalho é dividido **por imagem**: cada processo ou worker recebe um arquivo inteiro, aplica todas as etapas do pipeline e grava seu próprio resultado. As imagens não são subdivididas em blocos menores. Como cada imagem é independente, várias podem ser processadas ao mesmo tempo.
 
@@ -80,7 +80,7 @@ O trabalho é dividido **por imagem**: cada processo ou worker recebe um arquivo
 | AWS EC2 | [`code/aws/`](code/aws/) e o mesmo código de [`code/local/`](code/local/) | `multiprocessing.Pool`; uma imagem por processo | A `c5.large` tem 2 vCPUs; o benchmark prevê 2, 4 e 8 processos para comparar a capacidade e a sobrecarga |
 | GitHub Pages | [`code/web/`](code/web/) | Web Workers; uma imagem por worker | Navegador e CPU do computador de quem abriu a página |
 
-<p align="center"><em>Tabela 2 — Ambientes, mecanismo de paralelismo e local de execução. Fonte: implementação em <a href="code/local/">code/local/</a>, <a href="code/aws/">code/aws/</a> e <a href="code/web/">code/web/</a>.</em></p>
+<p align="center"><em>Tabela 2 — Ambientes, mecanismo de paralelismo e local de execução.</em></p>
 
 GitHub Pages hospeda os arquivos da página; ele não processa as imagens em seus servidores. O navegador processa localmente as imagens selecionadas. Na versão Python, um `Lock` protege somente o contador e o registro no CSV; o tratamento dos pixels fica fora dessa seção crítica e continua paralelo.
 
