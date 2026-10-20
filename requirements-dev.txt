@@ -1,2 +1,8 @@
+# Dependencias de desenvolvimento: as do projeto + testes.
+#   pip install -r requirements-dev.txt
+#   pytest -q
+# Os testes da web usam so o Node.js (node --test tests/web/*.test.mjs); o medidor da web
+# tambem precisa do Playwright (npm install --prefix code/analysis; ver code/analysis/package.json).
 -r requirements.txt
+
 pytest>=8.0

@@ -1,3 +1,12 @@
+# Dependencias para rodar o projeto (Python 3.10+): o pipeline em code/local/, o
+# painel em code/aws/ (na EC2) e a analise em code/analysis/.
+#   pip install -r requirements.txt
+
+# Pipeline de cada imagem: imread, cinza, blur, Sobel, magnitude, imwrite
+# (code/local/image_processor.py). Versao headless: sem GUI, roda tambem na EC2.
 opencv-python-headless>=4.9
+# Matrizes do pipeline e do gerador de imagens (code/local/generate_dataset.py).
 numpy>=1.26
+# Tamanho das imagens no benchmark e no painel (code/local/common.py, code/aws/server.py)
+# e gravacao do JPG no gerador.
 Pillow>=10.0

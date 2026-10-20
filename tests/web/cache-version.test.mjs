@@ -4,7 +4,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
 
-const web = new URL("../../web/", import.meta.url);
+const web = new URL("../../code/web/", import.meta.url);
 const files = ["index.html", ...readdirSync(new URL("assets/", web)).filter(f => f.endsWith(".js")).map(f => `assets/${f}`)];
 const sources = files.map(file => [file, readFileSync(new URL(file, web), "utf8")]);
 

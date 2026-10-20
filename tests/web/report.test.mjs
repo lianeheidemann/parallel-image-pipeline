@@ -2,7 +2,7 @@
 // Amdahl de local/benchmark.py, para comparar os ambientes numa tabela so.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { amdahlSpeedup, buildRows, datasetInfo, estimateParallelFraction, toCsv } from "../../web/assets/report.js";
+import { amdahlSpeedup, buildRows, datasetInfo, estimateParallelFraction, toCsv } from "../../code/web/assets/report.js";
 
 const close = (actual, expected) => assert.ok(Math.abs(actual - expected) < 1e-9, `${actual} != ${expected}`);
 
@@ -54,7 +54,7 @@ test("buildRows: sequencial, verificado, Amdahl e dataset", () => {
   assert.ok(rows[2].speedup_amdahl_previsto > rows[1].speedup_amdahl_previsto);
 });
 
-test("toCsv: cabecalho igual ao de results/benchmark.csv", () => {
+test("toCsv: cabecalho igual ao de output/results/benchmark.csv", () => {
   const csv = toCsv([
     { processos: 1, tempo_s: 10, speedup: 1, speedup_amdahl_previsto: 1, verificado: "", imagens: 2, resolucao: "1920x1080" },
     { processos: 2, tempo_s: 6, speedup: 1.667, speedup_amdahl_previsto: 1.667, verificado: "sim", imagens: 2, resolucao: "1920x1080" },

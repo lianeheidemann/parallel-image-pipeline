@@ -1,0 +1,17 @@
+# Texto com fim de linha normalizado no repositorio (LF), qualquer que seja o sistema.
+* text=auto
+
+# Scripts de shell sempre com LF: o code/aws/user-data.sh roda no bash da EC2, que
+# falha com CRLF (comum ao editar no Windows com core.autocrlf=true).
+*.sh text eol=lf
+
+# Binarios: sem conversao de fim de linha nem diff de texto.
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.pem binary
+
+# dataset/dataset-2000 (2000 imagens 640x480, ~530 MB) fica no Git LFS: o git guarda
+# so ponteiros e as imagens vao para o LFS (a EC2 instala o git-lfs antes do clone).
+# dataset/dataset-100 (~178 MB) fica no git normal.
+dataset/dataset-2000/*.jpg filter=lfs diff=lfs merge=lfs -text

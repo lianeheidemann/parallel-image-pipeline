@@ -1,319 +1,262 @@
-<h1 align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/logo/logo-dark.png">
-    <img src="assets/logo/logo.png" alt="Processamento Paralelo de Imagens" width="350">
-  </picture>
-</h1>
+# Pipeline de processamento paralelo de imagens
 
 <p align="center">
-  Pipeline experimental para estudar processamento de imagens, paralelismo de dados e desempenho computacional.
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/logo/logo-dark-v2.png">
+    <source media="(prefers-color-scheme: light)" srcset="assets/logo/logo.png">
+    <img src="assets/logo/logo.png" alt="Processamento Paralelo de Imagens" width="75%">
+  </picture>
 </p>
 
-<div align="center">
+<p align="center">
+  <a href="https://github.com/lianeheidemann/parallel-image-pipeline/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/lianeheidemann/parallel-image-pipeline/actions/workflows/ci.yml/badge.svg?branch=main"></a>
+  <a href="https://github.com/lianeheidemann/parallel-image-pipeline/actions/workflows/pages.yml"><img alt="Deploy GitHub Pages" src="https://github.com/lianeheidemann/parallel-image-pipeline/actions/workflows/pages.yml/badge.svg?branch=main"></a><br>
+  <img alt="Python 3.10+" src="https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white">
+  <img alt="OpenCV" src="https://img.shields.io/badge/OpenCV-4.9%2B-5C3EE8?logo=opencv&logoColor=white">
+  <img alt="NumPy" src="https://img.shields.io/badge/NumPy-1.26%2B-013243?logo=numpy&logoColor=white">
+  <img alt="JavaScript com Web Workers" src="https://img.shields.io/badge/JavaScript-Web%20Workers-F7DF1E?logo=javascript&logoColor=111111">
+  <img alt="Node.js 22" src="https://img.shields.io/badge/Node.js-22-339933?logo=nodedotjs&logoColor=white">
+  <img alt="AWS EC2" src="https://img.shields.io/badge/AWS-EC2-FF9900?logo=amazonaws&logoColor=white">
+  <img alt="GitHub Pages" src="https://img.shields.io/badge/GitHub-Pages-222222?logo=githubpages&logoColor=white">
+</p>
 
-[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![OpenCV](https://img.shields.io/badge/OpenCV-4.9%2B-5C3EE8?logo=opencv&logoColor=white)](https://opencv.org/)
-[![NumPy](https://img.shields.io/badge/NumPy-1.26%2B-013243?logo=numpy&logoColor=white)](https://numpy.org/)
-[![AWS](https://img.shields.io/badge/AWS-EC2-FF9900)](aws/)<br>
-[![CI](https://github.com/lianeheidemann/parallel-image-pipeline/actions/workflows/ci.yml/badge.svg)](https://github.com/lianeheidemann/parallel-image-pipeline/actions/workflows/ci.yml)
-[![GitHub Pages](https://github.com/lianeheidemann/parallel-image-pipeline/actions/workflows/pages.yml/badge.svg)](https://github.com/lianeheidemann/parallel-image-pipeline/actions/workflows/pages.yml)
+Este repositório implementa um pipeline que transforma imagens JPG em mapas de bordas PNG e compara sua execução sequencial e paralela, processando uma imagem inteira por tarefa. No código, você encontrará o processador e o benchmark Python local em [`code/local/`](code/local/), os scripts de preparação e o painel para AWS EC2 em [`code/aws/`](code/aws/), a aplicação JavaScript com Web Workers em [`code/web/`](code/web/), e as ferramentas que comparam as medições e geram os gráficos em [`code/analysis/`](code/analysis/). Os conjuntos de imagens estão em [`dataset/`](dataset/) e as instruções e resultados detalhados em [`doc/`](doc/).
 
-[**🌐 Experimentar no navegador**](https://lianeheidemann.github.io/parallel-image-pipeline/)
+> **Estado atual:** o código local e a página web têm medições registradas. A parte AWS está preparada no repositório, mas ainda precisa ser configurada e executada em uma instância EC2. Por isso, os gráficos não apresentam uma medição AWS.
 
+**Navegação:** [Tecnologias e versões](#tecnologias-e-versoes) · [Como funciona](#como-funciona) · [Dados e amostra](#dados-e-amostra) · [Resultados](#resultados-do-benchmark) · [Estrutura](#estrutura-do-projeto) · [Execução](#executar-e-publicar)
+
+## Tecnologias e versões
+
+<div style="width:100%; overflow-x:auto;">
+<table border="1" cellpadding="8" cellspacing="0" width="100%" style="border-collapse:collapse; color:inherit;">
+  <thead>
+    <tr>
+      <th style="border:1px solid currentColor; text-align:left;">Tecnologia</th>
+      <th style="border:1px solid currentColor; text-align:left;">Versão ou requisito</th>
+      <th style="border:1px solid currentColor; text-align:left;">Uso</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td style="border:1px solid currentColor;">Python</td><td style="border:1px solid currentColor;">3.10+; CI executa com 3.10 e 3.12</td><td style="border:1px solid currentColor;">Pipeline local e benchmark Python na AWS</td></tr>
+    <tr><td style="border:1px solid currentColor;">OpenCV (<code>opencv-python-headless</code>)</td><td style="border:1px solid currentColor;">4.9+</td><td style="border:1px solid currentColor;">Tratamento de imagem no Python</td></tr>
+    <tr><td style="border:1px solid currentColor;">NumPy</td><td style="border:1px solid currentColor;">1.26+</td><td style="border:1px solid currentColor;">Operações com matrizes de pixels</td></tr>
+    <tr><td style="border:1px solid currentColor;">Pillow</td><td style="border:1px solid currentColor;">10.0+</td><td style="border:1px solid currentColor;">Leitura, geração e gravação de imagens</td></tr>
+    <tr><td style="border:1px solid currentColor;">JavaScript</td><td style="border:1px solid currentColor;">Versão do navegador; módulos ES e Web Workers, sem versão fixada no repositório</td><td style="border:1px solid currentColor;">Pipeline e benchmark no navegador</td></tr>
+    <tr><td style="border:1px solid currentColor;">Node.js</td><td style="border:1px solid currentColor;">22 no CI</td><td style="border:1px solid currentColor;">Testes web e ferramenta de benchmark do navegador</td></tr>
+    <tr><td style="border:1px solid currentColor;">Playwright</td><td style="border:1px solid currentColor;">1.63.0</td><td style="border:1px solid currentColor;">Automação do navegador para o benchmark web</td></tr>
+    <tr><td style="border:1px solid currentColor;">AWS EC2</td><td style="border:1px solid currentColor;"><code>c5.large</code> com Ubuntu 24.04, configuração planejada</td><td style="border:1px solid currentColor;">Execução remota do benchmark Python; instância ainda não configurada</td></tr>
+    <tr><td style="border:1px solid currentColor;">GitHub Actions</td><td style="border:1px solid currentColor;"><code>checkout@v4</code>; <code>setup-python@v5</code>; <code>setup-node@v4</code>; publicação com <code>configure-pages@v5</code>, <code>upload-pages-artifact@v3</code> e <code>deploy-pages@v4</code></td><td style="border:1px solid currentColor;">CI e publicação do GitHub Pages</td></tr>
+    <tr><td style="border:1px solid currentColor;">GitHub Pages</td><td style="border:1px solid currentColor;">Serviço gerenciado, sem versão definida pelo projeto</td><td style="border:1px solid currentColor;">Hospedagem da página web</td></tr>
+  </tbody>
+</table>
 </div>
 
-## Visão geral
+<p align="center"><em>Tabela 1 — Tecnologias e versões usadas ou exigidas pelo projeto. Fonte: <a href="requirements.txt">requirements.txt</a>, <a href=".github/workflows/ci.yml">workflow de CI</a>, <a href=".github/workflows/pages.yml">workflow de publicação</a>, <a href="code/analysis/package.json">package.json</a> e <a href="code/aws/user-data.sh">configuração prevista da AWS</a>.</em></p>
 
-Este projeto compara a execução **sequencial** e **paralela** de um pipeline determinístico de processamento de imagens. Cada arquivo passa pelas mesmas operações — escala de cinza, suavização gaussiana e detecção de bordas com Sobel — para que a diferença de tempo represente principalmente a estratégia de distribuição do trabalho.
+As versões das dependências Python são requisitos mínimos declarados em `requirements.txt`, não versões exatas travadas. A versão do JavaScript depende do navegador que abre a página.
 
-O estudo combina três perspectivas:
+## Como funciona
 
-- **Processamento de imagens:** transformação dos pixels e extração de bordas;
-- **Computação paralela:** distribuição de imagens independentes entre processos ou faixas entre Web Workers;
-- **Avaliação de desempenho:** tempo, *speedup*, Lei de Amdahl e verificação de corretude.
+### Etapas do tratamento de imagem
 
-## Pipeline de processamento
+<p align="center"><img src="assets/diagramas/pipeline-light.svg" alt="Etapas de processamento da imagem: entrada, tons de cinza, blur gaussiano, gradientes Sobel, magnitude e mapa de bordas PNG"></p>
 
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/diagramas/pipeline-dark.svg?v=4">
-    <source media="(prefers-color-scheme: light)" srcset="assets/diagramas/pipeline-light.svg?v=4">
-    <img src="assets/diagramas/pipeline-light.svg?v=4" alt="Pipeline: imagem BGR, escala de cinza, blur gaussiano, Sobel X e Y, magnitude e saída PNG" width="100%">
-  </picture>
-</p>
+<p align="center"><em>Imagem 1 — Etapas do tratamento aplicado a cada imagem. Fonte: <code>assets/diagramas/pipeline-light.svg</code>.</em></p>
 
-Para cada imagem, `local/image_processor.py` executa:
+O pipeline lê o JPG, converte para escala de cinza, aplica um blur gaussiano 5×5, calcula os gradientes Sobel horizontal e vertical, combina esses gradientes em uma magnitude de borda e grava um PNG. A implementação Python está em [`code/local/image_processor.py`](code/local/image_processor.py); a versão JavaScript está em [`code/web/assets/pipeline.js`](code/web/assets/pipeline.js).
 
-1. leitura da imagem colorida em BGR;
-2. conversão para escala de cinza com `cv2.cvtColor`;
-3. suavização com `cv2.GaussianBlur` e kernel 5 × 5;
-4. cálculo dos gradientes horizontal e vertical com Sobel;
-5. combinação dos gradientes pela magnitude;
-6. limitação dos valores ao intervalo de 0 a 255;
-7. gravação do mapa de bordas em PNG.
+### Como o paralelismo é feito
 
-O blur reduz pequenas variações e ruído antes do cálculo do gradiente. O Sobel estima mudanças de intensidade nos eixos X e Y; regiões com magnitude elevada indicam contornos visuais.
+<p align="center"><img src="assets/diagramas/paralelismo.svg" alt="Comparação do processamento sequencial e paralelo nos três ambientes. Cada tarefa contém uma imagem inteira, distribuída a um processo Python local, a um processo Python na EC2 ou a um Web Worker no navegador."></p>
 
-## Arquitetura
+<p align="center"><em>Imagem 2 — Distribuição das mesmas imagens entre os executores dos três ambientes. Fonte: <code>assets/diagramas/paralelismo.svg</code>.</em></p>
 
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/diagramas/architecture-dark.svg?v=1">
-    <source media="(prefers-color-scheme: light)" srcset="assets/diagramas/architecture-light.svg?v=1">
-    <img src="assets/diagramas/architecture-light.svg?v=1" alt="Arquitetura das versões local, AWS e web do pipeline" width="100%">
-  </picture>
-</p>
+O trabalho é dividido **por imagem**: cada processo ou worker recebe um arquivo inteiro, aplica todas as etapas do pipeline e grava seu próprio resultado. As imagens não são subdivididas em blocos menores. Como cada imagem é independente, várias podem ser processadas ao mesmo tempo.
 
-A versão sequencial e a paralela em Python compartilham exatamente a mesma função de processamento. Isso evita que diferenças no algoritmo contaminem a comparação de desempenho.
+| Ambiente | Código | Execução paralela | Onde roda o cálculo |
+|---|---|---|---|
+| Python local | [`code/local/`](code/local/) | `multiprocessing.Pool`; uma imagem por processo | Núcleos da CPU do computador |
+| AWS EC2 | [`code/aws/`](code/aws/) e o mesmo código de [`code/local/`](code/local/) | `multiprocessing.Pool`; uma imagem por processo | A `c5.large` tem 2 vCPUs; o benchmark prevê 2, 4 e 8 processos para comparar a capacidade e a sobrecarga |
+| GitHub Pages | [`code/web/`](code/web/) | Web Workers; uma imagem por worker | Navegador e CPU do computador de quem abriu a página |
 
-## Ambientes de execução
+<p align="center"><em>Tabela 2 — Ambientes, mecanismo de paralelismo e local de execução. Fonte: implementação em <a href="code/local/">code/local/</a>, <a href="code/aws/">code/aws/</a> e <a href="code/web/">code/web/</a>.</em></p>
 
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/diagramas/environments-dark.svg?v=4">
-    <source media="(prefers-color-scheme: light)" srcset="assets/diagramas/environments-light.svg?v=4">
-    <img src="assets/diagramas/environments-light.svg?v=4" alt="Comparação entre Python local, AWS EC2 e GitHub Pages" width="100%">
-  </picture>
-</p>
+GitHub Pages hospeda os arquivos da página; ele não processa as imagens em seus servidores. O navegador processa localmente as imagens selecionadas. Na versão Python, um `Lock` protege somente o contador e o registro no CSV; o tratamento dos pixels fica fora dessa seção crítica e continua paralelo.
 
-> Os tempos obtidos no navegador não devem ser comparados diretamente aos tempos do Python: além do ambiente de execução, também mudam a implementação dos filtros e a granularidade das tarefas.
+#### Processamento sequencial e paralelo
 
-Para ver os três ambientes lado a lado, `python local/compare_environments.py` junta os CSVs de cada um (o da web sai pelo botão **Baixar CSV** da página) e gera `results/comparacao/comparacao.md`, com tabela e gráficos de tempo e *speedup*. Os tempos só são comparáveis com o mesmo dataset em todos os ambientes (padrão: 100 imagens de 1920×1080). Passo a passo em [`doc/como-rodar.md`](doc/como-rodar.md#4-comparar-os-ambientes-tabela--gráficos).
+No modo sequencial, uma única linha de execução processa as imagens uma após a outra. No paralelo, vários processos ou workers executam o mesmo trabalho simultaneamente em imagens diferentes. Isso pode reduzir o tempo total quando há núcleos disponíveis. O ganho não é necessariamente proporcional ao número de processos: criação e encerramento de workers, leitura e gravação de arquivos e outras etapas que não se dividem continuam tendo custo.
 
-## Estratégia de paralelismo
+O benchmark Python compara as saídas paralelas e sequenciais por SHA-256. O benchmark da página compara os pixels. As medições usam a mediana de três rodadas.
 
-### Python: uma imagem por processo
+#### Vantagens de cada ambiente
 
-O trabalho é predominantemente **CPU-bound**. Para aproveitar mais de um núcleo no CPython, o projeto utiliza processos independentes em vez de threads comuns.
+- **Python local:** usa vários núcleos da CPU para processar imagens simultaneamente. Os processos separados também permitem paralelizar trabalho intensivo em CPU sem a limitação do GIL.
+- **AWS EC2:** executa o trabalho numa máquina virtual dedicada, sem ocupar a CPU do computador local. A capacidade pode ser alterada escolhendo uma instância com mais vCPUs.
+- **GitHub Pages:** publica a demonstração sem manter um servidor de processamento. Os Web Workers processam as imagens no navegador e mantêm a interface responsiva.
 
-O `multiprocessing.Pool` mantém um conjunto de processos disponíveis. Com `chunksize=1`, cada item distribuído pelo `Pool.map` corresponde a uma imagem. Quando um processo termina, recebe a próxima imagem da fila.
+Em qualquer ambiente, o ganho depende do tamanho do lote e dos recursos disponíveis. Para poucas imagens, o custo de iniciar e coordenar processos ou workers pode reduzir o benefício.
 
-A escrita do relatório CSV e o contador de imagens concluídas formam uma seção crítica protegida por `multiprocessing.Lock`. O bloqueio envolve apenas a atualização compartilhada, mantendo o processamento pesado fora da região serializada.
+## Dados e amostra
 
-### Navegador: uma faixa por Web Worker
+### Antes e depois do tratamento
 
-Na versão web, uma imagem é dividida em faixas horizontais. A thread principal distribui essas faixas entre 2, 4 ou 8 Web Workers e monta o resultado quando as respostas chegam.
+Para visualizar o efeito do pipeline, usamos uma fotografia de paisagem nítida, salva em [`assets/exemple/`](assets/exemple/). A imagem original passa por escala de cinza, blur gaussiano e detecção de bordas Sobel:
 
-Os workers são isolados e se comunicam por mensagens. A junção final ocorre na thread principal, sem escrita concorrente direta no mesmo relatório ou buffer de saída.
+<figure align="center" style="border:1px solid currentColor; border-radius:8px; padding:10px; margin:1em 0;">
+  <p align="center">
+    <img src="assets/exemple/original.jpg" alt="Antes do processamento: fotografia original de um lago alpino cercado por montanhas" width="48%" style="border:1px solid currentColor; border-radius:6px;">
+    <img src="assets/exemple/tratada.png" alt="Depois do processamento: mapa de bordas da paisagem alpina" width="48%" style="border:1px solid currentColor; border-radius:6px;">
+  </p>
+  <figcaption align="center"><em>Imagem 3 — Antes e depois do tratamento: foto original à esquerda e mapa de bordas à direita. Fonte: foto de <a href="https://unsplash.com/photos/a-lake-surrounded-by-mountains-under-a-blue-sky-2HFe1VFPlyQ">Philip Ho / Unsplash</a>; resultado gerado pelo pipeline deste repositório.</em></figcaption>
+</figure>
 
-### AWS: o mesmo experimento em outro computador
+O dataset usado na comparação entre os três ambientes continua sendo [`dataset/dataset-100/`](dataset/dataset-100/), com **100 imagens JPG de 1920×1080**. A fotografia acima serve apenas para ilustrar o antes e depois do tratamento.
 
-A AWS não introduz um terceiro algoritmo paralelo. A instância EC2 executa o mesmo `multiprocessing` da versão local. Seu papel é oferecer um ambiente remoto padronizado e disponibilizar o arquivo `benchmark.csv` em um painel HTTP somente leitura.
+Também há [`dataset/dataset-2000/`](dataset/dataset-2000/), com **2000 imagens de 640×480**, armazenadas via Git LFS. Esse conjunto maior é usado nos benchmarks Python local e AWS; não é o dataset da comparação publicada entre os três ambientes. Para baixar seus arquivos após clonar o repositório, use `git lfs install` e `git lfs pull`.
 
-## Metodologia de desempenho
+## Resultados do benchmark
 
-O benchmark intercala as rodadas sequenciais e paralelas para reduzir o favorecimento causado por cache de disco ou variação momentânea da frequência da CPU. Para cada configuração, registra a **mediana** das rodadas.
+Os gráficos em [`output/graficos/`](output/graficos/) foram gerados a partir de [`doc/analysis/comparacao.md`](doc/analysis/comparacao.md). As medições disponíveis usam as mesmas 100 imagens e foram feitas no Intel Core i7-12700H com Windows 11 e 20 núcleos lógicos. A AWS ainda não foi medida.
 
-O ganho é calculado por:
+### Resumo comparativo
+
+<div style="width:100%; overflow-x:auto;">
+<table border="1" cellpadding="8" cellspacing="0" width="100%" style="border-collapse:collapse; color:inherit;">
+  <thead>
+    <tr>
+      <th style="border:1px solid currentColor; text-align:center;">Ambiente</th>
+      <th style="border:1px solid currentColor; text-align:center;">Sequencial</th>
+      <th style="border:1px solid currentColor; text-align:center;">Paralelo mais rápido</th>
+      <th style="border:1px solid currentColor; text-align:center;">Speedup</th>
+      <th style="border:1px solid currentColor; text-align:center;">Situação</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td style="border:1px solid currentColor; text-align:center;">Python local</td><td style="border:1px solid currentColor; text-align:center;">7,88 s</td><td style="border:1px solid currentColor; text-align:center;">2,52 s (8 processos)</td><td style="border:1px solid currentColor; text-align:center;">3,13×</td><td style="border:1px solid currentColor; text-align:center;">Medido</td></tr>
+    <tr><td style="border:1px solid currentColor; text-align:center;">AWS EC2</td><td style="border:1px solid currentColor; text-align:center;">Pendente</td><td style="border:1px solid currentColor; text-align:center;">Pendente (2, 4 e 8 processos)</td><td style="border:1px solid currentColor; text-align:center;">Pendente</td><td style="border:1px solid currentColor; text-align:center;">Benchmark ainda não executado</td></tr>
+    <tr><td style="border:1px solid currentColor; text-align:center;">GitHub Pages</td><td style="border:1px solid currentColor; text-align:center;">72,63 s</td><td style="border:1px solid currentColor; text-align:center;">8,76 s (8 Web Workers)</td><td style="border:1px solid currentColor; text-align:center;">8,29×</td><td style="border:1px solid currentColor; text-align:center;">Medido</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p align="center"><em>Tabela 3 — Resumo dos tempos e speedups por ambiente. Fonte: medições registradas em <a href="doc/analysis/comparacao.md">doc/analysis/comparacao.md</a>.</em></p>
+
+### Gráficos de desempenho
+
+#### Tempo sequencial e melhor tempo paralelo
+
+<p align="center"><img src="output/graficos/cenarios.svg" alt="Gráfico comparando o tempo sequencial e o melhor tempo paralelo nos cenários medidos"></p>
+
+<p align="center"><em>Imagem 4 — Comparação entre o tempo sequencial e o melhor tempo paralelo medido. Fonte: <code>doc/analysis/comparacao.md</code>.</em></p>
+
+#### Tempo por quantidade de processos ou Web Workers
+
+<p align="center"><img src="output/graficos/tempo.svg" alt="Gráfico de tempo para cada quantidade de processos Python ou Web Workers"></p>
+
+<p align="center"><em>Imagem 5 — Tempo medido para cada quantidade de processos ou Web Workers. Fonte: <code>doc/analysis/comparacao.md</code>.</em></p>
+
+### Fórmulas usadas nos cálculos
+
+<p align="center"><img src="assets/diagramas/formulas-desempenho.svg" alt="Fórmulas gerais de speedup, redução do tempo, tempo ideal com N executores e Lei de Amdahl"></p>
+
+<p align="center"><em>Imagem 6 — Fórmulas usadas para calcular speedup, redução do tempo e tempo ideal. Fonte: <code>assets/diagramas/formulas-desempenho.svg</code>.</em></p>
+
+`T sequencial` é o tempo com um executor; `T paralelo` é o tempo medido com vários processos ou workers. O tempo ideal é uma referência matemática: o processamento real também tem custos de coordenação e acesso a arquivos.
+
+#### Lei de Amdahl nos três ambientes
+
+<p align="center"><img src="assets/diagramas/lei-de-amdahl.svg" alt="Fórmula da Lei de Amdahl: speedup teórico em função da fração paralelizável e do número de executores" width="70%"></p>
+
+<p align="center"><em>Imagem 7 — Fórmula da Lei de Amdahl. Fonte: <code>assets/diagramas/lei-de-amdahl.svg</code>.</em></p>
+
+A Lei de Amdahl se aplica aos três ambientes porque descreve a mesma relação: uma parte do trabalho precisa ocorrer em sequência, enquanto outra pode ser dividida entre executores. Ela não depende de o executor ser um processo Python local, um processo na EC2 ou um Web Worker no navegador. Para que a estimativa seja útil, cada ambiente precisa ser medido com o mesmo trabalho sequencial e paralelo, e sua fração paralelizável `p` deve ser estimada a partir das próprias medições. O hardware e os custos de cada ambiente mudam o resultado. Na AWS, as medições ainda estão pendentes; no navegador, os tempos registrados não produzem uma estimativa Amdahl consistente, então a fórmula é válida como modelo, mas não como previsão confiável para esses dados.
+
+### Cálculos detalhados por ambiente
+
+#### Python local: cálculo sequencial e com 8 processos
+
+O tempo sequencial é a referência. Com 8 processos, o tempo caiu de 7,88 s para 2,52 s: redução de **68%** e speedup de **3,13×**. Uma aceleração ideal de 8× levaria 0,985 s. Parte do trabalho não se divide entre processos; também há custos de iniciar o pool, agendar tarefas e ler e gravar arquivos, além da disputa por CPU, memória e disco. Pela medição com 2 processos, a Lei de Amdahl estima que cerca de **79%** do trabalho é paralelizável e limita o speedup teórico a aproximadamente **4,7×**. **Os 20 processadores lógicos descrevem a máquina; 8 processos foi a maior configuração testada.** O benchmark não mediu 20 processos.
 
 ```text
-speedup = tempo_sequencial / tempo_paralelo
+Sequencial (1 processo) = 7,88 s
+Paralelo (8 processos)  = 2,52 s
+Reducao                 = (7,88 - 2,52) / 7,88 x 100 = 68,0%
+Speedup                 = 7,88 / 2,52 = 3,13x
+Tempo ideal com 8       = 7,88 / 8 = 0,985 s (aprox. 0,98 s)
 ```
 
-A Lei de Amdahl estima o limite teórico do ganho:
+#### AWS EC2: cálculo pendente
+
+A configuração AWS está preparada, mas a instância ainda não foi executada. Sem tempos sequencial e paralelo medidos na mesma EC2, não é possível calcular a redução de tempo, o speedup nem estimar a fração paralelizável. O benchmark prevê comparar 1, 2, 4 e 8 processos na `c5.large`, que tem 2 vCPUs. Assim, 4 e 8 processos excedem as vCPUs disponíveis e servem para medir o efeito dessa sobrecarga; os resultados podem ser mais lentos. Os tempos ideais são referências teóricas, não resultados do benchmark.
 
 ```text
-S(N) = 1 / ((1 - p) + p / N)
+Sequencial (1 processo) = aguardando benchmark na EC2
+Paralelo (2 processos) = aguardando benchmark na EC2
+Paralelo (4 processos) = aguardando benchmark na EC2 (acima de 2 vCPUs)
+Paralelo (8 processos) = aguardando benchmark na EC2 (acima de 2 vCPUs)
+Reducao e speedup       = calculados quando houver os tempos medidos
 ```
 
-Onde:
+#### GitHub Pages: cálculo sequencial e com 8 Web Workers
 
-- `S(N)` é o *speedup* previsto com `N` processos;
-- `p` é a fração paralelizável estimada;
-- `1 - p` representa a parte necessariamente sequencial.
-
-Mais processos não garantem aceleração proporcional. Criação de processos, comunicação, acesso ao disco, seção crítica, divisão desigual das tarefas e topologia da CPU introduzem custos adicionais.
-
-## Verificação de corretude
-
-Desempenho só é relevante se a versão paralela preservar o resultado. O `local/verify.py` calcula SHA-256 para cada par de arquivos produzido pelas execuções sequencial e paralela.
-
-A verificação byte a byte detecta:
-
-- imagens ausentes;
-- nomes divergentes;
-- diferenças nos pixels;
-- arquivos gerados de maneira incompleta ou incorreta.
-
-Se alguma configuração divergir, o benchmark termina com código de erro.
-
-## Estrutura do repositório
+O navegador levou 72,63 s sequencialmente e 8,76 s com 8 Web Workers: redução de **88%** e speedup registrado de **8,29×**. O tempo ideal para 8× seria 9,079 s, cerca de 0,32 s acima do medido. Esse resultado é o speedup calculado a partir dos tempos registrados, não uma garantia de que 8 workers sempre resultarão em mais de 8×. As medições com 2 e 8 workers também não seguem uma estimativa consistente pela Lei de Amdahl; por isso, não apresentamos um limite Amdahl para o navegador.
 
 ```text
-parallel-image-pipeline/
-├── .github/workflows/       # CI, GitHub Pages e benchmark manual no GitHub
-├── assets/
-│   ├── diagramas/           # Diagramas do README e de doc/ (claro e escuro)
-│   └── logo/                # Logos
-├── aws/
-│   ├── server.py            # Painel HTTP somente leitura
-│   └── user-data.sh         # Preparação da instância EC2
-├── dataset/                 # Imagens JPG de entrada
-├── doc/
-│   └── como-rodar.md        # Passo a passo dos 3 ambientes e da comparação
-├── local/
-│   ├── image_processor.py   # Cinza → blur → Sobel
-│   ├── sequential.py        # Execução com um processo
-│   ├── parallel.py          # Pool de processos
-│   ├── benchmark.py         # Medição, speedup e Amdahl
-│   ├── verify.py            # Verificação SHA-256
-│   ├── generate_dataset.py  # Geração do conjunto sintético
-│   ├── compare_environments.py  # Comparação entre ambientes (tabela e relatório)
-│   ├── charts.py            # Gráficos SVG da comparação
-│   └── common.py            # Caminhos e utilitários compartilhados
-├── tools/
-│   └── web-benchmark.mjs    # Roda a página web num Chromium headless e salva o CSV
-├── output/
-│   ├── sequential/          # Mapas de bordas sequenciais
-│   └── parallel/            # Mapas de bordas paralelos
-├── results/                 # Relatórios CSV e comparação entre ambientes
-├── tests/                   # Testes Python (local, aws) e web
-└── web/                     # Interface, Web Workers e exportação CSV
+Sequencial (1 thread)        = 72,63 s
+Paralelo (8 Web Workers)     = 8,76 s
+Reducao                      = (72,63 - 8,76) / 72,63 x 100 = 88,0%
+Speedup                      = 72,63 / 8,76 = 8,29x
+Tempo ideal com 8 workers    = 72,63 / 8 = 9,079 s (aprox. 9,08 s)
 ```
 
-Documentação específica:
+## Estrutura do projeto
 
-- [Como rodar os 3 códigos e comparar](doc/como-rodar.md)
-- [Execução local](local/)
-- [Versão web](web/)
-- [Implantação na AWS](aws/)
+| Pasta | Conteúdo |
+|---|---|
+| [`code/local/`](code/local/) | Pipeline Python, modos sequencial e paralelo, verificação e benchmark |
+| [`code/aws/`](code/aws/) | Script de inicialização da EC2 e painel HTTP para consultar os resultados |
+| [`code/web/`](code/web/) | Página web, pipeline JavaScript e execução com Web Workers |
+| [`code/analysis/`](code/analysis/) | Coleta dos tempos e geração do relatório e gráficos de comparação |
+| [`dataset/`](dataset/) | Conjuntos de imagens de entrada |
+| [`output/graficos/`](output/graficos/) | Gráficos SVG versionados |
+| [`doc/`](doc/) | Manual de execução e relatório detalhado das medições |
 
-## Instalação
+<p align="center"><em>Tabela 4 — Pastas principais do repositório e seus conteúdos. Fonte: organização atual dos arquivos do projeto.</em></p>
 
-Requisitos principais:
+## Executar e publicar
 
-- Python 3.10 ou superior;
-- OpenCV 4.9 ou superior;
-- NumPy 1.26 ou superior;
-- Pillow 10 ou superior.
+### AWS: configuração ainda necessária
 
-No Windows:
+O repositório inclui o script [`code/aws/user-data.sh`](code/aws/user-data.sh), que instala dependências na primeira inicialização, clona o repositório, executa os benchmarks e disponibiliza um painel pelo [`code/aws/server.py`](code/aws/server.py). **A instância EC2 ainda precisa ser criada e configurada na conta AWS**; o repositório não contém credenciais, chave privada nem resultados de uma execução AWS concluída.
+
+O guia com os passos de criação, rede, chave e execução está em [`code/aws/README.md`](code/aws/README.md). Depois da execução, o painel da instância fornece o CSV para completar o comparativo. Para testar o painel sem AWS, rode `python code/aws/server.py` e abra `http://localhost:8080/`.
+
+### Executar localmente
+
+Requisitos: Python 3.10+ e dependências listadas em [`requirements.txt`](requirements.txt).
 
 ```bash
-git clone https://github.com/lianeheidemann/parallel-image-pipeline.git
-cd parallel-image-pipeline
 python -m venv .venv
-.venv\Scripts\activate
+```
+
+Ative o ambiente virtual e instale os pacotes:
+
+```bash
+# Windows PowerShell
+.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 ```
 
-## Execução
-
-Gere um conjunto sintético de imagens:
+Rode o benchmark local com o conjunto usado na comparação:
 
 ```bash
-python local/generate_dataset.py --count 2000 --width 1920 --height 1080
+python code/local/benchmark.py --dataset dataset/dataset-100 --workers 2 4 8 --repeat 3
 ```
 
-Execute cada etapa separadamente:
+Para instruções completas sobre execução local, AWS, GitHub Pages e comparação dos cenários, consulte [`doc/manual-de-execucao.md`](doc/manual-de-execucao.md).
 
-```bash
-python local/sequential.py
-python local/parallel.py --workers 4
-python local/verify.py
-```
+### GitHub Pages
 
-Ou execute o experimento completo:
-
-```bash
-python local/benchmark.py --workers 2 4 8 --repeat 3
-```
-
-Parâmetros importantes:
-
-| Parâmetro | Função |
-|---|---|
-| `--dataset CAMINHO` | Usa outra pasta de imagens JPG |
-| `--workers 2 4 8` | Compara diferentes quantidades de processos |
-| `--repeat 3` | Define o número de rodadas por configuração |
-| `--no-verify` | Desativa a verificação das saídas |
-
-Contagens de processos superiores aos núcleos lógicos disponíveis são ignoradas pelo benchmark.
-
-## Resultados gerados
-
-| Arquivo ou pasta | Conteúdo |
-|---|---|
-| `output/sequential/` | Um mapa de bordas PNG para cada imagem |
-| `output/parallel/` | Saída equivalente produzida em paralelo |
-| `results/sequential_report.csv` | Tempo e registro da execução sequencial |
-| `results/parallel_report_N.csv` | Relatório da execução com `N` processos |
-| `results/benchmark.csv` | Tempo mediano, *speedup*, Amdahl e verificação |
-| `results/comparacao/` | Comparação entre ambientes com o mesmo dataset: CSV de cada ambiente, `comparison.csv` e `comparacao.md` |
-| `results/comparacao/graficos/` | Gráficos de tempo e *speedup* (SVG) usados no `comparacao.md` |
-
-O conjunto de referência com 2.000 imagens de 1920 × 1080 pode ocupar aproximadamente 11 GB. Tempo e armazenamento variam conforme o hardware e o formato dos arquivos.
-
-## GitHub Pages
-
-A demonstração web processa as imagens localmente no navegador: nenhum arquivo é enviado ou armazenado pelo projeto.
-
-Acesse:
-
-🔗 **https://lianeheidemann.github.io/parallel-image-pipeline/**
-
-Para executar localmente:
-
-```bash
-npx http-server web
-```
-
-## AWS EC2
-
-Configuração documentada para o AWS Academy:
-
-- região `us-east-1`;
-- Ubuntu Server 24.04 LTS;
-- instância `c5.large`;
-- volume de 30 GiB gp3;
-- `aws/user-data.sh` como *User data*.
-
-| Porta | Origem | Uso |
-|---|---|---|
-| 22/TCP | IP da equipe (`/32`) | Administração por SSH |
-| 80/TCP | `0.0.0.0/0` | Painel de resultados |
-
-A porta 22 não deve ficar aberta para a internet inteira. O painel aceita apenas consultas e não inicia novos processamentos.
-
-Para executar o painel localmente:
-
-```bash
-python aws/server.py
-```
-
-Acesse `http://localhost:8080/`.
-
-## Testes
-
-Instale as dependências de desenvolvimento:
-
-```bash
-pip install -r requirements-dev.txt
-```
-
-Execute os testes Python:
-
-```bash
-pytest -q
-```
-
-Execute os testes da versão web:
-
-```bash
-node --test tests/web/*.test.mjs
-```
-
-Os testes cobrem a Lei de Amdahl (em Python e no CSV da web), equivalência sequencial/paralela, verificação das imagens, painel HTTP, comparação entre ambientes, processamento por faixas e versionamento do cache web.
-
-## Limitações do experimento
-
-- o pipeline local aceita somente imagens JPG;
-- lotes pequenos podem não compensar o custo de criar e coordenar processos;
-- uma única imagem ocupa apenas uma tarefa no Python, independentemente do número de workers;
-- a versão web divide uma imagem em faixas e, por isso, possui granularidade diferente;
-- resultados de desempenho dependem do processador, armazenamento, carga do sistema e configuração da máquina;
-- o benchmark avalia paralelismo em uma única máquina, não processamento distribuído entre vários nós.
-
-## Licença
-
-Distribuído sob a licença [MIT](LICENSE).
+A página publicada é [lianeheidemann.github.io/parallel-image-pipeline](https://lianeheidemann.github.io/parallel-image-pipeline/). Selecione imagens e escolha o número de Web Workers para executar o benchmark no navegador. O fluxo de publicação está em [`.github/workflows/pages.yml`](.github/workflows/pages.yml) e atualiza a página quando há mudanças em `code/web/` na branch `main`.

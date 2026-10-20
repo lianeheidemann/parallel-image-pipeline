@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 390" role="img" aria-labelledby="title desc">
+<title id="title">Fórmulas para comparar processamento sequencial e paralelo</title>
+<desc id="desc">Speedup é o tempo sequencial dividido pelo tempo paralelo. A redução percentual é a diferença dos tempos dividida pelo tempo sequencial. O tempo ideal divide o tempo sequencial pelo número de executores. A Lei de Amdahl estima o speedup considerando a parte paralelizável do trabalho.</desc>
+<defs>
+  <style>
+    .card{fill:#f6f8fa;stroke:#d0d7de}.title{font:700 24px Inter,Segoe UI,Arial,sans-serif;fill:#1f2328}.label{font:600 15px Inter,Segoe UI,Arial,sans-serif;fill:#59636e}.formula{font:600 21px Inter,Segoe UI,Arial,sans-serif;fill:#0969da}.note{font:400 15px Inter,Segoe UI,Arial,sans-serif;fill:#59636e}
+    @media(prefers-color-scheme:dark){.card{fill:#161b22;stroke:#30363d}.title{fill:#e6edf3}.label,.note{fill:#8b949e}.formula{fill:#58a6ff}}
+    @media(prefers-color-scheme:light){.card{fill:#f6f8fa;stroke:#d0d7de}.title{fill:#1f2328}.label,.note{fill:#59636e}.formula{fill:#0969da}}
+  </style>
+<style>.frame{fill:none;stroke:#d0d7de;stroke-width:1.5}@media(prefers-color-scheme:dark){.frame{stroke:#6e7681}}@media(prefers-color-scheme:light){.frame{stroke:#d0d7de}}</style>
+</defs>
+<rect class="frame" x="1" y="1" width="1118" height="388" rx="12" />
+<text class="title" x="32" y="38">Fórmulas usadas na comparação</text>
+<g transform="translate(24 58)">
+  <rect class="card" width="520" height="126" rx="12" stroke-width="1.5"/>
+  <text class="label" x="22" y="34">Speedup medido</text>
+  <text class="formula" x="22" y="76">S = T sequencial ÷ T paralelo</text>
+  <text class="note" x="22" y="105">Quantas vezes a execução paralela foi mais rápida.</text>
+</g>
+<g transform="translate(576 58)">
+  <rect class="card" width="520" height="126" rx="12" stroke-width="1.5"/>
+  <text class="label" x="22" y="34">Redução do tempo</text>
+  <text class="formula" x="22" y="76">(T seq. − T paral.) ÷ T seq. × 100%</text>
+  <text class="note" x="22" y="105">Percentual de tempo economizado em relação ao sequencial.</text>
+</g>
+<g transform="translate(24 206)">
+  <rect class="card" width="520" height="126" rx="12" stroke-width="1.5"/>
+  <text class="label" x="22" y="34">Tempo ideal com N executores</text>
+  <text class="formula" x="22" y="76">T ideal = T sequencial ÷ N</text>
+  <text class="note" x="22" y="105">Referência teórica, sem custos de coordenação.</text>
+</g>
+<g transform="translate(576 206)">
+  <rect class="card" width="520" height="126" rx="12" stroke-width="1.5"/>
+  <text class="label" x="22" y="34">Lei de Amdahl</text>
+  <text class="formula" x="22" y="76">S(N) = 1 ÷ ((1 − p) + p ÷ N)</text>
+  <text class="note" x="22" y="105">p é a fração paralelizável; N é o nº de executores.</text>
+</g>
+<text class="note" x="32" y="370">T = tempo medido · N = processos ou Web Workers · S = speedup</text>
+</svg>

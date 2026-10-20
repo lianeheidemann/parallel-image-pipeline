@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="400" viewBox="0 0 720 400" role="img" aria-label="Tempo para processar o mesmo dataset em cada cenário">
+<style>@media (prefers-color-scheme: dark){rect[fill="#ffffff"]{fill:#0d1117;stroke:#30363d} text[fill="#1f2328"]{fill:#f0f3f6} text[fill="#59636e"]{fill:#9da7b3} line[stroke="#eaeef2"],line[stroke="#d0d7de"]{stroke:#30363d}}</style>
+<rect width="720" height="400" rx="8" fill="#ffffff" stroke="#d0d7de"/>
+<text x="20" y="28" style="font-family:Segoe UI,Arial,sans-serif;font-size:16px;font-weight:600" fill="#1f2328">Tempo para processar o mesmo dataset em cada cenário</text>
+<rect x="20" y="40" width="12" height="12" rx="2" fill="#59636e" fill-opacity="0.55"/>
+<text x="38.0" y="50.0" text-anchor="start" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px;font-weight:normal" fill="#1f2328">sequencial (1 processo / thread principal)</text>
+<rect x="320" y="40" width="12" height="12" rx="2" fill="#59636e"/>
+<text x="338.0" y="50.0" text-anchor="start" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px;font-weight:normal" fill="#1f2328">paralelo mais rápido (processos / Web Workers)</text>
+<line x1="60" y1="316.0" x2="700" y2="316.0" stroke="#eaeef2"/>
+<text x="54.0" y="320.0" text-anchor="end" style="font-family:Segoe UI,Arial,sans-serif;font-size:11px;font-weight:normal" fill="#59636e">0 s</text>
+<line x1="60" y1="258.5" x2="700" y2="258.5" stroke="#eaeef2"/>
+<text x="54.0" y="262.5" text-anchor="end" style="font-family:Segoe UI,Arial,sans-serif;font-size:11px;font-weight:normal" fill="#59636e">20 s</text>
+<line x1="60" y1="201.1" x2="700" y2="201.1" stroke="#eaeef2"/>
+<text x="54.0" y="205.1" text-anchor="end" style="font-family:Segoe UI,Arial,sans-serif;font-size:11px;font-weight:normal" fill="#59636e">40 s</text>
+<line x1="60" y1="143.6" x2="700" y2="143.6" stroke="#eaeef2"/>
+<text x="54.0" y="147.6" text-anchor="end" style="font-family:Segoe UI,Arial,sans-serif;font-size:11px;font-weight:normal" fill="#59636e">60 s</text>
+<line x1="60" y1="86.1" x2="700" y2="86.1" stroke="#eaeef2"/>
+<text x="54.0" y="90.1" text-anchor="end" style="font-family:Segoe UI,Arial,sans-serif;font-size:11px;font-weight:normal" fill="#59636e">80 s</text>
+<rect x="90.0" y="293.4" width="74.7" height="22.6" rx="3" fill="#3776AB" fill-opacity="0.55"/>
+<text x="127.3" y="287.4" text-anchor="middle" style="font-family:Segoe UI,Arial,sans-serif;font-size:11px;font-weight:normal" fill="#1f2328">7,88 s</text>
+<text x="127.3" y="330.0" text-anchor="middle" style="font-family:Segoe UI,Arial,sans-serif;font-size:10px;font-weight:normal" fill="#59636e">seq.</text>
+<rect x="168.7" y="308.8" width="74.7" height="7.2" rx="3" fill="#3776AB" fill-opacity="1"/>
+<text x="206.0" y="302.8" text-anchor="middle" style="font-family:Segoe UI,Arial,sans-serif;font-size:11px;font-weight:normal" fill="#1f2328">2,52 s</text>
+<text x="206.0" y="330.0" text-anchor="middle" style="font-family:Segoe UI,Arial,sans-serif;font-size:10px;font-weight:normal" fill="#59636e">8 proc.</text>
+<text x="166.7" y="360.0" text-anchor="middle" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px;font-weight:600" fill="#3776AB">Local (Python)</text>
+<text x="166.7" y="378.0" text-anchor="middle" style="font-family:Segoe UI,Arial,sans-serif;font-size:11px;font-weight:normal" fill="#59636e">Python · processos · 20 núcleos</text>
+<rect x="303.3" y="316.0" width="74.7" height="0.0" rx="3" fill="#FF9900" fill-opacity="0.55"/>
+<text x="340.7" y="310.0" text-anchor="middle" style="font-family:Segoe UI,Arial,sans-serif;font-size:11px;font-weight:normal" fill="#1f2328">0,00 s</text>
+<text x="340.7" y="330.0" text-anchor="middle" style="font-family:Segoe UI,Arial,sans-serif;font-size:10px;font-weight:normal" fill="#59636e">seq.</text>
+<rect x="382.0" y="316.0" width="74.7" height="0.0" rx="3" fill="#FF9900" fill-opacity="1"/>
+<text x="419.3" y="310.0" text-anchor="middle" style="font-family:Segoe UI,Arial,sans-serif;font-size:11px;font-weight:normal" fill="#1f2328">0,00 s</text>
+<text x="419.3" y="330.0" text-anchor="middle" style="font-family:Segoe UI,Arial,sans-serif;font-size:10px;font-weight:normal" fill="#59636e">2 proc.</text>
+<text x="380.0" y="360.0" text-anchor="middle" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px;font-weight:600" fill="#FF9900">AWS EC2 (Python)</text>
+<text x="380.0" y="378.0" text-anchor="middle" style="font-family:Segoe UI,Arial,sans-serif;font-size:11px;font-weight:normal" fill="#59636e">Python · processos · pendente</text>
+<rect x="516.7" y="107.3" width="74.7" height="208.7" rx="3" fill="#2EA44F" fill-opacity="0.55"/>
+<text x="554.0" y="101.3" text-anchor="middle" style="font-family:Segoe UI,Arial,sans-serif;font-size:11px;font-weight:normal" fill="#1f2328">72,63 s</text>
+<text x="554.0" y="330.0" text-anchor="middle" style="font-family:Segoe UI,Arial,sans-serif;font-size:10px;font-weight:normal" fill="#59636e">seq.</text>
+<rect x="595.3" y="290.8" width="74.7" height="25.2" rx="3" fill="#2EA44F" fill-opacity="1"/>
+<text x="632.7" y="284.8" text-anchor="middle" style="font-family:Segoe UI,Arial,sans-serif;font-size:11px;font-weight:normal" fill="#1f2328">8,76 s</text>
+<text x="632.7" y="330.0" text-anchor="middle" style="font-family:Segoe UI,Arial,sans-serif;font-size:10px;font-weight:normal" fill="#59636e">8 workers</text>
+<text x="593.3" y="360.0" text-anchor="middle" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px;font-weight:600" fill="#2EA44F">GitHub Pages (JavaScript)</text>
+<text x="593.3" y="378.0" text-anchor="middle" style="font-family:Segoe UI,Arial,sans-serif;font-size:11px;font-weight:normal" fill="#59636e">JavaScript · Web Workers · 20 núcleos</text>
+</svg>

@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="820" viewBox="0 0 1440 820" role="img" aria-labelledby="title desc">
+<title id="title">Como o projeto processa imagens em paralelo nos três ambientes</title>
+<desc id="desc">A comparação usa o mesmo lote de três imagens nos três ambientes. Python local e Web Workers processam as três imagens em paralelo nesta ilustração; na AWS, dois processos trabalham ao mesmo tempo e a terceira imagem aguarda na fila.</desc>
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#8c959f" /></marker>
+  <style>
+    .bg{fill:none;stroke:none}.card{fill:#f6f8fa;stroke:#d0d7de;stroke-width:1.5}.tile{fill:#fff;stroke:#8c959f;stroke-width:1.5}.blue{fill:#ddf4ff;stroke:#0969da;stroke-width:1.5}.orange{fill:#fff1e5;stroke:#bf8700;stroke-width:1.5}.green{fill:#dafbe1;stroke:#1a7f37;stroke-width:1.5}.h{font:700 30px Inter,Segoe UI,Arial,sans-serif;fill:#1f2328}.sub{font:400 17px Inter,Segoe UI,Arial,sans-serif;fill:#59636e}.head{font:700 20px Inter,Segoe UI,Arial,sans-serif;fill:#1f2328}.label{font:600 15px Inter,Segoe UI,Arial,sans-serif;fill:#1f2328}.small{font:400 13px Inter,Segoe UI,Arial,sans-serif;fill:#59636e}.tiny{font:700 12px Inter,Segoe UI,Arial,sans-serif;fill:#1f2328;text-anchor:middle}.arrow{fill:none;stroke:#8c959f;stroke-width:2;marker-end:url(#arrow)}.lane{stroke:#d0d7de;stroke-width:2}.note{font:600 15px Inter,Segoe UI,Arial,sans-serif;fill:#9a6700}
+    @media (prefers-color-scheme: dark){.card{fill:#161b22;stroke:#30363d}.tile{fill:#21262d;stroke:#6e7681}.blue{fill:#0c2d6b;stroke:#58a6ff}.orange{fill:#3d2b00;stroke:#d29922}.green{fill:#033a16;stroke:#3fb950}.h,.head,.label,.tiny{fill:#e6edf3}.sub,.small{fill:#8b949e}.arrow{stroke:#8b949e}.lane{stroke:#30363d}.note{fill:#d29922}}
+  
+@media (prefers-color-scheme: light) {.card{fill:#f6f8fa;stroke:#d0d7de}.tile{fill:#fff;stroke:#8c959f}.blue{fill:#ddf4ff;stroke:#0969da}.orange{fill:#fff1e5;stroke:#bf8700}.green{fill:#dafbe1;stroke:#1a7f37}.h,.head,.label,.tiny{fill:#1f2328}.sub,.small{fill:#59636e}.arrow{stroke:#8c959f}.lane{stroke:#d0d7de}.note{fill:#9a6700}}
+</style>
+<style>.bg{stroke:#d0d7de;stroke-width:1.5}@media(prefers-color-scheme:dark){.bg{stroke:#30363d}}</style>
+<style>.queued{fill:none;stroke:#bf8700;stroke-width:1.5;stroke-dasharray:5 4}@media(prefers-color-scheme:dark){.queued{stroke:#d29922}}@media(prefers-color-scheme:light){.queued{stroke:#bf8700}}</style>
+</defs>
+<rect class="bg" x="1" y="1" width="1438" height="818" rx="16" />
+<text class="h" x="52" y="68">Uma imagem inteira por tarefa</text>
+<text class="sub" x="52" y="98">Cada arquivo percorre o pipeline completo; a fila distribui arquivos diferentes entre os executores disponíveis.</text>
+
+
+<rect class="card" x="52" y="128" width="1336" height="132" rx="12" />
+<text class="head" x="76" y="162">O que recebe cada processo ou worker</text>
+<g transform="translate(78 182)"><rect class="tile" width="112" height="48" rx="8" /><text class="tiny" x="56" y="29">imagem.jpg</text></g>
+<path class="arrow" d="M202 206H280" />
+<g transform="translate(294 174)"><rect class="blue" width="146" height="64" rx="8" /><text class="tiny" x="73" y="27">cinza → blur</text><text class="tiny" x="73" y="46">→ Sobel ...</text></g>
+<path class="arrow" d="M454 206H532" />
+<g transform="translate(546 182)"><rect class="tile" width="112" height="48" rx="8" /><text class="tiny" x="56" y="29">bordas.png</text></g>
+<text class="small" x="708" y="199">Uma tarefa lê, transforma e grava uma imagem.</text>
+
+
+<rect class="card" x="52" y="282" width="1336" height="126" rx="12" />
+<text class="head" x="76" y="318">Sequencial</text>
+<text class="small" x="76" y="345">um executor; termina uma imagem antes da próxima</text>
+<g transform="translate(512 320)"><rect class="tile" width="116" height="52" rx="8" /><text class="tiny" x="58" y="31">imagem 1</text></g>
+<path class="arrow" d="M638 346H692" />
+<g transform="translate(706 320)"><rect class="tile" width="116" height="52" rx="8" /><text class="tiny" x="58" y="31">imagem 2</text></g>
+<path class="arrow" d="M832 346H886" />
+<g transform="translate(900 320)"><rect class="tile" width="116" height="52" rx="8" /><text class="tiny" x="58" y="31">imagem 3</text></g>
+<path class="arrow" d="M1026 346H1080" />
+<text class="label" x="1096" y="352">… uma após a outra</text>
+
+<text class="head" x="52" y="456">Paralelo: o mesmo tipo de tarefa acontece ao mesmo tempo em imagens diferentes</text>
+
+
+<rect class="card" x="52" y="482" width="426" height="224" rx="12" />
+<rect x="52" y="482" width="426" height="7" rx="4" fill="#3776ab" />
+<text class="head" x="76" y="523">1. Python local</text>
+<text class="small" x="76" y="548">multiprocessing.Pool · núcleos do seu PC</text>
+<line class="lane" x1="84" y1="576" x2="84" y2="675" />
+<g transform="translate(103 565)"><rect class="blue" width="110" height="38" rx="7" /><text class="tiny" x="55" y="24">imagem 1</text></g><text class="label" x="236" y="590">→ processo P1</text>
+<g transform="translate(103 612)"><rect class="blue" width="110" height="38" rx="7" /><text class="tiny" x="55" y="24">imagem 2</text></g><text class="label" x="236" y="637">→ processo P2</text>
+<g transform="translate(103 659)"><rect class="blue" width="110" height="38" rx="7" /><text class="tiny" x="55" y="24">imagem 3</text></g><text class="label" x="236" y="684">→ processo P3</text>
+
+
+<rect class="card" x="507" y="482" width="426" height="224" rx="12" />
+<rect x="507" y="482" width="426" height="7" rx="4" fill="#bf8700" />
+<text class="head" x="531" y="523">2. AWS EC2</text>
+<text class="small" x="531" y="548">mesmo Pool Python · vCPUs da instância</text>
+<line class="lane" x1="539" y1="576" x2="539" y2="675" />
+<g transform="translate(558 565)"><rect class="orange" width="110" height="38" rx="7" /><text class="tiny" x="55" y="24">imagem 1</text></g><text class="label" x="691" y="590">→ processo P1</text>
+<g transform="translate(558 612)"><rect class="orange" width="110" height="38" rx="7" /><text class="tiny" x="55" y="24">imagem 2</text></g><text class="label" x="691" y="637">→ processo P2</text>
+<g transform="translate(558 659)"><rect class="queued" width="110" height="38" rx="7" /><text class="tiny" x="55" y="24">imagem 3</text></g><text class="label" x="691" y="684">aguarda na fila</text>
+
+
+<rect class="card" x="962" y="482" width="426" height="224" rx="12" />
+<rect x="962" y="482" width="426" height="7" rx="4" fill="#1a7f37" />
+<text class="head" x="986" y="523">3. GitHub Pages</text>
+<text class="small" x="986" y="548">Web Workers · CPU do navegador do visitante</text>
+<line class="lane" x1="994" y1="576" x2="994" y2="675" />
+<g transform="translate(1013 565)"><rect class="green" width="110" height="38" rx="7" /><text class="tiny" x="55" y="24">imagem 1</text></g><text class="label" x="1146" y="590">→ worker 1</text>
+<g transform="translate(1013 612)"><rect class="green" width="110" height="38" rx="7" /><text class="tiny" x="55" y="24">imagem 2</text></g><text class="label" x="1146" y="637">→ worker 2</text>
+<g transform="translate(1013 659)"><rect class="green" width="110" height="38" rx="7" /><text class="tiny" x="55" y="24">imagem 3</text></g><text class="label" x="1146" y="684">→ worker 3</text>
+
+<text class="note" x="52" y="744">Mesmo lote nos três: imagens 1, 2 e 3. Na AWS (c5.large, 2 vCPUs), a terceira imagem aguarda; o benchmark ainda está pendente.</text>
+<text class="small" x="52" y="775">As imagens não são cortadas em blocos: paraleliza-se entre arquivos. Cada executor roda o pipeline completo em sua imagem.</text>
+</svg>

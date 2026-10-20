@@ -1,0 +1,13 @@
+{
+  "name": "parallel-image-pipeline-tools",
+  "private": true,
+  "description": "Medidor do cenario GitHub Pages: abre a pagina num Chromium headless (web-benchmark.mjs). Instale da raiz com: npm install --prefix code/analysis",
+  "type": "module",
+  "scripts": {
+    "test:web": "node --test ../../tests/web/*.test.mjs",
+    "benchmark:web": "node web-benchmark.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
+  }
+}

@@ -29,22 +29,11 @@ jobs:
         run: pytest -q
 
       - name: Cloud setup script syntax
-        run: bash -n aws/user-data.sh
+        run: bash -n code/aws/user-data.sh
 
-      - name: Generate sample dataset
-        run: python local/generate_dataset.py --count 20 --output dataset
-
-      - name: Run sequential pipeline
-        run: python local/sequential.py --dataset dataset --output output/sequential --report results/sequential_report.csv
-
-      - name: Run parallel pipeline
-        run: python local/parallel.py --dataset dataset --output output/parallel --report results/parallel_report.csv --workers 2
-
-      - name: Verify sequential == parallel (SHA-256)
-        run: python local/verify.py --sequential output/sequential --parallel output/parallel
-
-      - name: Benchmark (fails if any output differs)
-        run: python local/benchmark.py --dataset dataset --workers 2 --repeat 1
+      # Roda sequencial e paralelo e verifica as saidas por SHA-256 (falha se divergirem).
+      - name: Benchmark
+        run: python code/local/benchmark.py --dataset dataset/dataset-100 --workers 2 --repeat 1
 
   web:
     runs-on: ubuntu-latest

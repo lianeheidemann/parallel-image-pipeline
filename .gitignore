@@ -1,4 +1,4 @@
-# Python
+# ---- Python ----
 __pycache__/
 *.py[cod]
 *$py.class
@@ -13,42 +13,46 @@ venv/
 env/
 ENV/
 
-# Ferramentas de teste / lint / tipagem
+# Testes, lint e tipagem
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
 .coverage
 htmlcov/
 
-# IDEs / editores
+# ---- Node (code/analysis/: package.json e o medidor web-benchmark.mjs) ----
+node_modules/
+test-results/
+playwright-report/
+
+# ---- Editores e sistema operacional ----
 .vscode/
 .idea/
 *.swp
-
-# Sistema operacional
 .DS_Store
 Thumbs.db
+desktop.ini
 
-# Dados e saidas geradas pelo projeto
-dataset/*.jpg
+# Variaveis locais e chaves (ex.: labsuser.pem do AWS Academy) nunca vao para o repositorio
+.env
+*.pem
+
+# ---- Saidas geradas pelo codigo (output/) ----
+# Versionados: output/graficos/ (graficos da analise, citados em doc/analysis/comparacao.md)
+# e as pastas vazias (.gitkeep). O resto e regeravel.
 output/sequential/*.png
 output/parallel/*.png
-results/*.csv
-results/*.log
-results/setup.running
-results/*.txt
-
-# Comparacao entre ambientes: o dataset e os relatorios por imagem sao regeraveis;
-# benchmark*.csv, comparacao.md e graficos/ ficam versionados como evidencia.
-dataset-comparacao/
-results/comparacao/sequential_report.csv
-results/comparacao/parallel_report*.csv
-
-!dataset/.gitkeep
+output/results/*.csv
+output/results/*.log
+output/results/*.txt
+output/results/setup.running
+# Medicoes da analise dos 3 cenarios (code/analysis/): regeraveis; o relatorio
+# versionado fica em doc/analysis/.
+output/results/analysis/
 !output/sequential/.gitkeep
 !output/parallel/.gitkeep
-!results/.gitkeep
+!output/results/.gitkeep
 
-# web/ (npx http-server, node --test)
-web/node_modules/
-node_modules/
+# ---- Datasets ----
+# dataset/dataset-100 e versionado no git; dataset/dataset-2000 vai pelo Git LFS
+# (ver .gitattributes). Nenhum dos dois e ignorado.

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 220" role="img" aria-labelledby="title desc">
+<title id="title">Lei de Amdahl</title>
+<desc id="desc">O speedup teórico S para N executores é um dividido pela soma da fração sequencial, um menos p, com a fração paralelizável p dividida por N.</desc>
+<style>
+  .frame{fill:none;stroke:#d0d7de;stroke-width:1.5}
+  .title{font:700 22px Inter,Segoe UI,Arial,sans-serif;fill:#1f2328}
+  .equation{font:600 38px Inter,Segoe UI,Arial,sans-serif;fill:#0969da}
+  .definition{font:400 17px Inter,Segoe UI,Arial,sans-serif;fill:#59636e}
+  @media(prefers-color-scheme:dark){.frame{stroke:#6e7681}.title{fill:#e6edf3}.equation{fill:#58a6ff}.definition{fill:#8b949e}}
+  @media(prefers-color-scheme:light){.frame{stroke:#d0d7de}.title{fill:#1f2328}.equation{fill:#0969da}.definition{fill:#59636e}}
+</style>
+<rect class="frame" x="1" y="1" width="998" height="218" rx="12" />
+<text class="title" x="500" y="42" text-anchor="middle">Lei de Amdahl</text>
+<text class="equation" x="500" y="112" text-anchor="middle">S(N) = 1 / ((1 − p) + p / N)</text>
+<text class="definition" x="500" y="158" text-anchor="middle">p = fração paralelizável · 1 − p = fração sequencial · N = processos ou workers</text>
+<text class="definition" x="500" y="190" text-anchor="middle">S(N) = speedup teórico com N executores</text>
+</svg>

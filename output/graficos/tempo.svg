@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="550" viewBox="0 0 720 550" role="img" aria-label="Tempo por número de processos ou Web Workers (mesmo dataset)">
+<style>@media (prefers-color-scheme: dark){rect[fill="#ffffff"]{fill:#0d1117;stroke:#30363d} text[fill="#1f2328"]{fill:#f0f3f6} text[fill="#59636e"]{fill:#9da7b3} line[stroke="#eaeef2"],line[stroke="#d0d7de"]{stroke:#30363d}}</style>
+<rect width="720" height="550" rx="8" fill="#ffffff" stroke="#d0d7de"/>
+<text x="20" y="28" style="font-family:Segoe UI,Arial,sans-serif;font-size:16px;font-weight:600" fill="#1f2328">Tempo por número de processos ou Web Workers (mesmo dataset)</text>
+<text x="20.0" y="56.0" text-anchor="start" style="font-family:Segoe UI,Arial,sans-serif;font-size:13px;font-weight:600" fill="#3776AB">Local (Python) — multiprocessing: processos nos núcleos da CPU do PC</text>
+<text x="20.0" y="72.0" text-anchor="start" style="font-family:Segoe UI,Arial,sans-serif;font-size:11px;font-weight:normal" fill="#59636e">Python · processos · 20 núcleos</text>
+<text x="222.0" y="97.4" text-anchor="end" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px;font-weight:normal" fill="#59636e">sequencial (1 processo)</text>
+<rect x="230" y="82" width="40.1" height="22" rx="3" fill="#3776AB" fill-opacity="0.55"/>
+<text x="276.1" y="97.4" text-anchor="start" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px;font-weight:normal" fill="#1f2328">7,88 s</text>
+<text x="222.0" y="127.4" text-anchor="end" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px;font-weight:normal" fill="#59636e">2 processos</text>
+<rect x="230" y="112" width="24.3" height="22" rx="3" fill="#3776AB" fill-opacity="1"/>
+<text x="260.3" y="127.4" text-anchor="start" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px;font-weight:normal" fill="#1f2328">4,77 s</text>
+<text x="222.0" y="157.4" text-anchor="end" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px;font-weight:normal" fill="#59636e">4 processos</text>
+<rect x="230" y="142" width="15.5" height="22" rx="3" fill="#3776AB" fill-opacity="1"/>
+<text x="251.5" y="157.4" text-anchor="start" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px;font-weight:normal" fill="#1f2328">3,04 s</text>
+<text x="222.0" y="187.4" text-anchor="end" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px;font-weight:normal" fill="#59636e">8 processos</text>
+<rect x="230" y="172" width="12.8" height="22" rx="3" fill="#3776AB" fill-opacity="1"/>
+<text x="248.8" y="187.4" text-anchor="start" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px;font-weight:normal" fill="#1f2328">2,52 s</text>
+<text x="20.0" y="222.0" text-anchor="start" style="font-family:Segoe UI,Arial,sans-serif;font-size:13px;font-weight:600" fill="#FF9900">AWS EC2 (Python) — multiprocessing na c5.large (2 vCPUs)</text>
+<text x="20.0" y="238.0" text-anchor="start" style="font-family:Segoe UI,Arial,sans-serif;font-size:11px;font-weight:normal" fill="#59636e">Python · processos · pendente</text>
+<text x="222.0" y="263.4" text-anchor="end" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px;font-weight:normal" fill="#59636e">sequencial (1 processo)</text>
+<rect x="230" y="248" width="0.0" height="22" rx="3" fill="#FF9900" fill-opacity="0.55"/>
+<text x="236.0" y="263.4" text-anchor="start" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px;font-weight:normal" fill="#1f2328">0,00 s (pendente)</text>
+<text x="222.0" y="293.4" text-anchor="end" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px;font-weight:normal" fill="#59636e">2 processos</text>
+<rect x="230" y="278" width="0.0" height="22" rx="3" fill="#FF9900" fill-opacity="1"/>
+<text x="236.0" y="293.4" text-anchor="start" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px;font-weight:normal" fill="#1f2328">0,00 s (pendente)</text>
+<text x="222.0" y="323.4" text-anchor="end" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px;font-weight:normal" fill="#59636e">4 processos</text>
+<rect x="230" y="308" width="0.0" height="22" rx="3" fill="#FF9900" fill-opacity="1"/>
+<text x="236.0" y="323.4" text-anchor="start" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px;font-weight:normal" fill="#1f2328">0,00 s (pendente)</text>
+<text x="222.0" y="353.4" text-anchor="end" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px;font-weight:normal" fill="#59636e">8 processos</text>
+<rect x="230" y="338" width="0.0" height="22" rx="3" fill="#FF9900" fill-opacity="1"/>
+<text x="236.0" y="353.4" text-anchor="start" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px;font-weight:normal" fill="#1f2328">0,00 s (pendente)</text>
+<text x="20.0" y="388.0" text-anchor="start" style="font-family:Segoe UI,Arial,sans-serif;font-size:13px;font-weight:600" fill="#2EA44F">GitHub Pages (JavaScript) — Web Workers no navegador (Chromium do PC), uma imagem por worker</text>
+<text x="20.0" y="404.0" text-anchor="start" style="font-family:Segoe UI,Arial,sans-serif;font-size:11px;font-weight:normal" fill="#59636e">JavaScript · Web Workers · 20 núcleos</text>
+<text x="222.0" y="429.4" text-anchor="end" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px;font-weight:normal" fill="#59636e">sequencial (thread principal)</text>
+<rect x="230" y="414" width="370.0" height="22" rx="3" fill="#2EA44F" fill-opacity="0.55"/>
+<text x="606.0" y="429.4" text-anchor="start" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px;font-weight:normal" fill="#1f2328">72,63 s</text>
+<text x="222.0" y="459.4" text-anchor="end" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px;font-weight:normal" fill="#59636e">2 Web Workers</text>
+<rect x="230" y="444" width="121.9" height="22" rx="3" fill="#2EA44F" fill-opacity="1"/>
+<text x="357.9" y="459.4" text-anchor="start" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px;font-weight:normal" fill="#1f2328">23,93 s</text>
+<text x="222.0" y="489.4" text-anchor="end" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px;font-weight:normal" fill="#59636e">4 Web Workers</text>
+<rect x="230" y="474" width="67.8" height="22" rx="3" fill="#2EA44F" fill-opacity="1"/>
+<text x="303.8" y="489.4" text-anchor="start" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px;font-weight:normal" fill="#1f2328">13,32 s</text>
+<text x="222.0" y="519.4" text-anchor="end" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px;font-weight:normal" fill="#59636e">8 Web Workers</text>
+<rect x="230" y="504" width="44.6" height="22" rx="3" fill="#2EA44F" fill-opacity="1"/>
+<text x="280.6" y="519.4" text-anchor="start" style="font-family:Segoe UI,Arial,sans-serif;font-size:12px;font-weight:normal" fill="#1f2328">8,76 s</text>
+</svg>
