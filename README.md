@@ -137,7 +137,7 @@ Os gráficos em [`output/graficos/`](output/graficos/) foram gerados a partir de
 </table>
 </div>
 
-<p align="center"><em>Tabela 3 — Resumo dos tempos e speedups por ambiente. Fonte: medições registradas em <a href="doc/analysis/comparacao.md">doc/analysis/comparacao.md</a>.</em></p>
+<p align="center"><em>Tabela 3 — Resumo dos tempos e speedups por ambiente.</em></p>
 
 ### Gráficos de desempenho
 
@@ -145,19 +145,19 @@ Os gráficos em [`output/graficos/`](output/graficos/) foram gerados a partir de
 
 <p align="center"><img src="output/graficos/cenarios.svg" alt="Gráfico comparando o tempo sequencial e o melhor tempo paralelo nos cenários medidos"></p>
 
-<p align="center"><em>Imagem 4 — Comparação entre o tempo sequencial e o melhor tempo paralelo medido. Fonte: <code>doc/analysis/comparacao.md</code>.</em></p>
+<p align="center"><em>Imagem 4 — Comparação entre o tempo sequencial e o melhor tempo paralelo medido.</em></p>
 
 #### Tempo por quantidade de processos ou Web Workers
 
 <p align="center"><img src="output/graficos/tempo.svg" alt="Gráfico de tempo para cada quantidade de processos Python ou Web Workers"></p>
 
-<p align="center"><em>Imagem 5 — Tempo medido para cada quantidade de processos ou Web Workers. Fonte: <code>doc/analysis/comparacao.md</code>.</em></p>
+<p align="center"><em>Imagem 5 — Tempo medido para cada quantidade de processos ou Web Workers.</em></p>
 
 ### Fórmulas usadas nos cálculos
 
 <p align="center"><img src="assets/diagramas/formulas-desempenho.svg" alt="Fórmulas gerais de speedup, redução do tempo, tempo ideal com N executores e Lei de Amdahl"></p>
 
-<p align="center"><em>Imagem 6 — Fórmulas usadas para calcular speedup, redução do tempo e tempo ideal. Fonte: <code>assets/diagramas/formulas-desempenho.svg</code>.</em></p>
+<p align="center"><em>Imagem 6 — Fórmulas usadas para calcular speedup, redução do tempo e tempo ideal.</em></p>
 
 `T sequencial` é o tempo com um executor; `T paralelo` é o tempo medido com vários processos ou workers. O tempo ideal é uma referência matemática: o processamento real também tem custos de coordenação e acesso a arquivos.
 
@@ -165,7 +165,7 @@ Os gráficos em [`output/graficos/`](output/graficos/) foram gerados a partir de
 
 <p align="center"><img src="assets/diagramas/lei-de-amdahl.svg" alt="Fórmula da Lei de Amdahl: speedup teórico em função da fração paralelizável e do número de executores" width="70%"></p>
 
-<p align="center"><em>Imagem 7 — Fórmula da Lei de Amdahl. Fonte: <code>assets/diagramas/lei-de-amdahl.svg</code>.</em></p>
+<p align="center"><em>Imagem 7 — Fórmula da Lei de Amdahl.</em></p>
 
 A Lei de Amdahl se aplica aos três ambientes porque descreve a mesma relação: uma parte do trabalho precisa ocorrer em sequência, enquanto outra pode ser dividida entre executores. Ela não depende de o executor ser um processo Python local, um processo na EC2 ou um Web Worker no navegador. Para que a estimativa seja útil, cada ambiente precisa ser medido com o mesmo trabalho sequencial e paralelo, e sua fração paralelizável `p` deve ser estimada a partir das próprias medições. O hardware e os custos de cada ambiente mudam o resultado. Na AWS, as medições ainda estão pendentes; no navegador, os tempos registrados não produzem uma estimativa Amdahl consistente, então a fórmula é válida como modelo, mas não como previsão confiável para esses dados.
 
@@ -219,7 +219,7 @@ Tempo ideal com 8 workers    = 72,63 / 8 = 9,079 s (aprox. 9,08 s)
 | [`output/graficos/`](output/graficos/) | Gráficos SVG versionados |
 | [`doc/`](doc/) | Manual de execução e relatório detalhado das medições |
 
-<p align="center"><em>Tabela 4 — Pastas principais do repositório e seus conteúdos. Fonte: organização atual dos arquivos do projeto.</em></p>
+<p align="center"><em>Tabela 4 — Pastas principais do repositório e seus conteúdos.</em></p>
 
 ## Executar e publicar
 
